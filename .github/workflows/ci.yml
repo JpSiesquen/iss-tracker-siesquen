@@ -1,0 +1,62 @@
+name: CI
+
+# Cuando se dispara.
+#
+# pull_request: al abrir un PR contra main y en cada push posterior a esa
+# rama. Es la clave del flujo: el CI corre ANTES de que el codigo entre a
+# main, no despues. Con push directo solo avisaria cuando el dano ya esta
+# hecho.
+on:
+  pull_request:
+    branches: [main]
+  # push a main tambien, como red de seguridad por si algo entra sin PR.
+  push:
+    branches: [main]
+
+# Si se empuja varias veces seguidas al mismo PR, cancela las ejecuciones
+# viejas y deja solo la ultima. Ahorra minutos y evita resultados
+# contradictorios.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # El nombre del job importa: es el que hay que poner en la proteccion de
+  # rama (issue 1-8). Si no coincide exactamente, GitHub espera para siempre
+  # un check que nunca llega.
+  verificar:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Descarga el codigo del repo en la maquina virtual.
+      - name: Descargar el codigo
+        uses: actions/checkout@v4
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          # Reutiliza las dependencias entre ejecuciones: de minutos a
+          # segundos. Usa package-lock.json para saber cuando invalidar.
+          cache: npm
+
+      # npm ci, NUNCA npm install:
+      #   - instala exactamente lo del lockfile
+      #   - falla si package.json y package-lock.json no coinciden
+      #   - borra node_modules antes, sin arrastrar estado previo
+      # Ver Notas/07-npm-ci-vs-npm-install.md
+      #
+      # ignore-scripts viene de .npmrc y se respeta aqui tambien.
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Linter
+        run: npm run lint
+
+      - name: Formato
+        run: npm run format:check
+
+      # tsc -b comprueba los tipos ademas de compilar: un error de
+      # TypeScript rompe el build, no solo avisa en el editor.
+      - name: Compilar
+        run: npm run build

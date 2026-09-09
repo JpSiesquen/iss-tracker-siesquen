@@ -1,0 +1,21 @@
+# Finales de linea normalizados.
+#
+# Windows usa CRLF y Linux/macOS usan LF. Sin esto, cada sistema guarda los
+# archivos a su manera y aparecen dos problemas:
+#   - Prettier (que espera LF) marca archivos como mal formateados en Windows
+#   - El CI corre en Linux y ve diferencias que en local no existen
+#
+# * text=auto eol=lf: git guarda SIEMPRE con LF en el repositorio y entrega
+# LF al disco, en cualquier sistema. Es lo que hace que el CI y el equipo
+# vean exactamente lo mismo.
+* text=auto eol=lf
+
+# Binarios: que git no toque su contenido.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
