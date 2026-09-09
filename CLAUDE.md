@@ -63,6 +63,17 @@ Reglas de este repo:
 
 Detalle completo y fuentes en la issue #24.
 
+## Archivos locales, fuera del repo
+
+Estos existen en la máquina de Jonathan pero **no se suben** (están en `.gitignore`). Si se
+mencionan en una sesión, no busques su contenido en GitHub:
+
+- `PLAN.md` — plan de trabajo interno: fases, presupuesto, riesgos.
+- `ProyectosPotenciales.md` — ideas de proyectos siguientes, con sus fuentes de datos.
+- `Notas/` — **notas personales de estudio.** Conceptos que Jonathan quiere entender a fondo,
+  escritos con sus palabras. Cuando pida "anota esto para estudiarlo", va aquí. Su `README.md`
+  explica el formato y lista los conceptos candidatos.
+
 ## Flujo de trabajo
 
 ```
