@@ -97,12 +97,49 @@
       // El renderer crea su propio <canvas>; hay que insertarlo en el DOM.
       document.getElementById('app').appendChild(renderer.domElement);
 
-      // 4. PINTAR ----------------------------------------------------------
+      // 4. LA ESFERA -------------------------------------------------------
+      //
+      // Todo objeto visible en Three.js son dos piezas combinadas:
+      //   Geometry → la forma: dónde están los vértices   (el esqueleto)
+      //   Material → el aspecto: color, brillo, luz       (la piel)
+      //   Mesh     → geometry + material, ya colocable    (el cuerpo)
+      //
+      // Se separan para poder reutilizar: una misma geometría puede
+      // compartirse entre varios meshes con materiales distintos.
+
+      // Una esfera perfecta no existe en 3D: se aproxima con triángulos.
+      // Los segmentos dicen cuántos.
+      //   8   → claramente poligonal
+      //   32  → suave; el equilibrio habitual
+      //   128 → apenas mejor que 32, bastante más pesado
+      // Pruébalo: cambia el 32 por 8 y por 64 para verlo.
+      const geometry = new THREE.SphereGeometry(1, 32, 32);
+
+      // MeshBasicMaterial IGNORA la luz por completo: se ve del color que le
+      // digas, plano, sin volumen.
+      //
+      // Ahora mismo eso es una ventaja: todavía no hay luces en la escena, y
+      // cualquier material que sí las obedezca se vería NEGRO. En la issue #5
+      // lo cambiaremos por MeshStandardMaterial y se notará la diferencia.
+      //
+      // Three.js usa hexadecimal (0x3366ff), no cadenas ("#3366ff").
+      const material = new THREE.MeshBasicMaterial({
+        color: 0x4da3ff,
+        // wireframe: true,  ← descoméntalo para ver la malla de triángulos
+      });
+
+      const sphere = new THREE.Mesh(geometry, material);
+
+      // ⚠️ Sin esta línea la esfera existe, pero no está en la escena: no se
+      // dibuja y no hay ningún error que lo avise.
+      scene.add(sphere);
+
+      // 5. PINTAR ----------------------------------------------------------
       // La escena NO se dibuja sola. Sin esta llamada, la pantalla queda en
       // blanco por mucho que hayamos creado los tres objetos.
       renderer.render(scene, camera);
 
-      // 5. REDIMENSIONADO --------------------------------------------------
+      // 6. REDIMENSIONADO --------------------------------------------------
       window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
 
