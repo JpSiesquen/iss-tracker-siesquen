@@ -1,0 +1,10 @@
+# Formatea y lintea solo los archivos que van en este commit.
+#
+# El CI ya rechaza codigo mal formateado, pero ese aviso llega despues de
+# hacer commit, push y abrir el PR. Aqui se detecta antes de que el commit
+# exista.
+#
+# lint-staged vuelve a anadir los archivos al staging tras formatearlos,
+# asi que el commit incluye ya el resultado. Si algo falla, revierte todo
+# y el commit no se crea.
+npx lint-staged
