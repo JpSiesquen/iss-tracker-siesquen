@@ -1,10 +1,15 @@
-# Formatea y lintea solo los archivos que van en este commit.
+# 1. Bloquear archivos sensibles ANTES de nada.
+#
+# El .gitignore protege del olvido, pero `git add -f` lo ignora. En un repo
+# publico un secreto subido no se deshace: borrarlo despues no lo saca del
+# historial, y hay que rotarlo.
+node scripts/check-secrets.mjs
+
+# 2. Formatear y lintear solo los archivos que van en este commit.
 #
 # El CI ya rechaza codigo mal formateado, pero ese aviso llega despues de
-# hacer commit, push y abrir el PR. Aqui se detecta antes de que el commit
-# exista.
+# hacer commit, push y abrir el PR. Aqui se detecta antes.
 #
-# lint-staged vuelve a anadir los archivos al staging tras formatearlos,
-# asi que el commit incluye ya el resultado. Si algo falla, revierte todo
-# y el commit no se crea.
+# lint-staged vuelve a anadir los archivos al staging tras formatearlos, y
+# revierte todo si algo falla.
 npx lint-staged

@@ -27,12 +27,19 @@
     "vite": "8.2.2"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
+    "*.{ts,tsx,js,jsx,mjs,cjs}": [
       "prettier --write",
       "oxlint --deny-warnings"
     ],
-    "*.{css,json,html}": [
+    "*.{css,json,html,yml,yaml}": [
       "prettier --write"
     ]
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": true,
+    "printWidth": 90,
+    "trailingComma": "all",
+    "arrowParens": "always"
   }
 }

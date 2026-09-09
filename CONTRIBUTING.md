@@ -61,6 +61,20 @@ En consecuencia:
   días; esperar una semana elimina casi toda la ventana.
 - **Antes de añadir una dependencia**, comprobar que está mantenida y que es necesaria.
 
+## Hooks de git
+
+`npm run hooks` los instala. El hook `pre-commit` hace dos cosas:
+
+1. **Bloquea archivos sensibles** — `.env*`, `.vercel/`, `*.local.*`, `PLAN.md`, `Notas/` — y
+   detecta patrones de secreto en el contenido (`ghp_`, `sk-`, `AKIA`, claves privadas).
+2. **Formatea y linta** los archivos en staging con Prettier y oxlint.
+
+El `.gitignore` protege del olvido; este hook cubre el `git add -f`. En un repositorio público
+un secreto subido no se deshace: borrarlo después no lo saca del historial, y hay que rotarlo.
+
+⚠️ `--no-verify` se salta los hooks. Existe para emergencias reales; usarlo por costumbre
+convierte el hook en decoración.
+
 ## Flujo de trabajo
 
 ```
