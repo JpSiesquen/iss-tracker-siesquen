@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fase 0 · Three.js puro</title>
+
+    <style>
+      /* El canvas ocupa toda la ventana: sin margen del body y sin barras de scroll. */
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #05060a;
+      }
+
+      /* Three.js inserta un <canvas>; por defecto es inline y deja un hueco debajo. */
+      canvas {
+        display: block;
+      }
+    </style>
+
+    <!--
+      IMPORT MAP
+
+      El navegador no sabe qué es 'three': no es una URL ni una ruta relativa.
+      Sin bundler ni node_modules, esta tabla es lo que traduce el nombre a una URL.
+
+      Va ANTES de cualquier <script type="module"> que lo use.
+      Versión fijada, nunca 'latest': Three.js rompe cosas entre versiones menores.
+
+      Ojo: three.module.js NO es autocontenido — importa './three.core.js' como archivo
+      hermano. Funciona porque unpkg sirve los dos desde la misma carpeta. Si algún día
+      cambias de CDN, comprueba que también sirva el hermano o el import fallará.
+    -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.186.0/build/three.module.js"
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <!-- Aquí montaremos la escena en la issue #2. -->
+    <div id="app"></div>
+
+    <script type="module">
+      import * as THREE from 'three';
+
+      // Si esto imprime 186, el import map funcionó y la librería está cargada.
+      console.log('Three.js revisión:', THREE.REVISION);
+    </script>
+  </body>
+</html>
