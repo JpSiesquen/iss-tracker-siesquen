@@ -5,9 +5,11 @@ Convenciones de desarrollo del proyecto.
 ## Puesta en marcha
 
 ```bash
-npm ci          # nunca npm install (ver más abajo)
-npm run hooks   # instala los hooks de git (una vez tras clonar)
-npm run dev     # servidor en http://localhost:5173
+npm ci            # nunca npm install (ver más abajo)
+npm run hooks     # instala los hooks de git (una vez tras clonar)
+npm run dev       # servidor en http://localhost:5173
+
+npm run reinstall # npm ci, avisando antes si hay procesos que lo romperían
 ```
 
 ⚠️ **`npm run hooks` se ejecuta a mano.** Husky normalmente se instala solo con el script
@@ -31,6 +33,15 @@ Para instalar lo existente se usa `npm ci`: respeta el lockfile y falla si no co
 
 En Windows, parar el servidor de desarrollo antes: `ci` borra `node_modules` y el sistema
 bloquea los archivos que otro proceso tiene abiertos.
+
+### `npm run reinstall`
+
+En Windows, `npm ci` falla con `EPERM` si el servidor de desarrollo está corriendo: `ci` borra
+`node_modules` antes de instalar, y el sistema no deja borrar archivos que otro proceso tiene
+abiertos. La instalación queda a medias y `node_modules` inservible.
+
+`npm run reinstall` comprueba primero si hay procesos de Node del proyecto en marcha y avisa
+antes de intentarlo. En Linux y macOS no hace nada: ahí sí se pueden borrar archivos en uso.
 
 ## Seguridad de dependencias
 
