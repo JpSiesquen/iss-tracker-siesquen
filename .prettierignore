@@ -1,0 +1,12 @@
+# Generado
+dist
+node_modules
+package-lock.json
+
+# El sandbox de la Fase 0 tiene formato propio, con comentarios alineados a mano
+sandbox
+
+# Documentacion en prosa. Prettier reformatea markdown de forma cosmetica
+# (*cursiva* -> _cursiva_, alineacion de tablas) sin aportar nada, y ensucia
+# el historial de archivos que ya estaban bien.
+*.md
