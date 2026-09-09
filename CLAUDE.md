@@ -1,78 +1,65 @@
 # iss-tracker-siesquen
 
-Instrucciones de proyecto para Claude Code. Se commitea: esto lo lee todo el equipo y
-Claude Code lo carga en cada sesión. Lo personal va en `.claude/CLAUDE.local.md`, que no
-se commitea.
+Seguimiento en tiempo real de la Estación Espacial Internacional sobre un globo 3D. La posición
+se obtiene de una API pública, la órbita se propaga con SGP4 y se dibuja con WebGL.
 
-## Qué es este proyecto
+**Producción:** https://iss-tracker-siesquen.vercel.app
 
-Seguimiento en tiempo real de la Estación Espacial Internacional sobre un globo 3D. La
-posición se obtiene de una API pública, se propaga la órbita con SGP4 y se dibuja con
-WebGL en el navegador.
+## Comandos
+
+```bash
+npm ci                 # instalar (nunca npm install, ver abajo)
+npm run dev            # servidor en :5173
+npm run build          # tsc -b && vite build
+npm run lint           # oxlint
+npm run format         # prettier --write .
+npm run format:check   # lo que corre el CI
+```
+
+Antes de un `npm ci`, parar el servidor de desarrollo: `ci` borra `node_modules` y Windows
+bloquea los archivos que otro proceso tiene abiertos.
 
 ## Stack
 
-- **React 19 + TypeScript + Vite**
-- **Three.js** con React Three Fiber y `@react-three/drei` — el globo y la escena 3D
-- **TanStack Query** — datos remotos y refresco por intervalo
-- **Zod** — validación de las respuestas de la API
-- **Zustand** — estado de UI
-- **Material UI** con tema oscuro propio
-- **satellite.js** — propagación orbital SGP4
-- **Funciones serverless de Vercel** (Node + TS) — BFF que cachea los TLE
+React 19 · TypeScript · Vite 8 · oxlint (no ESLint) · Prettier
+
+Por fase, según se vaya necesitando: Three.js con React Three Fiber y drei (globo) · TanStack
+Query (datos remotos) · Zod (validación) · Zustand (estado de UI) · Material UI (interfaz) ·
+satellite.js (SGP4) · funciones serverless de Vercel (BFF que cachea los TLE).
 
 Sin base de datos: no hay estado que persistir.
 
-## Cómo se corre
+## Estructura
 
-```bash
-npm ci        # nunca npm install (ver Seguridad)
-npm run dev
+```
+src/           aplicación React
+sandbox/       experimentos de la Fase 0 en Three.js puro, sin bundler
+docs/          documentación técnica del proyecto
+api/           funciones serverless (a partir de la Fase 4)
+public/        estáticos, incluidas las texturas
 ```
 
-## Cómo se testea
-
-```bash
-npm run lint
-npm run build
-```
+`vite.config.ts` excluye `sandbox/` del escaneo de dependencias: usa un import map contra un
+CDN, que Vite no sabe resolver.
 
 ## Seguridad de dependencias
 
-⚠️ **Esto no es opcional ni teórico.** En septiembre y noviembre de 2025 el gusano
-**Shai-Hulud** comprometió unos 640 paquetes de npm: se ejecutaba solo al instalar,
-robaba tokens de npm, GitHub y nube, y con ellos publicaba versiones infectadas de los
-paquetes de la víctima. La segunda oleada borraba el directorio del usuario si no lograba
-propagarse.
+⚠️ **No es teórico.** En 2025 el gusano **Shai-Hulud** comprometió unos 640 paquetes de npm: se
+ejecutaba solo al instalar, robaba tokens de npm, GitHub y nube, y con ellos publicaba versiones
+infectadas de los paquetes de la víctima.
 
-Reglas de este repo:
-
-1. **`npm ci`, nunca `npm install`** para instalar lo existente. `ci` respeta el lockfile
-   exactamente; `install` puede resolver versiones nuevas por su cuenta.
-2. **`.npmrc` con `ignore-scripts=true`.** Instalar un paquete ejecuta sus scripts por
-   defecto, y ese es el vector del ataque. Si un paquete legítimo los necesita (binarios
-   nativos: `esbuild`, `sharp`), se instala **puntualmente y a conciencia**:
+1. **`npm ci`, nunca `npm install`** para instalar lo existente. `install` queda reservado para
+   añadir un paquete nuevo, deliberadamente.
+2. **`.npmrc` con `ignore-scripts=true`.** Instalar un paquete ejecuta sus scripts por defecto,
+   y ese es el vector. Si un paquete necesita compilar binarios nativos (`esbuild`, `sharp`):
    `npm install <pkg> --ignore-scripts=false`.
-3. **Versiones exactas, sin `^` ni `~`** (`save-exact=true`). Cada actualización debe ser
-   una decisión, no un efecto secundario.
-4. **No instalar versiones recién publicadas.** Los paquetes comprometidos se detectan en
-   horas o días; esperar una semana elimina casi toda la ventana.
-5. **`package-lock.json` siempre commiteado.** Nunca en `.gitignore`.
-6. **Antes de añadir una dependencia nueva**, comprobar que se mantiene y se usa de verdad.
-   Cada una arrastra su propio árbol.
+3. **Versiones exactas, sin `^` ni `~`** (`save-exact=true`).
+4. **No instalar versiones recién publicadas.** Los paquetes comprometidos se detectan en horas
+   o días.
+5. **`package-lock.json` siempre commiteado.**
+6. **Antes de añadir una dependencia**, comprobar que está mantenida y que es necesaria.
 
-Detalle completo y fuentes en la issue #24.
-
-## Archivos locales, fuera del repo
-
-Estos existen en la máquina de Jonathan pero **no se suben** (están en `.gitignore`). Si se
-mencionan en una sesión, no busques su contenido en GitHub:
-
-- `PLAN.md` — plan de trabajo interno: fases, presupuesto, riesgos.
-- `ProyectosPotenciales.md` — ideas de proyectos siguientes, con sus fuentes de datos.
-- `Notas/` — **notas personales de estudio.** Conceptos que Jonathan quiere entender a fondo,
-  escritos con sus palabras. Cuando pida "anota esto para estudiarlo", va aquí. Su `README.md`
-  explica el formato y lista los conceptos candidatos.
+Detalle en la issue #24.
 
 ## Flujo de trabajo
 
@@ -80,39 +67,68 @@ mencionan en una sesión, no busques su contenido en GitHub:
 issue → rama → commits → PR → CI verde → merge → issue cerrada
 ```
 
-`main` está protegida: no acepta push directo y exige el CI en verde.
+`main` está protegida: **rechaza push directo**, incluido el del dueño, y exige el check
+`verificar` en verde.
 
-- **La issue existe antes que la rama.** Si aparece algo que no cabe en ella, va en otra
-  rama, aunque sea pequeño. **Un merge = una issue.**
-- Ramas: `feat/12-descripcion-corta`, `fix/...`, `chore/...`, `docs/...`
-- Commits en Conventional Commits: `feat:`, `fix:`, `chore:`, `docs:`
-- Cierre automático **en inglés**: `Closes #12`. En español no funciona.
+- **La issue existe antes que la rama.** Si aparece algo que no cabe en ella, va en otra rama
+  aunque sea pequeño. **Un merge = una issue.**
+- Ramas: `feat/12-descripcion-corta`, `fix/…`, `chore/…`, `docs/…`
+- Commits: Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`)
+- Cierre automático **solo en inglés**: `Closes #12`. `Cierra #12` no hace nada.
+- Títulos de issue: `F-N · Descripción`, donde `F` es la fase y `N` el orden dentro de ella.
 
-Las convenciones de etiquetado están en `CONTRIBUTING.md`; el criterio completo, en el
-skill `etiquetar-issue`.
+⚠️ **Los milestones no se cierran solos** al cerrarse su última issue.
 
-## Convenciones
+Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el skill
+`etiquetar-issue`.
+
+## Convenciones de código
 
 - **Constantes con nombre, no números sueltos** en la escena 3D: `EARTH_TILT`,
   `ISS_ALTITUDE_KM`. Un `0.41` suelto no se puede revisar.
 - **Rotación en radianes.** `THREE.MathUtils.degToRad()` para convertir.
-- **Movimiento siempre con delta time**, nunca por fotograma: atarlo al framerate falsea
-  las velocidades reales.
-- **Texturas de color en sRGB; texturas de datos (normal, rugosidad) en lineal.** Confundirlo
-  es la causa habitual de un render lavado.
-- **Las texturas van en `public/`**, redimensionadas y por debajo de 1.5 MB cada una. El
-  coste real de una textura es la VRAM, no la descarga.
+- **Movimiento siempre con delta time**, nunca por fotograma: atarlo al framerate falsea las
+  velocidades reales.
+- **Texturas de color en sRGB; texturas de datos (normal, rugosidad) en lineal.** Confundirlo es
+  la causa habitual de un render lavado.
+- **Las texturas van en `public/`**, redimensionadas y por debajo de 1.5 MB. El coste real de
+  una textura es la VRAM, no la descarga.
+- **`THREE.Timer`, no `THREE.Clock`** (deprecado en r186). Timer exige `update()` antes de
+  `getDelta()`, o devuelve 0 sin avisar.
+
+## CI y despliegue
+
+`.github/workflows/ci.yml` corre en cada PR: `npm ci` → `lint` → `format:check` → `build`.
+
+⚠️ El job se llama **`verificar`** y ese nombre exacto lo exige la protección de rama. Si se
+renombra uno sin el otro, todos los PR quedan bloqueados esperando un check que nunca llega.
+
+Cada merge a `main` se despliega solo; cada PR genera una URL de preview.
+
+## Archivos locales, fuera del repo
+
+Existen en la máquina de Jonathan pero **no se suben** (están en `.gitignore`). Si se mencionan
+en una sesión, no buscar su contenido en GitHub:
+
+- `PLAN.md` — plan de trabajo interno: fases, presupuesto, riesgos.
+- `ProyectosPotenciales.md` — proyectos siguientes y sus fuentes de datos.
+- `Notas/` — **notas personales de estudio.** Cuando Jonathan pida «anota esto para
+  estudiarlo», va aquí, no a `docs/`.
+- `.env.local`, `.vercel/` — credenciales de despliegue. **Nunca commitear.**
 
 ## Cómo se presenta el proyecto
 
-El repo es público. Todo texto visible —README, descripción, títulos de issues y commits—
-se escribe como el de cualquier proyecto técnico.
+El repositorio es público. Todo texto visible —README, descripción, títulos de issues y
+commits, `CONTRIBUTING.md`— se escribe como el de cualquier proyecto profesional.
 
-**No aparece en textos públicos:** presupuesto, costes, "gratis", "plan gratuito",
-"proyecto de aprendizaje", "practicando", "mi primer proyecto con…".
+**No aparece en textos públicos:** presupuesto, costes, «gratis», «plan gratuito», «proyecto de
+aprendizaje», «practicando», «mi primer proyecto con…».
 
-Las decisiones se explican por lo que son: el BFF serverless existe porque cachea los TLE
-y evita golpear a Celestrak en cada carga, no porque no cueste dinero.
+Las decisiones se explican por lo que son: el BFF serverless existe porque cachea los TLE y
+evita golpear a Celestrak en cada carga, no porque no cueste dinero.
 
-El README destaca, en este orden: qué es y demo en vivo → lo técnicamente difícil (SGP4,
+Las secciones `## Concepto` y `## Qué aprendes` de las issues son excepción: documentan
+decisiones técnicas y ahí sí aportan.
+
+El README destacará, en este orden: qué es y demo en vivo → lo técnicamente difícil (SGP4,
 conversión de coordenadas, render en tiempo real) → arquitectura → stack.
