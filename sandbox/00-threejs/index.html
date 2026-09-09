@@ -52,6 +52,70 @@
 
       // Si esto imprime 186, el import map funcionó y la librería está cargada.
       console.log('Three.js revisión:', THREE.REVISION);
+
+      // ---------------------------------------------------------------------
+      // LOS TRES OBJETOS BASE
+      //
+      // Como un rodaje:
+      //   Scene    → el plató: contiene todo lo que existe
+      //   Camera   → la cámara: desde dónde y con qué apertura se mira
+      //   Renderer → el equipo que graba: toma escena + cámara y pinta
+      // ---------------------------------------------------------------------
+
+      // 1. LA ESCENA -------------------------------------------------------
+      const scene = new THREE.Scene();
+
+      // Color de fondo. Sin esto el canvas sería transparente y no sabríamos
+      // si el renderer está pintando o simplemente no hace nada.
+      scene.background = new THREE.Color(0x0d1b2a);
+
+      // 2. LA CÁMARA -------------------------------------------------------
+      const camera = new THREE.PerspectiveCamera(
+        75, // FOV: campo de visión vertical en grados. 50-75 es lo habitual.
+        window.innerWidth / window.innerHeight, // proporción del canvas
+        0.1, // near: más cerca de esto, no se dibuja
+        1000, // far:  más lejos de esto, tampoco
+      );
+
+      // ⚠️ La cámara nace en el origen (0,0,0). Si dejáramos ahí un objeto,
+      // la cámara quedaría DENTRO de él y no veríamos nada. La separamos.
+      //
+      // Three.js usa Y-up: X a la derecha, Y arriba, Z hacia el espectador.
+      // Por eso z = 5 aleja la cámara en nuestra dirección.
+      camera.position.z = 5;
+
+      // 3. EL RENDERER -----------------------------------------------------
+      // antialias suaviza los bordes escalonados de la geometría.
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      // Limita la densidad de píxeles. En pantallas de alta densidad el
+      // navegador renderizaría a 3x, que es 9 veces más píxeles sin que se
+      // note apenas. Volverá a aparecer en la issue #45 (rendimiento).
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // El renderer crea su propio <canvas>; hay que insertarlo en el DOM.
+      document.getElementById('app').appendChild(renderer.domElement);
+
+      // 4. PINTAR ----------------------------------------------------------
+      // La escena NO se dibuja sola. Sin esta llamada, la pantalla queda en
+      // blanco por mucho que hayamos creado los tres objetos.
+      renderer.render(scene, camera);
+
+      // 5. REDIMENSIONADO --------------------------------------------------
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+
+        // ⚠️ Obligatorio: cambiar 'aspect' a secas no hace nada, porque la
+        // matriz de proyección ya estaba calculada con el valor anterior.
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        // Al no haber bucle de animación todavía (issue #4), hay que volver
+        // a pintar a mano tras cada cambio de tamaño.
+        renderer.render(scene, camera);
+      });
     </script>
   </body>
 </html>
