@@ -115,16 +115,25 @@
       // Pruébalo: cambia el 32 por 8 y por 64 para verlo.
       const geometry = new THREE.SphereGeometry(1, 32, 32);
 
-      // MeshBasicMaterial IGNORA la luz por completo: se ve del color que le
-      // digas, plano, sin volumen.
+      // MeshStandardMaterial SÍ obedece a la luz. Hasta la issue 0-4 usábamos
+      // MeshBasicMaterial, que la ignora: por eso la esfera se veía como un
+      // disco plano. El cerebro deduce el volumen de cómo cae la luz, y sin
+      // esas pistas una esfera y un círculo son visualmente idénticos.
       //
-      // Ahora mismo eso es una ventaja: todavía no hay luces en la escena, y
-      // cualquier material que sí las obedezca se vería NEGRO. En la issue #5
-      // lo cambiaremos por MeshStandardMaterial y se notará la diferencia.
+      // ⚠️ PRUEBA ESTO: comenta las dos luces de más abajo y recarga. La
+      // esfera se verá NEGRA. No está rota — es correcto: un objeto que solo
+      // se ve por la luz que refleja, sin luz, no refleja nada.
+      //
+      // PBR = Physically Based Rendering: simula cómo se comporta la luz en el
+      // mundo real. Dos parámetros principales:
+      //   roughness (0-1) → 0 es un espejo pulido, 1 es tiza
+      //   metalness (0-1) → si el material es metálico
       //
       // Three.js usa hexadecimal (0x3366ff), no cadenas ("#3366ff").
-      const material = new THREE.MeshBasicMaterial({
+      const material = new THREE.MeshStandardMaterial({
         color: 0x4da3ff,
+        roughness: 0.8, // alto: superficie mate, como tendrá la Tierra
+        metalness: 0.0, // un planeta no es metálico
         // wireframe: true,  ← descoméntalo para ver la malla de triángulos
       });
 
@@ -134,7 +143,41 @@
       // dibuja y no hay ningún error que lo avise.
       scene.add(sphere);
 
-      // 5. EL BUCLE DE ANIMACIÓN -------------------------------------------
+      // 5. LAS LUCES -------------------------------------------------------
+      //
+      // Sin luces, un MeshStandardMaterial se ve negro. Estas dos hacen que
+      // la esfera pase de disco plano a objeto con volumen.
+
+      // DirectionalLight: rayos PARALELOS desde una dirección, como el Sol a
+      // distancia infinita. A 150 millones de km, sus rayos llegan a la
+      // Tierra prácticamente paralelos, así que el modelo es correcto.
+      //
+      // Lo que importa es la DIRECCIÓN, no la distancia: position solo define
+      // desde dónde apunta. [5,3,5] y [50,30,50] iluminan idéntico.
+      const sun = new THREE.DirectionalLight(0xffffff, 3);
+      sun.position.set(5, 3, 5);
+      scene.add(sun);
+
+      // AmbientLight: ilumina todo por igual, desde ninguna dirección. No crea
+      // volumen; solo evita que la zona en sombra sea negro absoluto.
+      //
+      // ⚠️ No la subas para "ver mejor" el lado oscuro: aplasta el degradado
+      // y se pierde justo el efecto que buscamos.
+      const ambient = new THREE.AmbientLight(0xffffff, 0.15);
+      scene.add(ambient);
+
+      // ── Por qué esto ya es el día y la noche ──────────────────────────
+      //
+      // Una esfera iluminada por una luz direccional tiene, por PURA
+      // GEOMETRÍA, una mitad iluminada y otra en sombra, con un degradado
+      // suave entre ambas. Ese degradado ES el terminador terrestre, la línea
+      // real que separa el día de la noche.
+      //
+      // En la Fase 2 no habrá que programar ningún ciclo día/noche: basta con
+      // colocar la luz. Lo que sí habrá que calcular es la posición real del
+      // Sol según la fecha y la hora.
+
+      // 6. EL BUCLE DE ANIMACIÓN -------------------------------------------
       //
       // Hasta ahora la escena se pintaba UNA vez. Para que algo se mueva hay
       // que redibujar constantemente. Este bucle es el motor de toda
@@ -185,7 +228,7 @@
       // Arrancar el bucle. Sin esta llamada, animate() nunca se ejecuta.
       animate();
 
-      // 6. REDIMENSIONADO --------------------------------------------------
+      // 7. REDIMENSIONADO --------------------------------------------------
       window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
 
