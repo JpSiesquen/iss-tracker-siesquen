@@ -6,8 +6,14 @@ Convenciones de desarrollo del proyecto.
 
 ```bash
 npm ci          # nunca npm install (ver más abajo)
+npm run hooks   # instala los hooks de git (una vez tras clonar)
 npm run dev     # servidor en http://localhost:5173
 ```
+
+⚠️ **`npm run hooks` se ejecuta a mano.** Husky normalmente se instala solo con el script
+`prepare` de npm, pero este repositorio usa `ignore-scripts=true` y ese mecanismo queda
+desactivado. Es el precio de la política de dependencias: un comando una vez por clonado, a
+cambio de que ningún paquete ejecute código sin que se le pida.
 
 | Script | Qué hace |
 | --- | --- |
