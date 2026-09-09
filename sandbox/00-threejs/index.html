@@ -134,10 +134,56 @@
       // dibuja y no hay ningún error que lo avise.
       scene.add(sphere);
 
-      // 5. PINTAR ----------------------------------------------------------
-      // La escena NO se dibuja sola. Sin esta llamada, la pantalla queda en
-      // blanco por mucho que hayamos creado los tres objetos.
-      renderer.render(scene, camera);
+      // 5. EL BUCLE DE ANIMACIÓN -------------------------------------------
+      //
+      // Hasta ahora la escena se pintaba UNA vez. Para que algo se mueva hay
+      // que redibujar constantemente. Este bucle es el motor de toda
+      // aplicación 3D interactiva; en la Fase 3 será el que mueva la ISS.
+
+      // Clock mide el tiempo entre fotogramas. Ver más abajo por qué importa.
+      const clock = new THREE.Clock();
+
+      // Velocidad expresada POR SEGUNDO, no por fotograma.
+      // 0.5 rad/s ≈ una vuelta completa cada 12.5 s (2π / 0.5).
+      const ROTATION_SPEED = 0.5;
+
+      function animate() {
+        // Pide al navegador ejecutar animate() antes del siguiente repintado.
+        //
+        // ¿Por qué no setInterval(animate, 16)?
+        //   · rAF se sincroniza con el refresco real: sin parpadeos.
+        //   · Se PAUSA solo si la pestaña pasa a segundo plano; setInterval
+        //     seguiría gastando batería dibujando algo que nadie ve.
+        //   · Se adapta a pantallas de 120 Hz o 144 Hz.
+        requestAnimationFrame(animate);
+
+        // ⚠️ EL PUNTO DE ESTA ISSUE: delta time.
+        //
+        // Escribir `sphere.rotation.y += 0.01` haría girar la esfera el DOBLE
+        // de rápido en un monitor de 120 Hz que en uno de 60 Hz: el mismo
+        // código, distinta velocidad según el hardware.
+        //
+        // getDelta() devuelve los segundos transcurridos desde el fotograma
+        // anterior (~0.016 s a 60 fps, ~0.008 s a 120 fps). Al multiplicar,
+        // el resultado es el mismo en cualquier pantalla.
+        //
+        // No es cosmético: en la Fase 3, con posiciones reales de la ISS, un
+        // movimiento atado al framerate daría una velocidad orbital errónea.
+        const delta = clock.getDelta();
+
+        // rotation se mide en RADIANES, no en grados.
+        // Una vuelta completa son 2π ≈ 6.28, no 360.
+        // Para convertir: THREE.MathUtils.degToRad(45)
+        //
+        // Rotar sobre Y gira alrededor del eje vertical, que es exactamente
+        // lo que hace la Tierra. Ese detalle vuelve en la issue #22.
+        sphere.rotation.y += ROTATION_SPEED * delta;
+
+        renderer.render(scene, camera);
+      }
+
+      // Arrancar el bucle. Sin esta llamada, animate() nunca se ejecuta.
+      animate();
 
       // 6. REDIMENSIONADO --------------------------------------------------
       window.addEventListener('resize', () => {
@@ -149,9 +195,9 @@
 
         renderer.setSize(window.innerWidth, window.innerHeight);
 
-        // Al no haber bucle de animación todavía (issue #4), hay que volver
-        // a pintar a mano tras cada cambio de tamaño.
-        renderer.render(scene, camera);
+        // Ya no hace falta repintar a mano aquí: desde la issue #4 el bucle
+        // de animación redibuja 60 veces por segundo, así que el cambio de
+        // tamaño se refleja en el siguiente fotograma.
       });
     </script>
   </body>
