@@ -34,5 +34,12 @@
     "*.{css,json,html}": [
       "prettier --write"
     ]
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": true,
+    "printWidth": 90,
+    "trailingComma": "all",
+    "arrowParens": "always"
   }
 }

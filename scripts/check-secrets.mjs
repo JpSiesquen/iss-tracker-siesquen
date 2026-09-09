@@ -30,7 +30,10 @@ const RUTAS_PROHIBIDAS = [
  */
 const PATRONES_SECRETO = [
   { patron: /\bghp_[A-Za-z0-9]{36}\b/, nombre: 'token de GitHub (classic)' },
-  { patron: /\bgithub_pat_[A-Za-z0-9_]{22,}\b/, nombre: 'token de GitHub (fine-grained)' },
+  {
+    patron: /\bgithub_pat_[A-Za-z0-9_]{22,}\b/,
+    nombre: 'token de GitHub (fine-grained)',
+  },
   { patron: /\bsk-[A-Za-z0-9]{32,}\b/, nombre: 'clave de API tipo OpenAI' },
   { patron: /\bAKIA[0-9A-Z]{16}\b/, nombre: 'clave de acceso de AWS' },
   { patron: /-----BEGIN [A-Z ]*PRIVATE KEY-----/, nombre: 'clave privada' },
