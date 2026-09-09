@@ -183,8 +183,12 @@
       // que redibujar constantemente. Este bucle es el motor de toda
       // aplicación 3D interactiva; en la Fase 3 será el que mueva la ISS.
 
-      // Clock mide el tiempo entre fotogramas. Ver más abajo por qué importa.
-      const clock = new THREE.Clock();
+      // Timer mide el tiempo entre fotogramas. Ver más abajo por qué importa.
+      //
+      // Sustituye a THREE.Clock, que está DEPRECADO desde r186. Una API
+      // deprecada sigue funcionando, pero su autor avisa de que dejará de
+      // mantenerse y acabará desapareciendo: es una cuenta atrás, no un error.
+      const timer = new THREE.Timer();
 
       // Velocidad expresada POR SEGUNDO, no por fotograma.
       // 0.5 rad/s ≈ una vuelta completa cada 12.5 s (2π / 0.5).
@@ -212,7 +216,12 @@
         //
         // No es cosmético: en la Fase 3, con posiciones reales de la ISS, un
         // movimiento atado al framerate daría una velocidad orbital errónea.
-        const delta = clock.getDelta();
+        //
+        // ⚠️ update() PRIMERO. Es la diferencia con el antiguo Clock: sin esta
+        // llamada, getDelta() devuelve siempre 0 y la animación se queda
+        // congelada, sin ningún error que lo explique.
+        timer.update();
+        const delta = timer.getDelta();
 
         // rotation se mide en RADIANES, no en grados.
         // Una vuelta completa son 2π ≈ 6.28, no 360.
