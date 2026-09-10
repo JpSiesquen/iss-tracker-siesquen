@@ -1,6 +1,7 @@
 import { ISS_STALE_WARNING_MS } from '../api/constants';
 import { formatAge, useDataAge } from '../api/useDataAge';
 import { useIssPosition } from '../api/useIssPosition';
+import { useTle } from '../api/useTle';
 
 import './StatusPanel.css';
 
@@ -93,7 +94,48 @@ export function StatusPanel() {
         {viejo || isError ? 'Última posición conocida: ' : 'Actualizado '}
         {antiguedad !== null ? formatAge(antiguedad) : ''}
       </span>
+
+      <TleEstado />
     </div>
+  );
+}
+
+/**
+ * Estado de los elementos orbitales que sirve el BFF.
+ *
+ * ## Por qué es un componente aparte y no unas líneas más arriba
+ *
+ * Porque su ritmo es distinto. La posición se refresca cada cinco segundos y
+ * repinta el panel; los elementos se piden una vez cada seis horas. Aislarlos
+ * en su propio componente evita que un dato que no cambia se vuelva a
+ * renderizar sesenta veces por hora sin motivo.
+ *
+ * Es la misma idea que separa las dos consultas: **datos distintos, ritmos
+ * distintos.**
+ *
+ * ## Qué muestra
+ *
+ * Solo se hace notar cuando hay algo que decir. Con todo en orden basta con el
+ * nombre del objeto y la antigüedad de sus elementos; si el BFF no pudo
+ * actualizar y está sirviendo el último dato conocido, lo dice.
+ */
+function TleEstado() {
+  const { elementos, esObsoleto, edadMs, isError } = useTle();
+
+  if (isError) {
+    return (
+      <span className="panel__detalle panel__detalle--aviso">Sin datos orbitales</span>
+    );
+  }
+
+  if (!elementos) return null;
+
+  return (
+    <span className={`panel__detalle ${esObsoleto ? 'panel__detalle--aviso' : ''}`}>
+      {elementos.OBJECT_NAME} · órbita{' '}
+      {edadMs !== undefined ? formatAge(edadMs).replace('hace ', '') : '—'}
+      {esObsoleto ? ' (sin actualizar)' : ''}
+    </span>
   );
 }
 
