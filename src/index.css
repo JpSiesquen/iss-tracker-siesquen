@@ -8,9 +8,16 @@
   line-height: 1.5;
 }
 
+/* La cadena de altura que necesita el <Canvas>: sin esto mide cero. */
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
   margin: 0;
-  min-height: 100vh;
+  overflow: hidden; /* el globo ocupa la ventana: no queremos scroll */
   background: #05060a;
   color: #e8eaed;
 }

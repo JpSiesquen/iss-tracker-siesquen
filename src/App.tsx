@@ -1,11 +1,11 @@
 import './App.css';
+import { Scene } from './scene/Scene';
 
 function App() {
   return (
-    <main className="app">
-      <h1>ISS Tracker</h1>
-      <p>Seguimiento en tiempo real de la Estación Espacial Internacional.</p>
-    </main>
+    <div className="app">
+      <Scene />
+    </div>
   );
 }
 
