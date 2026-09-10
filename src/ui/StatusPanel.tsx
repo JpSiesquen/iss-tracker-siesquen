@@ -1,42 +1,44 @@
 import Box from '@mui/material/Box';
-import type { ReactNode } from 'react';
 import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import type { ReactNode } from 'react';
 
-import { ISS_STALE_WARNING_MS } from '../api/constants';
-import { formatAge, useDataAge } from '../api/useDataAge';
-import { useIssPosition } from '../api/useIssPosition';
+import { useIssTelemetry } from '../api/useIssTelemetry';
 import { useTle } from '../api/useTle';
+import {
+  formatAge,
+  formatAltitude,
+  formatCoordinate,
+  formatSpeedKmh,
+  formatSpeedKms,
+} from './format';
 
 import './StatusPanel.css';
 
 /**
- * Avisos de carga, error y antigüedad del dato.
+ * El panel de telemetría: dónde está la ISS, a qué altura y a qué velocidad.
+ *
+ * Es lo que convierte una animación bonita en una herramienta.
  *
  * ## Por qué va fuera del <Canvas>
  *
  * Es HTML normal, y dentro del Canvas solo viven objetos de Three.js. Se
- * superpone al globo con CSS. Son dos árboles que conviven: React DOM fuera,
- * R3F dentro.
+ * superpone al globo con `position: absolute`.
  *
- * ## Por qué llama a useIssPosition en vez de recibir props
+ * ## De dónde salen los números
  *
- * La `queryKey` de #27 hace que dos componentes que pidan el mismo dato
- * compartan UNA petición y una copia. Este panel y el marcador 3D consultan lo
- * mismo sin coordinarse ni duplicar tráfico — comprobado en #27: tres
- * observadores, cero peticiones extra.
+ * Del mismo cálculo SGP4 que mueve el marcador (#37), no de una API. Lo que se
+ * lee aquí y lo que se ve ahí son el mismo dato, así que no pueden discrepar.
+ *
+ * ## Colocación
+ *
+ * Arriba a la izquierda, nunca centrado: el globo es el protagonista y la zona
+ * central es donde se mira.
  */
 export function StatusPanel() {
-  const { data, isPending, isError, error, dataUpdatedAt } = useIssPosition();
-  const antiguedad = useDataAge(dataUpdatedAt || undefined);
+  const posicion = useIssTelemetry();
+  const { elementos, esObsoleto, edadMs, isError, isPending } = useTle();
 
-  /**
-   * Primera carga: todavía no hay ningún dato.
-   *
-   * ⚠️ `isPending`, no `isFetching`. `isFetching` también es cierto durante
-   * los refrescos de cada cinco segundos, así que usarlo aquí haría parpadear
-   * el aviso continuamente aunque todo funcione. Esa distinción se midió en
-   * #27: `isPending` vuelve a true 0 veces tras el primer dato.
-   */
   if (isPending) {
     return (
       <PanelBase role="status">
@@ -47,60 +49,71 @@ export function StatusPanel() {
   }
 
   /**
-   * Error sin ningún dato previo: no hay nada que enseñar.
+   * Sin elementos orbitales no se puede calcular nada.
    *
    * El mensaje responde tres cosas: qué pasó, qué se está haciendo y qué
-   * significa. «Reintentando» no es un adorno: Query reintenta de verdad, y
-   * el refresco de cinco segundos sigue activo.
+   * significa. «Reintentando» no es un adorno — Query reintenta de verdad.
    */
-  if (isError && !data) {
+  if (isError || !elementos || !posicion) {
     return (
       <PanelBase role="alert" borderColor="rgb(255 69 58 / 0.45)">
-        <strong>No se pudo obtener la posición de la ISS.</strong>
-        <span className="panel__detalle">
-          Reintentando… {error instanceof Error ? error.message : ''}
-        </span>
+        <Typography component="span" variant="body2" sx={{ fontWeight: 600 }}>
+          No se pudieron obtener los datos orbitales.
+        </Typography>
+        <span className="panel__detalle">Reintentando…</span>
       </PanelBase>
     );
   }
 
-  if (!data) return null;
-
-  /**
-   * Hay datos, pero puede que viejos.
-   *
-   * Este es el fallo peculiar de un tracker en vivo: si la conexión se corta,
-   * la última posición conocida se queda en pantalla **como si fuera actual**.
-   * El usuario ve un dato de hace minutos creyendo que es de ahora.
-   *
-   * En datos en vivo, la antigüedad del dato es parte del dato.
-   */
-  const viejo = antiguedad !== null && antiguedad > ISS_STALE_WARNING_MS;
-
   return (
     <PanelBase
       role="status"
-      borderColor={viejo || isError ? 'rgb(255 159 10 / 0.45)' : undefined}
+      borderColor={esObsoleto ? 'rgb(255 159 10 / 0.45)' : undefined}
     >
-      <span
-        className={`panel__punto ${viejo || isError ? 'panel__punto--aviso' : 'panel__punto--vivo'}`}
+      <Box
+        component="span"
+        className={`panel__punto ${esObsoleto ? 'panel__punto--aviso' : 'panel__punto--vivo'}`}
       />
 
-      <span className="panel__coords">
-        {formatCoord(data.latitude, 'N', 'S')} {formatCoord(data.longitude, 'E', 'O')}
-      </span>
+      <Typography
+        component="span"
+        variant="caption"
+        color="text.secondary"
+        sx={{ letterSpacing: '0.08em', textTransform: 'uppercase' }}
+      >
+        {elementos.OBJECT_NAME}
+      </Typography>
 
-      <span className="panel__detalle">
-        {data.altitude.toFixed(0)} km · {(data.velocity / 3600).toFixed(2)} km/s
-      </span>
+      {/* Las coordenadas son el dato principal: mayor y con más peso. */}
+      <Box className="panel__coords">
+        {formatCoordinate(posicion.latitude, 'N', 'S')}{' '}
+        {formatCoordinate(posicion.longitude, 'E', 'O')}
+      </Box>
 
-      <span className="panel__detalle">
-        {viejo || isError ? 'Última posición conocida: ' : 'Actualizado '}
-        {antiguedad !== null ? formatAge(antiguedad) : ''}
-      </span>
+      <Dato etiqueta="Altitud" valor={formatAltitude(posicion.altitude)} />
 
-      <TleEstado />
+      {/* Las dos velocidades dicen cosas distintas: km/h comunica magnitud a
+          cualquiera, km/s es la cifra que usa quien conoce el tema. */}
+      <Dato etiqueta="Velocidad" valor={formatSpeedKmh(posicion.speed)} />
+      <Dato etiqueta="" valor={formatSpeedKms(posicion.speed)} />
+
+      <span className={`panel__detalle ${esObsoleto ? 'panel__detalle--aviso' : ''}`}>
+        Órbita {edadMs !== undefined ? formatAge(edadMs).replace('hace ', '') : '—'}
+        {esObsoleto ? ' · sin actualizar' : ''}
+      </span>
     </PanelBase>
+  );
+}
+
+/** Una fila de etiqueta y valor. */
+function Dato({ etiqueta, valor }: { etiqueta: string; valor: string }) {
+  return (
+    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between' }}>
+      <Box component="span" sx={{ color: 'text.secondary' }}>
+        {etiqueta}
+      </Box>
+      <Box component="span">{valor}</Box>
+    </Box>
   );
 }
 
@@ -134,9 +147,10 @@ function PanelBase({
         zIndex: 1,
         display: 'flex',
         flexDirection: 'column',
-        gap: '0.15rem',
+        gap: 0.4,
         px: 1.75,
         py: 1.25,
+        minWidth: 210,
         fontSize: '0.8rem',
         lineHeight: 1.45,
         pointerEvents: 'none',
@@ -146,53 +160,4 @@ function PanelBase({
       {children}
     </Paper>
   );
-}
-
-/**
- * Estado de los elementos orbitales que sirve el BFF.
- *
- * ## Por qué es un componente aparte y no unas líneas más arriba
- *
- * Porque su ritmo es distinto. La posición se refresca cada cinco segundos y
- * repinta el panel; los elementos se piden una vez cada seis horas. Aislarlos
- * en su propio componente evita que un dato que no cambia se vuelva a
- * renderizar sesenta veces por hora sin motivo.
- *
- * Es la misma idea que separa las dos consultas: **datos distintos, ritmos
- * distintos.**
- *
- * ## Qué muestra
- *
- * Solo se hace notar cuando hay algo que decir. Con todo en orden basta con el
- * nombre del objeto y la antigüedad de sus elementos; si el BFF no pudo
- * actualizar y está sirviendo el último dato conocido, lo dice.
- */
-function TleEstado() {
-  const { elementos, esObsoleto, edadMs, isError } = useTle();
-
-  if (isError) {
-    return (
-      <span className="panel__detalle panel__detalle--aviso">Sin datos orbitales</span>
-    );
-  }
-
-  if (!elementos) return null;
-
-  return (
-    <span className={`panel__detalle ${esObsoleto ? 'panel__detalle--aviso' : ''}`}>
-      {elementos.OBJECT_NAME} · órbita{' '}
-      {edadMs !== undefined ? formatAge(edadMs).replace('hace ', '') : '—'}
-      {esObsoleto ? ' (sin actualizar)' : ''}
-    </span>
-  );
-}
-
-/**
- * Formatea una coordenada con su hemisferio.
- *
- * Se usa el signo para elegir la letra en vez de mostrarlo: «12.05° S» se lee
- * mejor que «-12.05°», y es como lo escriben las cartas náuticas.
- */
-function formatCoord(valor: number, positivo: string, negativo: string) {
-  return `${Math.abs(valor).toFixed(2)}° ${valor >= 0 ? positivo : negativo}`;
 }

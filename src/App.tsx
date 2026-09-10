@@ -14,7 +14,7 @@ import { StatusPanel } from './ui/StatusPanel';
  *
  * El <Canvas> de R3F abre un arbol de objetos de Three.js donde no valen
  * etiquetas HTML, pero sigue siendo React: el contexto lo atraviesa sin
- * problema. Por eso un componente 3D puede llamar a useIssPosition() aunque el
+ * problema. Por eso un componente 3D puede usar los hooks de datos aunque el
  * proveedor este fuera del lienzo.
  */
 function App() {

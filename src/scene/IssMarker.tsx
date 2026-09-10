@@ -5,7 +5,7 @@ import { Vector3, type Group, type Mesh } from 'three';
 import { altitudeToRadius, latLonToVector3 } from '../lib/coordinates';
 import { propagateToGeodetic } from '../lib/orbit';
 import { GroundTrack } from './GroundTrack';
-import { useSatrec } from './useSatrec';
+import { useSatrecFromTle } from '../api/useSatrecFromTle';
 import { useSceneTime } from './sceneTime';
 import {
   ISS_MARKER_COLOR,
@@ -36,7 +36,7 @@ export function IssMarker() {
   const grupoRef = useRef<Group>(null);
   const meshRef = useRef<Mesh>(null);
   const tiempo = useSceneTime();
-  const satrec = useSatrec();
+  const satrec = useSatrecFromTle();
 
   /**
    * Si ya se colocó el marcador alguna vez.
