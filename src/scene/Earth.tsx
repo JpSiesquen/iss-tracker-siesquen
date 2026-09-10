@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
 import { SRGBColorSpace, type Mesh } from 'three';
 
+import { useUiStore } from '../store/ui';
 import { DebugMarkers } from './DebugMarkers';
 import { useSceneTime } from './sceneTime';
 import { IssMarker } from './IssMarker';
@@ -31,6 +32,7 @@ import {
 export function Earth() {
   const meshRef = useRef<Mesh>(null);
   const tiempo = useSceneTime();
+  const verReferencias = useUiStore((s) => s.verReferencias);
 
   /**
    * Un material PBR combina varias texturas, cada una controlando una propiedad
@@ -146,7 +148,7 @@ export function Earth() {
             punto fijo de la superficie si debe girar con el planeta.
 
             import.meta.env.DEV desaparece al compilar para produccion. */}
-        {import.meta.env.DEV && <DebugMarkers />}
+        {import.meta.env.DEV && verReferencias && <DebugMarkers />}
       </mesh>
 
       {/* La ISS: hermana del mesh, no hija. Hereda la inclinación del grupo

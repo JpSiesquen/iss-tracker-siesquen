@@ -6,6 +6,7 @@ import { altitudeToRadius, latLonToVector3 } from '../lib/coordinates';
 import { propagateToGeodetic } from '../lib/orbit';
 import { GroundTrack } from './GroundTrack';
 import { useSatrecFromTle } from '../api/useSatrecFromTle';
+import { useUiStore } from '../store/ui';
 import { useSceneTime } from './sceneTime';
 import {
   ISS_MARKER_COLOR,
@@ -37,6 +38,15 @@ export function IssMarker() {
   const meshRef = useRef<Mesh>(null);
   const tiempo = useSceneTime();
   const satrec = useSatrecFromTle();
+
+  /**
+   * Selector, no el store entero.
+   *
+   * `useUiStore((s) => s.verOrbita)` suscribe este componente SOLO a ese
+   * campo: alternar el panel no lo re-renderiza. Con el store completo
+   * —`useUiStore()`— cualquier cambio provocaría un render aquí.
+   */
+  const verOrbita = useUiStore((s) => s.verOrbita);
 
   /**
    * Si ya se colocó el marcador alguna vez.
@@ -100,7 +110,7 @@ export function IssMarker() {
       {/* La traza comparte el propagador y la jerarquía del marcador: ambos
           derivan del mismo cálculo, así que pasar por el mismo punto no es una
           coincidencia afortunada sino una consecuencia estructural. */}
-      <GroundTrack satrec={satrec} />
+      {verOrbita && <GroundTrack satrec={satrec} />}
 
       {/* El grupo separa responsabilidades: la rotación terrestre va en el
           grupo, la posición orbital en el mesh. Mezclarlas obligaría a
