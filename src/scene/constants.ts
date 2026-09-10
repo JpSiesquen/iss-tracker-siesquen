@@ -22,14 +22,17 @@ export const EARTH_RADIUS = 1;
 export const EARTH_SEGMENTS = 64;
 
 /**
- * Posición del Sol. Lo que importa es la DIRECCIÓN, no la distancia: una
- * DirectionalLight emite rayos paralelos, así que [5,3,5] y [50,30,50]
- * iluminan idéntico.
+ * Distancia a la que se coloca la luz del Sol, en unidades de escena.
  *
- * Es una posición inventada. La real depende de la fecha y la hora, y
- * calcularla es lo que hará la issue 2-5.
+ * Solo importa la DIRECCIÓN: una luz direccional emite rayos paralelos, así que
+ * 10 y 100 iluminan idéntico. Pero Three.js necesita una posición concreta para
+ * derivar esa dirección, y este valor la deja claramente fuera del globo.
+ *
+ * ⚠️ La posición ya no se elige: la calcula `sunDirection()` a partir de la
+ * fecha (issue #77). Antes era un `[5, 3, 5]` inventado, y con él había una
+ * cara del planeta permanentemente en sombra.
  */
-export const SUN_POSITION: [number, number, number] = [5, 3, 5];
+export const SUN_DISTANCE = 10;
 
 /**
  * Intensidad del Sol.
