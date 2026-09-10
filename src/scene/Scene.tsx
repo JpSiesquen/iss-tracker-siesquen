@@ -1,5 +1,8 @@
 import { Canvas } from '@react-three/fiber';
 
+import { Earth } from './Earth';
+import { Lights } from './Lights';
+
 /**
  * El <Canvas> de React Three Fiber crea por nosotros tres de las cosas que en
  * la Fase 0 se escribieron a mano (ver docs/00-threejs-basico.md):
@@ -30,12 +33,8 @@ export function Scene() {
       // El espacio no es gris.
       style={{ background: '#05060a' }}
     >
-      {/* Provisional: confirma que el renderer pinta. Se sustituye por la
-          Tierra en la issue 2-2. */}
-      <mesh>
-        <sphereGeometry args={[1, 32, 32]} />
-        <meshBasicMaterial color="#4da3ff" wireframe />
-      </mesh>
+      <Lights />
+      <Earth />
     </Canvas>
   );
 }
