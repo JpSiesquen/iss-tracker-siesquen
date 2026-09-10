@@ -1,0 +1,33 @@
+{
+  /* Las funciones serverless de api/. Se comprueban aparte de src/ porque
+     corren en un entorno distinto: no hay DOM ni JSX, y sí hay APIs de Node.
+
+     Sin este archivo, api/ no entraba en ningún tsconfig y `tsc -b` la
+     ignoraba en silencio: compilaba «bien» sin haberla mirado. */
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.api.tsbuildinfo",
+    "target": "es2023",
+
+    /* DOM aporta los tipos de Request y Response, que son el estándar web y
+       existen en el runtime de Vercel. No implica que haya document ni
+       window: son APIs de plataforma, no del navegador. */
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"],
+    "skipLibCheck": true,
+
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "isolatedModules": true,
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["api"]
+}
