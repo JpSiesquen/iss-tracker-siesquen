@@ -1,22 +1,43 @@
+import { useTexture } from '@react-three/drei';
+import { SRGBColorSpace } from 'three';
+
 import { EARTH_RADIUS, EARTH_SEGMENTS } from './constants';
 
 /**
- * La Tierra. Por ahora una esfera lisa: la textura llega en la issue 2-4.
+ * La Tierra.
  *
- * Es la traducción a R3F de lo que en la Fase 0 se escribió a mano
- * (`sandbox/00-threejs/index.html`, secciones 4 y 5). La traducción es
- * mecánica, sin magia:
+ * Traducción a R3F de lo que en la Fase 0 se escribió a mano
+ * (`sandbox/00-threejs/index.html`). La correspondencia es mecánica:
  *
  *   new THREE.Mesh(geo, mat)                  →  <mesh>
  *   new THREE.SphereGeometry(1, 64, 64)       →  <sphereGeometry args={[1, 64, 64]} />
  *   new THREE.MeshStandardMaterial({ ... })   →  <meshStandardMaterial ... />
  *   scene.add(mesh)                           →  anidar el JSX
  *
- * Cualquier clase de Three.js está disponible como etiqueta en camelCase, y
- * `args` son los argumentos del constructor en orden.
+ * ⚠️ Este componente se SUSPENDE mientras carga la textura, así que necesita un
+ * <Suspense> por encima (ver Scene.tsx). Sin él, React lanza un error.
  */
-
 export function Earth() {
+  /**
+   * El segundo argumento de useTexture se ejecuta con la textura recién
+   * cargada, antes de devolverla. Es el sitio correcto para configurarla:
+   * mutar lo que devuelve un hook está mal visto en React y el linter lo
+   * detecta (react/immutability).
+   *
+   * Lo que se configura aquí es el detalle que hace que un globo se vea
+   * «lavado» sin motivo aparente: las texturas de color están guardadas en
+   * sRGB, pero los cálculos de iluminación de Three.js trabajan en espacio
+   * LINEAL. Hay que declararlo o el resultado sale mal.
+   *
+   * La regla: texturas de COLOR → sRGB; texturas de DATOS → lineal. Un mapa de
+   * relieve o una máscara de agua no son colores, son números; esos se quedan
+   * en lineal. Vuelve en la issue 2-8.
+   */
+  const colorMap = useTexture('/textures/earth-color.jpg', (texture) => {
+    const mapa = Array.isArray(texture) ? texture[0] : texture;
+    mapa.colorSpace = SRGBColorSpace;
+  });
+
   return (
     <mesh>
       {/* La geometría y el material van DENTRO del mesh, y no es decoración de
@@ -30,8 +51,8 @@ export function Earth() {
           se vería NEGRO: un objeto que solo se ve por la luz que refleja, sin
           luz, no refleja nada. */}
       <meshStandardMaterial
-        color="#4da3ff"
-        roughness={0.8} // alto: superficie mate, como tendrá la Tierra
+        map={colorMap}
+        roughness={0.8} // alto: la tierra es mate. El océano se tratará aparte en la 2-8
         metalness={0} // un planeta no es metálico
       />
     </mesh>

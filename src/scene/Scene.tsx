@@ -1,4 +1,5 @@
 import { Canvas } from '@react-three/fiber';
+import { Suspense } from 'react';
 
 import { Earth } from './Earth';
 import { Lights } from './Lights';
@@ -34,7 +35,16 @@ export function Scene() {
       style={{ background: '#05060a' }}
     >
       <Lights />
-      <Earth />
+
+      {/* <Earth> se suspende mientras carga su textura, asi que necesita un
+          Suspense por encima. fallback={null} = no mostrar nada mientras tanto;
+          en la issue 6-x se sustituye por un indicador de carga real.
+
+          ⚠️ El Suspense debe ENVOLVER al componente que carga, no ir dentro de
+          el: un componente no puede ser su propio fallback. */}
+      <Suspense fallback={null}>
+        <Earth />
+      </Suspense>
     </Canvas>
   );
 }
