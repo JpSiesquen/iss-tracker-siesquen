@@ -1,15 +1,15 @@
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
-import { gstime } from 'satellite.js';
-import type { Group, Mesh } from 'three';
+import { Vector3, type Group, type Mesh } from 'three';
 
-import { useIssPosition } from '../api/useIssPosition';
+import { useTle } from '../api/useTle';
 import { altitudeToRadius, latLonToVector3 } from '../lib/coordinates';
+import { createSatrec, propagateToGeodetic } from '../lib/orbit';
+import { useSceneTime } from './sceneTime';
 import {
   ISS_MARKER_COLOR,
   ISS_MARKER_EMISSIVE_INTENSITY,
   ISS_MARKER_SIZE,
-  ISS_SMOOTHING,
 } from './constants';
 
 /**
@@ -34,7 +34,8 @@ import {
 export function IssMarker() {
   const grupoRef = useRef<Group>(null);
   const meshRef = useRef<Mesh>(null);
-  const { data } = useIssPosition();
+  const tiempo = useSceneTime();
+  const { elementos } = useTle();
 
   /**
    * Si ya se colocó el marcador alguna vez.
@@ -42,103 +43,65 @@ export function IssMarker() {
    * ⚠️ Sin esto, el primer dato haría que el marcador saliera volando desde el
    * origen: un mesh recién creado está en (0,0,0), que es el centro de la
    * Tierra, y la interpolación lo traería desde ahí atravesando el planeta.
-   * El primer dato se asigna de golpe; a partir del segundo se interpola.
    */
   const colocado = useRef(false);
 
-  /**
-   * La posición en el sistema fijo a la Tierra (ECEF), antes de rotar.
-   *
-   * `useMemo` porque solo cambia cuando llegan datos nuevos —cada cinco
-   * segundos—, mientras que el fotograma se dibuja sesenta veces por segundo.
-   * Recalcular trigonometría 60 veces por segundo para un valor que cambia
-   * cada 5 s es trabajo tirado.
-   */
-  const posicionEcef = useMemo(() => {
-    if (!data) return null;
-    return latLonToVector3(
-      data.latitude,
-      data.longitude,
-      altitudeToRadius(data.altitude),
-    );
-  }, [data]);
+  /** Vector reutilizado para no crear uno nuevo en cada fotograma. */
+  const objetivo = useRef(new Vector3());
 
   /**
-   * La rotación terrestre, aplicada al vector en cada fotograma.
+   * El propagador SGP4, construido a partir de los elementos orbitales.
    *
-   * ## Por qué hace falta, si el marcador no es hijo del mesh que rota
-   *
-   * La lat/lon de la API está en **ECEF**: un sistema que gira CON la Tierra,
-   * donde la longitud se mide desde Greenwich. Pero Greenwich no está quieto
-   * en la escena — el mesh lo lleva rotando `gstime()` radianes.
-   *
-   * Así que el vector de la conversión apunta a «donde estaría Greenwich si la
-   * Tierra no hubiera girado», y hay que llevarlo a donde está de verdad.
-   *
-   * ⚠️ Medido, no supuesto: sin esta rotación el marcador aparece a **89.5°**
-   * del punto correcto, casi **10 000 km** sobre el ecuador. Se comprobó
-   * colocando una ISS ficticia en las coordenadas de Lima y midiendo el ángulo
-   * contra el marcador de depuración de Lima, que sí es hijo del mesh y cuya
-   * posición ya se verificó en #28. Con la rotación: 0.0° de diferencia.
-   *
-   * ## Por qué en useFrame y no una sola vez
-   *
-   * El GMST avanza continuamente. Si se aplicara solo al llegar cada dato, el
-   * marcador se quedaría clavado mientras la Tierra sigue girando bajo él,
-   * derivando visiblemente durante esos cinco segundos.
-   *
-   * Nótese que la Tierra y la ISS leen `gstime(new Date())` por separado en el
-   * mismo fotograma: al derivar ambas del reloj no pueden desincronizarse.
+   * `useMemo` porque inicializarlo es caro —SGP4 precalcula constantes— y solo
+   * cambia cuando llegan elementos nuevos, cada seis horas. Rehacerlo sesenta
+   * veces por segundo sería absurdo.
    */
-  useFrame((_estado, delta) => {
+  const satrec = useMemo(() => (elementos ? createSatrec(elementos) : null), [elementos]);
+
+  /**
+   * La posición se calcula EN CADA FOTOGRAMA, no cuando llegan datos.
+   *
+   * Este es el cambio de fondo de la issue. Antes el marcador esperaba a que
+   * la API dijera dónde estaba la ISS, cada cinco segundos, y entre medias
+   * interpolaba hacia el último punto conocido.
+   *
+   * Ahora el proyecto **calcula** la posición: con los elementos orbitales y
+   * la hora, SGP4 da dónde está la estación en ese instante exacto. No hay
+   * dato que esperar ni hueco que rellenar — la trayectoria es continua porque
+   * se evalúa una función, no porque se suavice entre lecturas.
+   *
+   * Por eso desaparece la interpolación de la issue #30: ya no hay saltos que
+   * disimular.
+   */
+  useFrame(() => {
+    const { date, gmst } = tiempo.current;
+
     if (grupoRef.current) {
-      grupoRef.current.rotation.y = gstime(new Date());
+      grupoRef.current.rotation.y = gmst;
     }
 
     const mesh = meshRef.current;
-    if (!mesh || !posicionEcef) return;
-
-    // El primer dato se asigna directamente: interpolar desde (0,0,0) sacaría
-    // al marcador del centro de la Tierra atravesando el planeta.
-    if (!colocado.current) {
-      mesh.position.copy(posicionEcef);
-      colocado.current = true;
-      return;
-    }
+    if (!mesh || !satrec) return;
 
     /**
-     * Interpolación exponencial hacia el objetivo.
-     *
-     * ⚠️ `delta * factor`, nunca un valor fijo por fotograma: atarlo al
-     * framerate haría que el marcador se moviera al doble de velocidad en un
-     * equipo de 120 Hz. Es el mismo principio que se demostró en la Fase 0.
-     *
-     * `Math.min(1, ...)` evita pasarse del objetivo si un fotograma tarda
-     * mucho —una pestaña que vuelve del segundo plano puede dar un delta de
-     * varios segundos—, lo que produciría una oscilación.
+     * ⚠️ La misma `date` que usa la Tierra para orientarse. Propagar con un
+     * instante y orientar el globo con otro produce un desfase en longitud
+     * consistente y difícil de detectar — el error clásico que advertía la
+     * issue.
      */
-    const alpha = Math.min(1, delta * ISS_SMOOTHING);
-    mesh.position.lerp(posicionEcef, alpha);
+    const geo = propagateToGeodetic(satrec, date);
+    if (!geo) return;
 
-    /**
-     * Devolver el punto a la esfera.
-     *
-     * `lerp` traza una LÍNEA RECTA entre dos puntos, así que el trayecto pasa
-     * por el interior de la esfera y el marcador se hunde ligeramente. Medido:
-     * con los 0.55° que la ISS recorre en cinco segundos el hundimiento es de
-     * 0.0046 px — invisible.
-     *
-     * Pero si la conexión se corta y el hueco crece, deja de serlo: a 300 s
-     * son 5.8 px. Normalizar cuesta una raíz cuadrada por fotograma, así que
-     * se hace siempre y el caso raro queda cubierto sin pensar más en él.
-     */
-    mesh.position.normalize().multiplyScalar(posicionEcef.length());
+    objetivo.current.copy(
+      latLonToVector3(geo.latitude, geo.longitude, altitudeToRadius(geo.altitude)),
+    );
+
+    mesh.position.copy(objetivo.current);
+    colocado.current = true;
   });
 
-  // Mientras no haya datos no se dibuja nada. El indicador de carga visible es
-  // la issue #31; aquí basta con no renderizar un marcador en (0,0,0), que es
-  // el centro de la Tierra.
-  if (!posicionEcef) return null;
+  // Sin elementos orbitales no hay nada que propagar.
+  if (!satrec) return null;
 
   return (
     /* El grupo existe para separar responsabilidades: la rotación terrestre va

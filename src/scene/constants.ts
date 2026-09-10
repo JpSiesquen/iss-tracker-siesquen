@@ -131,20 +131,14 @@ export const ISS_MARKER_COLOR = '#ffcc00';
  */
 export const ISS_MARKER_EMISSIVE_INTENSITY = 1.8;
 
-/**
- * Velocidad con la que el marcador persigue su posición objetivo.
+/*
+ * ISS_SMOOTHING se retiró en la issue #37.
  *
- * El movimiento es exponencial: en cada fotograma recorre una fracción de lo
- * que le queda, así que se acerca rápido al principio y frena al final. Nunca
- * llega del todo, pero la diferencia deja de ser visible enseguida.
+ * Existía para suavizar el salto de 38 km que daba el marcador cada vez que
+ * llegaba una posición nueva de la API, cada cinco segundos. Con SGP4 la
+ * posición se calcula en cada fotograma a partir de la hora, así que la
+ * trayectoria ya es continua: no queda ningún salto que disimular.
  *
- * Medido a 60 fps: con factor 2 el marcador cubre el 99.996% del salto en los
- * cinco segundos que hay entre datos. Con factor 1 quedaría un 0.65% sin
- * recorrer al llegar el dato siguiente, y el marcador iría crónicamente
- * retrasado respecto a la posición real.
- *
- * ⚠️ Se multiplica por delta time, nunca se aplica por fotograma. Comprobado:
- * alcanzar el 90% del recorrido tarda 1.133 s a 60 fps y 1.146 s a 144 fps.
- * Sin delta time, un equipo rápido movería el marcador al doble de velocidad.
+ * Se deja anotado en lugar de borrarlo sin más porque la interpolación seguía
+ * siendo correcta — dejó de hacer falta, que no es lo mismo que estar mal.
  */
-export const ISS_SMOOTHING = 2;

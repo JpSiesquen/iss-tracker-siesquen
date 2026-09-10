@@ -52,6 +52,9 @@ export const tleResponseSchema = z.object({
    */
   elementos: z.object({
     OBJECT_NAME: z.string().min(1),
+    /** Obligatorios en el estándar OMM: el tipo de satellite.js los exige. */
+    OBJECT_ID: z.string().min(1),
+    ELEMENT_SET_NO: z.number().int(),
     EPOCH: z.string().min(1),
     NORAD_CAT_ID: z.number().int().positive(),
     MEAN_MOTION: z.number().positive().max(20),

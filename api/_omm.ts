@@ -32,6 +32,18 @@ export const ommSchema = z.object({
   OBJECT_NAME: z.string().min(1),
 
   /**
+   * Designador internacional COSPAR. Para la ISS, `1998-067A`.
+   *
+   * ⚠️ No lo usa el cálculo, pero el tipo `OMMJsonObjectV3` de satellite.js lo
+   * exige por ser obligatorio en el estándar OMM. Descartarlo aquí rompía la
+   * cadena: el BFF dejaba de servirlo y `json2satrec` no aceptaba el objeto.
+   */
+  OBJECT_ID: z.string().min(1),
+
+  /** Número de conjunto de elementos. Obligatorio en el estándar, igual que el anterior. */
+  ELEMENT_SET_NO: z.number().int(),
+
+  /**
    * Instante al que se refieren los elementos, en ISO 8601.
    *
    * ⚠️ Celestrak lo envía SIN zona horaria (`2026-09-10T11:11:07.892448`).

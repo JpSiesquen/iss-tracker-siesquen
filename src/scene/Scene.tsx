@@ -5,6 +5,7 @@ import { SPACE_COLOR } from './constants';
 import { Controls } from './Controls';
 import { Earth } from './Earth';
 import { Lights } from './Lights';
+import { SceneTimeProvider } from './SceneTimeContext';
 
 /**
  * El <Canvas> de React Three Fiber crea por nosotros tres de las cosas que en
@@ -45,9 +46,15 @@ export function Scene() {
 
           ⚠️ El Suspense debe ENVOLVER al componente que carga, no ir dentro de
           el: un componente no puede ser su propio fallback. */}
-      <Suspense fallback={null}>
-        <Earth />
-      </Suspense>
+      {/* El proveedor calcula el instante una vez por fotograma y lo reparte.
+          Envuelve a la Tierra y al marcador para que ambos se orienten y se
+          propaguen con exactamente el mismo tiempo: usar instantes distintos
+          produce un desfase en longitud consistente y difícil de detectar. */}
+      <SceneTimeProvider>
+        <Suspense fallback={null}>
+          <Earth />
+        </Suspense>
+      </SceneTimeProvider>
     </Canvas>
   );
 }
