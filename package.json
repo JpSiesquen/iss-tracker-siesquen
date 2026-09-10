@@ -15,6 +15,7 @@
     "reinstall": "node scripts/check-dev-server.mjs && npm ci"
   },
   "dependencies": {
+    "@react-three/drei": "10.7.8",
     "@react-three/fiber": "9.7.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
