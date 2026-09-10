@@ -15,6 +15,9 @@
     "reinstall": "node scripts/check-dev-server.mjs && npm ci"
   },
   "dependencies": {
+    "@emotion/react": "11.14.0",
+    "@emotion/styled": "11.14.1",
+    "@mui/material": "9.4.0",
     "@react-three/drei": "10.7.8",
     "@react-three/fiber": "9.7.0",
     "@tanstack/react-query": "5.102.8",
