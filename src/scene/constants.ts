@@ -94,3 +94,18 @@ export const EARTH_NORMAL_SCALE: [number, number] = [0.6, 0.6];
  * necesidad de un shader propio.
  */
 export const EARTH_NIGHT_INTENSITY = 0.45;
+
+/**
+ * Tamaño de los marcadores de depuración de la issue 3-4.
+ *
+ * Lo bastante pequeños para señalar un punto concreto y no una región.
+ */
+export const DEBUG_MARKER_SIZE = 0.015;
+
+/**
+ * Radio al que se colocan esos marcadores.
+ *
+ * Ligeramente por encima de la superficie para que no queden medio enterrados
+ * en la malla, que a 64 segmentos no es una esfera perfecta.
+ */
+export const DEBUG_MARKER_RADIUS = 1.005;

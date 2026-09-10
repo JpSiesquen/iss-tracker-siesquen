@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { gstime } from 'satellite.js';
 import { SRGBColorSpace, type Mesh } from 'three';
 
+import { DebugMarkers } from './DebugMarkers';
 import {
   EARTH_NIGHT_INTENSITY,
   EARTH_NORMAL_SCALE,
@@ -131,6 +132,13 @@ export function Earth() {
           emissive="#ffffff"
           emissiveIntensity={EARTH_NIGHT_INTENSITY}
         />
+
+        {/* Puntos conocidos para comprobar la conversion de coordenadas contra
+            la textura. Van DENTRO del mesh que rota, al reves que la ISS: un
+            punto fijo de la superficie si debe girar con el planeta.
+
+            import.meta.env.DEV desaparece al compilar para produccion. */}
+        {import.meta.env.DEV && <DebugMarkers />}
       </mesh>
     </group>
   );
