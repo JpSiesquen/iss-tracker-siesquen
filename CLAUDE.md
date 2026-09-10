@@ -7,9 +7,8 @@ se obtiene de una API pública, la órbita se propaga con SGP4 y se dibuja con W
 
 ## Estado
 
-**Fases 0 a 3 cerradas** (35 issues). La ISS se sigue en vivo: su posición real llega de la
-API, se valida, se refresca cada cinco segundos y se dibuja interpolada sobre el globo, con
-sus estados de carga y error cubiertos.
+**39 issues cerradas.** La ISS se sigue en vivo sobre el globo, y el BFF ya sirve los
+elementos orbitales cacheados desde `/api/tle`.
 
 La Fase 3 era el **corte natural**: a partir de aquí todo es mejora, no necesidad.
 
@@ -20,9 +19,13 @@ La Fase 3 era el **corte natural**: a partir de aquí todo es mejora, no necesid
 | 1.5 · Automatización | 3/3 | ✅ |
 | 2 · El globo | 8/8 | ✅ |
 | 3 · La ISS en vivo | 7/7 | ✅ |
-| 4 · El BFF | 0/5 | |
+| 4 · El BFF | 4/5 | falta #36 |
 | 5 · Órbita e interfaz | 0/8 | |
 | 6 · Cierre | 0/5 | |
+
+**Siguiente:** #36 — que el frontend consuma `/api/tle` en lugar de la API de posición.
+Con eso el proyecto calcula la órbita él mismo y deja de depender de un tercero para la
+posición.
 
 ## Comandos
 
@@ -46,8 +49,7 @@ React 19 · TypeScript · Vite 8 · oxlint (no ESLint) · Prettier
 (adelantada de la Fase 5: `gstime` orienta la Tierra por GMST) · TanStack Query 5.102
 (datos remotos) · Zod 4.5 (validación).
 
-**Por fase, según se vaya necesitando:** Zustand (estado de UI) · Material UI (interfaz) ·
-funciones serverless de Vercel (BFF que cachea los TLE).
+**Por fase, según se vaya necesitando:** Zustand (estado de UI) · Material UI (interfaz).
 
 ⚠️ **React está fijado en 19.2.8**, no 19.3: `@react-three/fiber` exige `>=19 <19.3` y ninguna
 versión suya lo soporta todavía.
@@ -63,7 +65,7 @@ src/scene/     todo lo que vive dentro del <Canvas>
 src/ui/        HTML superpuesto al globo, fuera del <Canvas>
 sandbox/       experimentos de la Fase 0 en Three.js puro, sin bundler
 docs/          documentación técnica del proyecto
-api/           funciones serverless (a partir de la Fase 4)
+api/           funciones serverless: /api/health y /api/tle
 public/        estáticos, incluidas las texturas
 ```
 
@@ -73,6 +75,55 @@ así que un componente 3D puede usar los hooks de `api/`.
 
 `vite.config.ts` excluye `sandbox/` del escaneo de dependencias: usa un import map contra un
 CDN, que Vite no sabe resolver.
+
+## El BFF
+
+Dos endpoints en `api/`. **El nombre del archivo es la ruta**, y los que empiezan por `_`
+quedan excluidos del enrutado (por eso el esquema vive en `api/_omm.ts`).
+
+| | |
+|---|---|
+| `/api/health` | comprobación de vida |
+| `/api/tle` | elementos orbitales de la ISS, cacheados |
+
+**Se usa `Request`/`Response` del estándar web, no `@vercel/node`.** Ese paquete solo aporta
+tipos pero arrastra `undici`, `ajv` y `path-to-regexp`: cinco avisos de `npm audit`, tres de
+gravedad alta. Ninguna versión lo evita. Además, el estándar no ata el código a Vercel.
+
+⚠️ **`api/` necesita su propio `tsconfig.api.json`**, ya presente como tercera referencia.
+`tsconfig.app.json` solo incluye `src/`, así que sin él `tsc -b` decía OK **sin haber mirado
+la carpeta**.
+
+⚠️ **Exportar solo `GET` hace que Vercel responda 405** a los demás métodos por sí mismo. No
+hace falta comprobar `req.method`.
+
+### Caché
+
+`s-maxage=21600, stale-while-revalidate=3600` — seis horas en la CDN, una hora sirviendo el
+dato viejo mientras refresca. Los elementos se publican una o dos veces al día, así que un
+TTL corto solo añadiría ruido. Medido en producción: `MISS` 1.016 s, `HIT` ~0.47 s.
+
+La caché en memoria es **oportunista, nunca el mecanismo principal**: una función serverless
+vive por petición y cada instancia tiene su copia. En `vercel dev` nunca acierta, porque el
+entorno recarga el módulo en cada petición.
+
+### Datos de Celestrak
+
+Se pide `FORMAT=JSON` (formato **OMM**), no las dos líneas de texto. `satellite.js` acepta
+ambos —`twoline2satrec` y `json2satrec`— y dan la misma posición, pero el JSON se valida
+campo a campo y evita el CRLF del texto.
+
+⚠️ **Ante un NORAD inexistente, Celestrak responde `No GP data found` en texto plano con
+status 200.** Ni 404 ni JSON de error. Por eso el cuerpo se lee como texto y se parsea a
+mano.
+
+⚠️ **Un conjunto de elementos malformado es peor que ninguno.** Con una inclinación de 200°
+—imposible— `json2satrec` devuelve `error: 0` y `propagate` calcula una posición de aspecto
+normal. No lanza nada. De ahí que el esquema valide **rangos físicos**, no solo tipos.
+
+Si Celestrak falla y hay un dato previo, se sirve marcado con su antigüedad y un TTL corto
+de 60 s. Los elementos envejecen despacio: uno de ayer da una posición razonable, uno de
+hace una semana ya no.
 
 ## Seguridad de dependencias
 
