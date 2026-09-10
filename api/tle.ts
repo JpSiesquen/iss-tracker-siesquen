@@ -46,6 +46,61 @@ const CELESTRAK_URL = `https://celestrak.org/NORAD/elements/gp.php?CATNR=${ISS_N
 const USER_AGENT = 'iss-tracker-siesquen/1.0 (+https://iss-tracker-siesquen.vercel.app)';
 
 /**
+ * Cuánto sirve la CDN la respuesta guardada, en segundos. Seis horas.
+ *
+ * Los elementos orbitales se publican una o dos veces al día, así que pedirlos
+ * más a menudo no da más precisión: solo ruido.
+ *
+ *   TTL     peticiones/día a Celestrak    valoración
+ *   5 min              288                innecesario
+ *   6 h                  4                equilibrado
+ *   24 h                 1                el dato puede quedarse viejo
+ *
+ * Seis horas dejan cuatro descargas diarias se publiquen las que se publiquen,
+ * y con cualquier volumen de visitantes.
+ */
+const CDN_TTL_SEGUNDOS = 6 * 60 * 60;
+
+/**
+ * Cuánto puede seguir sirviéndose el dato caducado mientras se refresca por
+ * detrás, en segundos. Una hora.
+ *
+ * `stale-while-revalidate` es la parte que elimina el pico de latencia justo
+ * cuando expira la caché: en vez de hacer esperar a quien tuvo la mala suerte
+ * de llegar en ese instante, la CDN le da el dato viejo —de horas, no de
+ * días— y actualiza en segundo plano. Nadie espera nunca.
+ */
+const CDN_STALE_SEGUNDOS = 60 * 60;
+
+/** Cabecera de caché de las respuestas correctas. */
+const CACHE_CONTROL = `public, s-maxage=${CDN_TTL_SEGUNDOS}, stale-while-revalidate=${CDN_STALE_SEGUNDOS}`;
+
+/** Lo que devuelve el endpoint cuando todo va bien. */
+interface RespuestaTle {
+  elementos: Record<string, unknown>;
+  descargadoEn: number;
+  fuente: string;
+}
+
+/**
+ * Caché en memoria de esta instancia.
+ *
+ * ⚠️ Es una optimización OPORTUNISTA, nunca el mecanismo principal. Una
+ * función serverless vive por petición: si la instancia sigue caliente esta
+ * variable persiste, y si Vercel levantó otra está vacía. Con varias
+ * instancias en paralelo, cada una tiene su propia copia.
+ *
+ * No está mal usarla —ahorra incluso la ejecución cuando acierta— pero no se
+ * puede confiar en ella. La caché HTTP es la que hace el trabajo de verdad, y
+ * funciona en un entorno distribuido porque no depende de dónde se ejecute
+ * nada.
+ *
+ * Mismo TTL que la CDN: no tiene sentido que un nivel sirva un dato que el
+ * otro ya considera caducado.
+ */
+let memoria: { cuerpo: RespuestaTle; guardadoEn: number } | null = null;
+
+/**
  * Los campos que necesita `json2satrec` para construir el propagador.
  *
  * Celestrak devuelve diecisiete; aquí se declaran los que se usan y se
@@ -66,6 +121,17 @@ const CAMPOS_REQUERIDOS = [
 ] as const;
 
 export async function GET(): Promise<Response> {
+  /**
+   * Primer nivel: la memoria de esta instancia.
+   *
+   * Si acierta, se ahorra incluso la llamada a Celestrak. Si falla —instancia
+   * nueva, o dato caducado— se sigue adelante como si no existiera. Nunca es
+   * un error que esté vacía.
+   */
+  if (memoria && Date.now() - memoria.guardadoEn < CDN_TTL_SEGUNDOS * 1000) {
+    return respuestaConCache(memoria.cuerpo, 'memoria');
+  }
+
   let respuesta: Response;
 
   try {
@@ -131,23 +197,50 @@ export async function GET(): Promise<Response> {
     );
   }
 
+  const cuerpo: RespuestaTle = {
+    /** Los elementos tal cual los da Celestrak: `json2satrec` los consume. */
+    elementos,
+    /**
+     * Cuándo se descargaron. No es lo mismo que `EPOCH`, que es el instante al
+     * que se refieren los cálculos: un TLE del mediodía puede descargarse a
+     * medianoche y sigue siendo válido.
+     */
+    descargadoEn: Date.now(),
+    fuente: 'celestrak.org',
+  };
+
+  memoria = { cuerpo, guardadoEn: Date.now() };
+
+  return respuestaConCache(cuerpo, 'origen');
+}
+
+/**
+ * Envuelve el cuerpo con las cabeceras de caché.
+ *
+ * ## Qué le dice cada parte a la CDN
+ *
+ *   public                     cualquier caché compartida puede guardarlo
+ *   s-maxage=21600             sírvelo 6 h sin volver a ejecutar la función
+ *   stale-while-revalidate     pasado ese plazo, sigue sirviendo el viejo
+ *                              mientras refrescas por detrás
+ *
+ * La `s` de `s-maxage` es de *shared*: afecta a cachés compartidas como la CDN,
+ * no a la del navegador. Es lo que queremos — que el ahorro sea para todos los
+ * visitantes, no solo para quien repite.
+ *
+ * Con esto, mil visitas producen UNA petición a Celestrak. Y es menos código
+ * que gestionar la caché a mano.
+ *
+ * `x-tle-cache` no es una cabecera estándar: sirve para ver de dónde salió el
+ * dato al depurar, junto a la `x-vercel-cache` que añade la CDN.
+ */
+function respuestaConCache(cuerpo: RespuestaTle, origen: 'memoria' | 'origen'): Response {
   return Response.json(
-    {
-      /** Los elementos tal cual los da Celestrak: `json2satrec` los consume. */
-      elementos,
-      /**
-       * Cuándo se descargaron. No es lo mismo que `EPOCH`, que es el instante
-       * al que se refieren los cálculos: un TLE del mediodía puede
-       * descargarse a medianoche y sigue siendo válido.
-       */
-      descargadoEn: Date.now(),
-      fuente: 'celestrak.org',
-    },
+    { ...cuerpo, edadMs: Date.now() - cuerpo.descargadoEn },
     {
       headers: {
-        // La caché llega en la issue #34. De momento se declara explícito para
-        // que nadie asuma que hay una.
-        'cache-control': 'no-store',
+        'cache-control': CACHE_CONTROL,
+        'x-tle-cache': origen,
       },
     },
   );
