@@ -37,3 +37,9 @@ dist-ssr
 *.sw?
 .vercel
 .env*
+
+# Scripts sueltos para probar algo a mano contra la API o una libreria.
+# Necesitan vivir dentro del proyecto para resolver node_modules, pero no
+# forman parte de el. El sufijo .scratch.mjs los mantiene fuera del repo
+# conservando la extension que Node necesita para saber que son ES modules.
+*.scratch.mjs
