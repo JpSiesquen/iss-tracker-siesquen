@@ -5,6 +5,7 @@
    Para que 100% funcione, toda la cadena de padres necesita altura: aquí se
    fija en html, body y #root (ver index.css). */
 .app {
+  position: relative; /* referencia para el panel superpuesto */
   width: 100%;
   height: 100%;
 }
