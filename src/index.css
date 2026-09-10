@@ -1,23 +1,14 @@
-:root {
-  color-scheme: dark;
-  font-family:
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    sans-serif;
-  line-height: 1.5;
-}
-
-/* La cadena de altura que necesita el <Canvas>: sin esto mide cero. */
-html,
-body,
-#root {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  overflow: hidden; /* el globo ocupa la ventana: no queremos scroll */
+/* Lo mínimo antes de que React monte.
+   
+   El resto —fondo, altura, tipografía, overflow— lo aplica el tema de MUI a
+   través de CssBaseline (ver src/theme.ts). Duplicarlo aquí crearía dos sitios
+   donde cambiar lo mismo, y el que se olvidara ganaría o perdería según el
+   orden de carga.
+   
+   Esta regla sí se queda: pinta el fondo correcto durante el instante entre
+   que el navegador muestra la página y React aplica el tema. Sin ella hay un
+   destello blanco al cargar. */
+html {
   background: #05060a;
-  color: #e8eaed;
+  color-scheme: dark;
 }

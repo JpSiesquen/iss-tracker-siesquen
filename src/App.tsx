@@ -1,9 +1,12 @@
+import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeProvider } from '@mui/material/styles';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import './App.css';
 import { queryClient } from './api/queryClient';
 import { Scene } from './scene/Scene';
+import { theme } from './theme';
 import { StatusPanel } from './ui/StatusPanel';
 
 /**
@@ -16,16 +19,24 @@ import { StatusPanel } from './ui/StatusPanel';
  */
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <div className="app">
-        <Scene />
+    /* El ThemeProvider envuelve todo, incluido el <Canvas>: los componentes de
+       MUI que van superpuestos necesitan el tema, y el fondo de CssBaseline
+       usa el mismo color del espacio de la escena para que no se vea costura. */
+    <ThemeProvider theme={theme}>
+      {/* Normaliza los estilos del navegador y aplica el fondo del tema. Sin
+          el, el body seguiria siendo blanco. */}
+      <CssBaseline />
 
-        {/* Fuera del <Canvas>: es HTML normal, superpuesto con CSS. Dentro del
-            Canvas solo viven objetos de Three.js. */}
-        <StatusPanel />
-      </div>
+      <QueryClientProvider client={queryClient}>
+        <div className="app">
+          <Scene />
 
-      {/* Panel para inspeccionar la cache: que consultas hay, en que estado,
+          {/* Fuera del <Canvas>: es HTML normal, superpuesto con CSS. Dentro
+              del Canvas solo viven objetos de Three.js. */}
+          <StatusPanel />
+        </div>
+
+        {/* Panel para inspeccionar la cache: que consultas hay, en que estado,
           cuando se refrescaron y con que datos.
 
           import.meta.env.DEV es una constante que Vite SUSTITUYE por true o
@@ -33,8 +44,9 @@ function App() {
           `false && <ReactQueryDevtools />`, el minificador lo borra entero y
           el paquete no entra en el bundle: por eso esta en devDependencies y
           no en dependencies. */}
-      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
-    </QueryClientProvider>
+        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 

@@ -1,3 +1,7 @@
+import Box from '@mui/material/Box';
+import type { ReactNode } from 'react';
+import Paper from '@mui/material/Paper';
+
 import { ISS_STALE_WARNING_MS } from '../api/constants';
 import { formatAge, useDataAge } from '../api/useDataAge';
 import { useIssPosition } from '../api/useIssPosition';
@@ -35,10 +39,10 @@ export function StatusPanel() {
    */
   if (isPending) {
     return (
-      <div className="panel panel--info" role="status">
-        <span className="panel__punto panel__punto--cargando" />
+      <PanelBase role="status">
+        <Box component="span" className="panel__punto panel__punto--cargando" />
         Localizando la ISS…
-      </div>
+      </PanelBase>
     );
   }
 
@@ -51,12 +55,12 @@ export function StatusPanel() {
    */
   if (isError && !data) {
     return (
-      <div className="panel panel--error" role="alert">
+      <PanelBase role="alert" borderColor="rgb(255 69 58 / 0.45)">
         <strong>No se pudo obtener la posición de la ISS.</strong>
         <span className="panel__detalle">
           Reintentando… {error instanceof Error ? error.message : ''}
         </span>
-      </div>
+      </PanelBase>
     );
   }
 
@@ -74,9 +78,9 @@ export function StatusPanel() {
   const viejo = antiguedad !== null && antiguedad > ISS_STALE_WARNING_MS;
 
   return (
-    <div
-      className={`panel ${viejo || isError ? 'panel--aviso' : 'panel--ok'}`}
+    <PanelBase
       role="status"
+      borderColor={viejo || isError ? 'rgb(255 159 10 / 0.45)' : undefined}
     >
       <span
         className={`panel__punto ${viejo || isError ? 'panel__punto--aviso' : 'panel__punto--vivo'}`}
@@ -96,7 +100,51 @@ export function StatusPanel() {
       </span>
 
       <TleEstado />
-    </div>
+    </PanelBase>
+  );
+}
+
+/**
+ * La superficie del panel.
+ *
+ * Un `Paper` de MUI, que toma del tema el fondo translúcido, el
+ * `backdropFilter` y el borde. Aquí no se repite ninguna de esas decisiones:
+ * viven en `theme.ts` porque son del sistema, no de este componente.
+ *
+ * ⚠️ `pointerEvents: none` es lo único que no puede ir en el tema, porque es
+ * propio de un panel superpuesto a una escena navegable: sin él, el panel
+ * captura el ratón y el globo deja de girar por debajo.
+ */
+function PanelBase({
+  children,
+  role,
+  borderColor,
+}: {
+  children: ReactNode;
+  role: string;
+  borderColor?: string;
+}) {
+  return (
+    <Paper
+      role={role}
+      sx={{
+        position: 'absolute',
+        top: 16,
+        left: 16,
+        zIndex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.15rem',
+        px: 1.75,
+        py: 1.25,
+        fontSize: '0.8rem',
+        lineHeight: 1.45,
+        pointerEvents: 'none',
+        ...(borderColor ? { borderColor } : {}),
+      }}
+    >
+      {children}
+    </Paper>
   );
 }
 
