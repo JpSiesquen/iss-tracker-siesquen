@@ -130,3 +130,21 @@ export const ISS_MARKER_COLOR = '#ffcc00';
  * de 1 el tone mapping ACES lo mantiene brillante sin quemarlo.
  */
 export const ISS_MARKER_EMISSIVE_INTENSITY = 1.8;
+
+/**
+ * Velocidad con la que el marcador persigue su posición objetivo.
+ *
+ * El movimiento es exponencial: en cada fotograma recorre una fracción de lo
+ * que le queda, así que se acerca rápido al principio y frena al final. Nunca
+ * llega del todo, pero la diferencia deja de ser visible enseguida.
+ *
+ * Medido a 60 fps: con factor 2 el marcador cubre el 99.996% del salto en los
+ * cinco segundos que hay entre datos. Con factor 1 quedaría un 0.65% sin
+ * recorrer al llegar el dato siguiente, y el marcador iría crónicamente
+ * retrasado respecto a la posición real.
+ *
+ * ⚠️ Se multiplica por delta time, nunca se aplica por fotograma. Comprobado:
+ * alcanzar el 90% del recorrido tarda 1.133 s a 60 fps y 1.146 s a 144 fps.
+ * Sin delta time, un equipo rápido movería el marcador al doble de velocidad.
+ */
+export const ISS_SMOOTHING = 2;
