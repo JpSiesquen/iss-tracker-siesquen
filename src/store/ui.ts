@@ -46,9 +46,22 @@ interface UiState {
   /** El panel de telemetría (#40). */
   verPanel: boolean;
 
+  /** Las luces de las ciudades sobre el lado nocturno. */
+  verLucesNocturnas: boolean;
+
+  /**
+   * Giro lento y continuo de la cámara.
+   *
+   * Apagado por defecto: queda bien en una captura, pero molesta en cuanto
+   * alguien intenta mirar una zona concreta — la escena se le va de las manos.
+   */
+  rotacionAutomatica: boolean;
+
   alternarOrbita: () => void;
   alternarReferencias: () => void;
   alternarPanel: () => void;
+  alternarLucesNocturnas: () => void;
+  alternarRotacionAutomatica: () => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -61,6 +74,8 @@ export const useUiStore = create<UiState>((set) => ({
    */
   verOrbita: true,
   verPanel: true,
+  verLucesNocturnas: true,
+  rotacionAutomatica: false,
 
   /**
    * Las referencias empiezan ocultas incluso en desarrollo: sirvieron para
@@ -79,4 +94,7 @@ export const useUiStore = create<UiState>((set) => ({
   alternarOrbita: () => set((s) => ({ verOrbita: !s.verOrbita })),
   alternarReferencias: () => set((s) => ({ verReferencias: !s.verReferencias })),
   alternarPanel: () => set((s) => ({ verPanel: !s.verPanel })),
+  alternarLucesNocturnas: () => set((s) => ({ verLucesNocturnas: !s.verLucesNocturnas })),
+  alternarRotacionAutomatica: () =>
+    set((s) => ({ rotacionAutomatica: !s.rotacionAutomatica })),
 }));

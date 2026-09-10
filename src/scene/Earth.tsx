@@ -33,6 +33,7 @@ export function Earth() {
   const meshRef = useRef<Mesh>(null);
   const tiempo = useSceneTime();
   const verReferencias = useUiStore((s) => s.verReferencias);
+  const verLucesNocturnas = useUiStore((s) => s.verLucesNocturnas);
 
   /**
    * Un material PBR combina varias texturas, cada una controlando una propiedad
@@ -138,9 +139,9 @@ export function Earth() {
           // Una intensidad moderada deja que el lado iluminado las apague por
           // contraste. Que solo emitan donde no llega el Sol exige un shader
           // propio: es un tema en sí mismo y queda fuera de esta issue.
-          emissiveMap={nightMap}
+          emissiveMap={verLucesNocturnas ? nightMap : null}
           emissive="#ffffff"
-          emissiveIntensity={EARTH_NIGHT_INTENSITY}
+          emissiveIntensity={verLucesNocturnas ? EARTH_NIGHT_INTENSITY : 0}
         />
 
         {/* Puntos conocidos para comprobar la conversion de coordenadas contra
