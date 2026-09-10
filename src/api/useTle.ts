@@ -15,7 +15,7 @@ export const TLE_QUERY_KEY = ['tle'] as const;
 /**
  * Los elementos orbitales de la ISS, servidos por el BFF.
  *
- * ## Sin `refetchInterval`, a diferencia de `useIssPosition`
+ * ## Sin `refetchInterval`
  *
  * No hay temporizador: con `staleTime` de seis horas, Query sirve el dato de
  * su caché sin volver a pedirlo mientras dure la sesión. Un tracker abierto

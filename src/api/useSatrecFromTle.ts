@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { SatRec } from 'satellite.js';
 
-import { useTle } from '../api/useTle';
+import { useTle } from './useTle';
 import { createSatrec } from '../lib/orbit';
 
 /**
@@ -26,7 +26,7 @@ import { createSatrec } from '../lib/orbit';
  * @returns El propagador, o `null` mientras no haya elementos o si no son
  *          utilizables.
  */
-export function useSatrec(): SatRec | null {
+export function useSatrecFromTle(): SatRec | null {
   const { elementos } = useTle();
   return useMemo(() => (elementos ? createSatrec(elementos) : null), [elementos]);
 }
