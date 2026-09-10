@@ -77,3 +77,20 @@ export const CAMERA_MAX_DISTANCE = 8;
  * pase por los polos salvo en los equinoccios.
  */
 export const EARTH_TILT = (23.44 * Math.PI) / 180;
+
+/**
+ * Intensidad del relieve simulado por el normal map.
+ *
+ * Un valor alto exagera las montañas hasta parecer irreal; uno bajo no se nota.
+ * Se aplica en X e Y por igual.
+ */
+export const EARTH_NORMAL_SCALE: [number, number] = [0.6, 0.6];
+
+/**
+ * Brillo de las luces nocturnas.
+ *
+ * ⚠️ Con emissiveMap las luces se ven también de día, lo cual es incorrecto.
+ * Un valor moderado deja que el lado iluminado las apague por contraste, sin
+ * necesidad de un shader propio.
+ */
+export const EARTH_NIGHT_INTENSITY = 0.45;

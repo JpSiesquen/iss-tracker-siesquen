@@ -4,10 +4,16 @@ import { useRef } from 'react';
 import { gstime } from 'satellite.js';
 import { SRGBColorSpace, type Mesh } from 'three';
 
-import { EARTH_RADIUS, EARTH_SEGMENTS, EARTH_TILT } from './constants';
+import {
+  EARTH_NIGHT_INTENSITY,
+  EARTH_NORMAL_SCALE,
+  EARTH_RADIUS,
+  EARTH_SEGMENTS,
+  EARTH_TILT,
+} from './constants';
 
 /**
- * La Tierra: geometría, textura y rotación.
+ * La Tierra: geometría, texturas y rotación.
  *
  * Traducción a R3F de lo que en la Fase 0 se escribió a mano
  * (`sandbox/00-threejs/index.html`). La correspondencia es mecánica:
@@ -17,31 +23,47 @@ import { EARTH_RADIUS, EARTH_SEGMENTS, EARTH_TILT } from './constants';
  *   new THREE.MeshStandardMaterial({ ... })   →  <meshStandardMaterial ... />
  *   scene.add(mesh)                           →  anidar el JSX
  *
- * ⚠️ Este componente se SUSPENDE mientras carga la textura, así que necesita un
+ * ⚠️ Este componente se SUSPENDE mientras cargan las texturas, así que necesita un
  * <Suspense> por encima (ver Scene.tsx). Sin él, React lanza un error.
  */
 export function Earth() {
   const meshRef = useRef<Mesh>(null);
 
   /**
-   * El segundo argumento de useTexture se ejecuta con la textura recién
-   * cargada, antes de devolverla. Es el sitio correcto para configurarla:
-   * mutar lo que devuelve un hook está mal visto en React y el linter lo
-   * detecta (react/immutability).
+   * Un material PBR combina varias texturas, cada una controlando una propiedad
+   * distinta de la superficie:
    *
-   * Lo que se configura aquí es el detalle que hace que un globo se vea
-   * «lavado» sin motivo aparente: las texturas de color están guardadas en
-   * sRGB, pero los cálculos de iluminación de Three.js trabajan en espacio
-   * LINEAL. Hay que declararlo o el resultado sale mal.
+   *   map          color base
+   *   normalMap    relieve simulado: NO deforma la malla, altera la dirección
+   *                de la normal en cada píxel, que es lo que decide cómo rebota
+   *                la luz. Las montañas proyectan sombra con los mismos
+   *                triángulos
+   *   roughnessMap dónde brilla y dónde no: el océano pulido, la tierra mate
+   *   emissiveMap  zonas que emiten luz propia: las ciudades de noche
    *
-   * La regla: texturas de COLOR → sRGB; texturas de DATOS → lineal. Un mapa de
-   * relieve o una máscara de agua no son colores, son números; esos se quedan
-   * en lineal. Vuelve en la issue 2-8.
+   * ⚠️ Solo las texturas de COLOR llevan sRGB. Las de DATOS —normal, specular—
+   * son números, no colores, y se quedan en espacio lineal. Marcar un normalMap
+   * como sRGB deforma el relieve de forma sutil y difícil de diagnosticar.
+   *
+   * El segundo argumento de useTexture se ejecuta con las texturas recién
+   * cargadas: es el sitio correcto para configurarlas, porque mutar lo que
+   * devuelve un hook está mal visto en React y el linter lo detecta
+   * (react/immutability).
    */
-  const colorMap = useTexture('/textures/earth-color.jpg', (texture) => {
-    const mapa = Array.isArray(texture) ? texture[0] : texture;
-    mapa.colorSpace = SRGBColorSpace;
-  });
+  const [colorMap, nightMap, normalMap, specularMap] = useTexture(
+    [
+      '/textures/earth-color.jpg',
+      '/textures/earth-night.jpg',
+      '/textures/earth-normal.jpg',
+      '/textures/earth-specular.jpg',
+    ],
+    (texturas) => {
+      const lista = Array.isArray(texturas) ? texturas : [texturas];
+      lista[0].colorSpace = SRGBColorSpace; // color
+      lista[1].colorSpace = SRGBColorSpace; // luces nocturnas
+      // normal y specular se quedan en lineal: son datos, no colores
+    },
+  );
 
   /**
    * La orientación de la Tierra NO se elige: se deriva del tiempo real.
@@ -90,8 +112,24 @@ export function Earth() {
             luz, no refleja nada. */}
         <meshStandardMaterial
           map={colorMap}
-          roughness={0.8} // alto: la tierra es mate. El océano se tratará aparte en la 2-8
+          normalMap={normalMap}
+          normalScale={EARTH_NORMAL_SCALE}
+          // El specular map es claro en el agua y oscuro en la tierra. Como
+          // roughnessMap eso da un océano pulido que refleja el Sol y unos
+          // continentes mate.
+          roughnessMap={specularMap}
+          roughness={1} // se multiplica por el mapa: el valor real lo pone la textura
           metalness={0} // un planeta no es metálico
+          // Las luces de las ciudades. emissiveMap hace que el material emita
+          // luz propia, independiente de las lámparas de la escena.
+          //
+          // ⚠️ Con esto las luces se ven TAMBIÉN de día, lo cual es incorrecto.
+          // Una intensidad moderada deja que el lado iluminado las apague por
+          // contraste. Que solo emitan donde no llega el Sol exige un shader
+          // propio: es un tema en sí mismo y queda fuera de esta issue.
+          emissiveMap={nightMap}
+          emissive="#ffffff"
+          emissiveIntensity={EARTH_NIGHT_INTENSITY}
         />
       </mesh>
     </group>

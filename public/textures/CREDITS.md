@@ -45,11 +45,32 @@ ffmpeg -i original.jpg -vf "scale=4096:2048:flags=lanczos" -q:v 4 salida.jpg
   `MAX_TEXTURE_SIZE` de WebGL (a menudo 4096 u 8192) la textura falla **en silencio**: globo
   negro sin ningún error.
 
-## Pendientes
+## `earth-normal.jpg` — 2048×1024, 332 KB
 
-La **máscara de agua** (`roughnessMap`) y el **relieve** (`normalMap`/`bumpMap`) se usan en la
-issue 2-8 y no están aquí todavía.
+Mapa de normales: simula el relieve sin deformar la geometría.
 
-No se encontraron URLs oficiales de NASA que respondan, y la fuente alternativa localizada
-(`turban/webgl-earth`) **no declara licencia** — en un repositorio público eso significa que los
-derechos son del autor. Se buscarán fuentes con licencia clara al llegar a esa issue.
+- **Origen:** repositorio oficial de Three.js, `examples/textures/planets`
+- **Archivo:** `earth_normal_2048.jpg`
+- **URL:** <https://github.com/mrdoob/three.js/tree/dev/examples/textures/planets>
+- **Licencia:** MIT (la del repositorio de Three.js)
+
+## `earth-specular.jpg` — 2048×1024, 220 KB
+
+Máscara de agua: claro en el océano, oscuro en tierra. Se usa como `roughnessMap`.
+
+- **Origen:** repositorio oficial de Three.js, `examples/textures/planets`
+- **Archivo:** `earth_specular_2048.jpg`
+- **URL:** <https://github.com/mrdoob/three.js/tree/dev/examples/textures/planets>
+- **Licencia:** MIT (la del repositorio de Three.js)
+
+⚠️ Estas dos **no llevan `SRGBColorSpace`**: son texturas de datos, no de color. Marcar un
+normal map como sRGB deforma el relieve de forma sutil y difícil de diagnosticar.
+
+## Sobre la fuente de estas dos
+
+La issue 2-3 no encontró URLs oficiales de NASA que respondieran para el relieve y la máscara de
+agua, y la fuente alternativa localizada entonces (`turban/webgl-earth`) **no declaraba
+licencia** — en un repositorio público eso significa que los derechos son del autor, así que no
+se usó.
+
+El repositorio oficial de Three.js sí las incluye en sus ejemplos, con licencia **MIT** clara.
