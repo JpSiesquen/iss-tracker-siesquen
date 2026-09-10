@@ -87,3 +87,9 @@
     animation: none;
   }
 }
+
+/* Detalle que reclama atención sin llegar a ser un error: un dato orbital que
+   el servidor no pudo actualizar sigue siendo utilizable. */
+.panel__detalle--aviso {
+  color: #ff9f0a;
+}
