@@ -7,6 +7,7 @@ import './App.css';
 import { queryClient } from './api/queryClient';
 import { Scene } from './scene/Scene';
 import { theme } from './theme';
+import { LayerControls } from './ui/LayerControls';
 import { StatusPanel } from './ui/StatusPanel';
 
 /**
@@ -34,6 +35,7 @@ function App() {
           {/* Fuera del <Canvas>: es HTML normal, superpuesto con CSS. Dentro
               del Canvas solo viven objetos de Three.js. */}
           <StatusPanel />
+          <LayerControls />
         </div>
 
         {/* Panel para inspeccionar la cache: que consultas hay, en que estado,
