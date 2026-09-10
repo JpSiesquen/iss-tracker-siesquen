@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber';
 import { Suspense } from 'react';
 
 import { SPACE_COLOR } from './constants';
+import { Controls } from './Controls';
 import { Earth } from './Earth';
 import { Lights } from './Lights';
 
@@ -35,6 +36,7 @@ export function Scene() {
       // El espacio no es gris.
       style={{ background: SPACE_COLOR }}
     >
+      <Controls />
       <Lights />
 
       {/* <Earth> se suspende mientras carga su textura, asi que necesita un

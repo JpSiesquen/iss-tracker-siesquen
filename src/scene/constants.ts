@@ -59,3 +59,13 @@ export const AMBIENT_INTENSITY = 0.12;
  * como un agujero, y un azul muy oscuro da sensación de profundidad.
  */
 export const SPACE_COLOR = '#05060a';
+
+/**
+ * Límites de zoom de la cámara, en unidades de escena (EARTH_RADIUS = 1).
+ *
+ * El mínimo evita entrar dentro de la Tierra; el máximo, perderla de vista.
+ * En la Fase 3 la ISS se dibujará a ~1.15 del centro, así que el mínimo debe
+ * dejar sitio para verla.
+ */
+export const CAMERA_MIN_DISTANCE = 1.5;
+export const CAMERA_MAX_DISTANCE = 8;
