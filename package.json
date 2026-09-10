@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "hooks": "husky"
+    "hooks": "husky",
+    "check:server": "node scripts/check-dev-server.mjs",
+    "reinstall": "node scripts/check-dev-server.mjs && npm ci"
   },
   "dependencies": {
     "react": "19.3.0",
