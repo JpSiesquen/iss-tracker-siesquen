@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 
 import { useIssTelemetry } from '../api/useIssTelemetry';
 import { useTle } from '../api/useTle';
+import { useUiStore } from '../store/ui';
 import {
   formatAge,
   formatAltitude,
@@ -36,8 +37,15 @@ import './StatusPanel.css';
  * central es donde se mira.
  */
 export function StatusPanel() {
+  /**
+   * Selector: este componente solo se re-renderiza si cambia `verPanel`,
+   * no cuando se alterna la órbita o las referencias.
+   */
+  const verPanel = useUiStore((s) => s.verPanel);
   const posicion = useIssTelemetry();
   const { elementos, esObsoleto, edadMs, isError, isPending } = useTle();
+
+  if (!verPanel) return null;
 
   if (isPending) {
     return (
