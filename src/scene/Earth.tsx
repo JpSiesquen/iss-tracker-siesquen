@@ -5,6 +5,7 @@ import { gstime } from 'satellite.js';
 import { SRGBColorSpace, type Mesh } from 'three';
 
 import { DebugMarkers } from './DebugMarkers';
+import { IssMarker } from './IssMarker';
 import {
   EARTH_NIGHT_INTENSITY,
   EARTH_NORMAL_SCALE,
@@ -95,10 +96,13 @@ export function Earth() {
        de la Tierra. Mezclarlas en el mismo objeto haría que rotar sobre Y
        desviara también el eje de inclinación, y el planeta se tambalearía.
 
-       ⚠️ Clave para la Fase 3: la ISS irá DENTRO de este grupo (para heredar la
-       inclinación) pero FUERA del mesh que rota. Su lat/lon ya expresa dónde
-       está respecto a la superficie; heredar además la rotación la aplicaría
-       dos veces. */
+       La ISS va DENTRO de este grupo, para heredar la inclinación, pero FUERA
+       del mesh que rota: no está pegada a la superficie, orbita por su cuenta.
+
+       ⚠️ Eso NO significa que ignore la rotación terrestre. Su lat/lon está en
+       ECEF, un sistema que gira CON la Tierra, así que el marcador aplica
+       gstime() a su propio vector (ver IssMarker.tsx). Sin esa rotación
+       aparece a 89.5° del punto correcto — casi 10 000 km. */
     <group rotation={[0, 0, EARTH_TILT]}>
       <mesh ref={meshRef}>
         {/* La geometría y el material van DENTRO del mesh, y no es decoración de
@@ -140,6 +144,10 @@ export function Earth() {
             import.meta.env.DEV desaparece al compilar para produccion. */}
         {import.meta.env.DEV && <DebugMarkers />}
       </mesh>
+
+      {/* La ISS: hermana del mesh, no hija. Hereda la inclinación del grupo
+          pero no la rotación diaria de la Tierra. */}
+      <IssMarker />
     </group>
   );
 }

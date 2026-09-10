@@ -109,3 +109,24 @@ export const DEBUG_MARKER_SIZE = 0.015;
  * en la malla, que a 64 segmentos no es una esfera perfecta.
  */
 export const DEBUG_MARKER_RADIUS = 1.005;
+
+/**
+ * Tamaño del marcador de la ISS, en unidades de escena.
+ *
+ * A escala real sería absurdo: la estación mide 109 m frente a los 12 742 km
+ * de diámetro terrestre, o sea 0.0000086 unidades. Un punto invisible. El
+ * marcador no representa su tamaño, sino su posición.
+ */
+export const ISS_MARKER_SIZE = 0.022;
+
+/** Color del marcador. Cálido, para contrastar con el azul del planeta. */
+export const ISS_MARKER_COLOR = '#ffcc00';
+
+/**
+ * Intensidad de la emisión del marcador.
+ *
+ * Emisivo para que se vea igual sobre el lado nocturno que sobre el diurno:
+ * un marcador que desaparece la mitad del tiempo no sirve de nada. Por encima
+ * de 1 el tone mapping ACES lo mantiene brillante sin quemarlo.
+ */
+export const ISS_MARKER_EMISSIVE_INTENSITY = 1.8;
