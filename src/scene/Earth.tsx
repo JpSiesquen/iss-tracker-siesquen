@@ -1,10 +1,10 @@
 import { useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
-import { gstime } from 'satellite.js';
 import { SRGBColorSpace, type Mesh } from 'three';
 
 import { DebugMarkers } from './DebugMarkers';
+import { useSceneTime } from './sceneTime';
 import { IssMarker } from './IssMarker';
 import {
   EARTH_NIGHT_INTENSITY,
@@ -30,6 +30,7 @@ import {
  */
 export function Earth() {
   const meshRef = useRef<Mesh>(null);
+  const tiempo = useSceneTime();
 
   /**
    * Un material PBR combina varias texturas, cada una controlando una propiedad
@@ -70,9 +71,12 @@ export function Earth() {
   /**
    * La orientación de la Tierra NO se elige: se deriva del tiempo real.
    *
-   * gstime() devuelve el GMST (Greenwich Mean Sidereal Time): el ángulo que ha
-   * girado la Tierra respecto a las estrellas en ese instante. Aplicarlo como
-   * rotación en Y deja el globo orientado según la hora que es de verdad.
+   * El GMST (Greenwich Mean Sidereal Time) es el ángulo que ha girado la Tierra
+   * respecto a las estrellas en ese instante. Aplicarlo como rotación en Y deja
+   * el globo orientado según la hora que es de verdad.
+   *
+   * Desde la issue #37 lo calcula `useSceneTime` una sola vez por fotograma, y
+   * la propagación orbital de la ISS usa exactamente ese mismo instante.
    *
    * Tres problemas que esto elimina:
    *   1. No hay velocidad que ajustar: la orientación es consecuencia de la hora.
@@ -86,7 +90,7 @@ export function Earth() {
    */
   useFrame(() => {
     if (meshRef.current) {
-      meshRef.current.rotation.y = gstime(new Date());
+      meshRef.current.rotation.y = tiempo.current.gmst;
     }
   });
 
