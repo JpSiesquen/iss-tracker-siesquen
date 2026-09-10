@@ -1,9 +1,11 @@
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
+import { AnimatePresence, motion } from 'motion/react';
 import type { ReactNode } from 'react';
 
 import { useIssTelemetry } from '../api/useIssTelemetry';
+import { MOTION_DURATION, MOTION_OFFSET } from './constants';
 import { useTle } from '../api/useTle';
 import { useUiStore } from '../store/ui';
 import {
@@ -49,7 +51,7 @@ export function StatusPanel() {
 
   if (isPending) {
     return (
-      <PanelBase role="status">
+      <PanelBase role="status" clave="cargando">
         <Box component="span" className="panel__punto panel__punto--cargando" />
         Localizando la ISS…
       </PanelBase>
@@ -64,7 +66,7 @@ export function StatusPanel() {
    */
   if (isError || !elementos || !posicion) {
     return (
-      <PanelBase role="alert" borderColor="rgb(255 69 58 / 0.45)">
+      <PanelBase role="alert" borderColor="rgb(255 69 58 / 0.45)" clave="error">
         <Typography component="span" variant="body2" sx={{ fontWeight: 600 }}>
           No se pudieron obtener los datos orbitales.
         </Typography>
@@ -77,6 +79,7 @@ export function StatusPanel() {
     <PanelBase
       role="status"
       borderColor={esObsoleto ? 'rgb(255 159 10 / 0.45)' : undefined}
+      clave="datos"
     >
       <Box
         component="span"
@@ -140,32 +143,54 @@ function PanelBase({
   children,
   role,
   borderColor,
+  clave,
 }: {
   children: ReactNode;
   role: string;
   borderColor?: string;
+  clave: string;
 }) {
   return (
-    <Paper
-      role={role}
-      sx={{
-        position: 'absolute',
-        top: 16,
-        left: 16,
-        zIndex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 0.4,
-        px: 1.75,
-        py: 1.25,
-        minWidth: 210,
-        fontSize: '0.8rem',
-        lineHeight: 1.45,
-        pointerEvents: 'none',
-        ...(borderColor ? { borderColor } : {}),
-      }}
-    >
-      {children}
-    </Paper>
+    <AnimatePresence mode="wait">
+      <Paper
+        /**
+         * ⚠️ Se anima el CAMBIO DE ESTADO, no el contenido.
+         *
+         * La `key` distinta por estado hace que React trate «cargando»,
+         * «error» y «datos» como elementos diferentes, así que Motion puede
+         * animar la salida de uno y la entrada del siguiente. Suaviza el salto
+         * brusco entre no tener datos y tenerlos.
+         *
+         * Lo que NO se anima: los números de telemetría. Cambian cada segundo
+         * y animarlos sería ruido constante, justo lo contrario de lo que se
+         * busca en un dato que hay que poder leer.
+         */
+        key={clave}
+        component={motion.div}
+        initial={{ opacity: 0, y: -MOTION_OFFSET }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -MOTION_OFFSET }}
+        transition={{ duration: MOTION_DURATION, ease: 'easeOut' }}
+        role={role}
+        sx={{
+          position: 'absolute',
+          top: 16,
+          left: 16,
+          zIndex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 0.4,
+          px: 1.75,
+          py: 1.25,
+          minWidth: 210,
+          fontSize: '0.8rem',
+          lineHeight: 1.45,
+          pointerEvents: 'none',
+          ...(borderColor ? { borderColor } : {}),
+        }}
+      >
+        {children}
+      </Paper>
+    </AnimatePresence>
   );
 }
