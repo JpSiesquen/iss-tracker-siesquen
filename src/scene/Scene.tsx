@@ -38,7 +38,6 @@ export function Scene() {
       style={{ background: SPACE_COLOR }}
     >
       <Controls />
-      <Lights />
 
       {/* <Earth> se suspende mientras carga su textura, asi que necesita un
           Suspense por encima. fallback={null} = no mostrar nada mientras tanto;
@@ -51,6 +50,12 @@ export function Scene() {
           propaguen con exactamente el mismo tiempo: usar instantes distintos
           produce un desfase en longitud consistente y difícil de detectar. */}
       <SceneTimeProvider>
+        {/* Las luces van DENTRO del proveedor: desde la issue #77 la posición
+            del Sol se calcula a partir del instante de la escena, igual que la
+            rotación terrestre y la propagación de la órbita. Todo sale del
+            mismo tiempo. */}
+        <Lights />
+
         <Suspense fallback={null}>
           <Earth />
         </Suspense>
