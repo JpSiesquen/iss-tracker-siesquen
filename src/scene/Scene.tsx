@@ -1,6 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { Suspense } from 'react';
 
+import { SPACE_COLOR } from './constants';
 import { Earth } from './Earth';
 import { Lights } from './Lights';
 
@@ -32,7 +33,7 @@ export function Scene() {
       // una mejora casi imperceptible. Vuelve en la issue 6-2 (rendimiento).
       dpr={[1, 2]}
       // El espacio no es gris.
-      style={{ background: '#05060a' }}
+      style={{ background: SPACE_COLOR }}
     >
       <Lights />
 

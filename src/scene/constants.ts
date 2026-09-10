@@ -31,13 +31,31 @@ export const EARTH_SEGMENTS = 64;
  */
 export const SUN_POSITION: [number, number, number] = [5, 3, 5];
 
-/** Intensidad del Sol. Se reajusta en la issue 2-5, con la textura ya aplicada. */
-export const SUN_INTENSITY = 3;
+/**
+ * Intensidad del Sol.
+ *
+ * R3F aplica ACES Filmic tone mapping por defecto, que comprime los tonos
+ * altos: la misma intensidad se percibe más apagada que sin él. Con la textura
+ * aplicada (issue 2-4) el valor de la Fase 0 se quedaba corto, porque una
+ * superficie con detalle refleja distinto que un color plano.
+ */
+export const SUN_INTENSITY = 3.5;
 
 /**
  * Luz de relleno. Solo evita que la cara oscura sea negro absoluto.
  *
+ * A 0.12, un píxel de brillo medio en el lado nocturno queda en torno a
+ * 12/255: visible pero claramente en sombra, que es lo que deja apreciar el
+ * terminador.
+ *
  * ⚠️ No subirla para «ver mejor» el lado nocturno: aplasta el degradado entre
- * día y noche, que es justo el efecto que se busca.
+ * día y noche, que es justo el efecto que se busca. En la issue 2-8 ese lado
+ * se ilumina como toca, con las luces de las ciudades.
  */
-export const AMBIENT_INTENSITY = 0.15;
+export const AMBIENT_INTENSITY = 0.12;
+
+/**
+ * Color del espacio. Casi negro, pero no negro puro: un negro absoluto se ve
+ * como un agujero, y un azul muy oscuro da sensación de profundidad.
+ */
+export const SPACE_COLOR = '#05060a';
