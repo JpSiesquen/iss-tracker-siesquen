@@ -199,18 +199,42 @@ del constructor **en orden**. No hay magia: es una traducción mecánica.
 
 | Three.js puro | R3F | Comprobado en |
 |---|---|---|
-| `new THREE.Scene()` | lo crea `<Canvas>` | |
-| `new THREE.PerspectiveCamera(...)` | `<Canvas camera={{ ... }}>` | |
-| `new THREE.WebGLRenderer()` | lo crea `<Canvas>` | |
-| `new THREE.Mesh(geo, mat)` | `<mesh>` | |
-| `new THREE.SphereGeometry(1, 32, 32)` | `<sphereGeometry args={[1, 32, 32]} />` | |
-| `new THREE.MeshStandardMaterial({...})` | `<meshStandardMaterial ... />` | |
-| `new THREE.DirectionalLight(0xfff, 3)` | `<directionalLight intensity={3} />` | |
-| `scene.add(obj)` | anidar el JSX | |
-| El bucle `animate()` | `useFrame((state, delta) => ...)` | |
-| `renderer.render(...)` | automático | |
+| `new THREE.Scene()` | lo crea `<Canvas>` | `Scene.tsx` |
+| `new THREE.PerspectiveCamera(...)` | `<Canvas camera={{ ... }}>` | `Scene.tsx` |
+| `new THREE.WebGLRenderer()` | lo crea `<Canvas>` | `Scene.tsx` |
+| `new THREE.Mesh(geo, mat)` | `<mesh>` | `Earth.tsx` |
+| `new THREE.SphereGeometry(1, 64, 64)` | `<sphereGeometry args={[1, 64, 64]} />` | `Earth.tsx` |
+| `new THREE.MeshStandardMaterial({...})` | `<meshStandardMaterial ... />` | `Earth.tsx` |
+| `new THREE.DirectionalLight(0xfff, 3)` | `<directionalLight intensity={3} />` | `Lights.tsx` |
+| `sun.position.set(5, 3, 5)` | `position={[5, 3, 5]}` | `Lights.tsx` |
+| `new THREE.AmbientLight(0xfff, 0.12)` | `<ambientLight intensity={0.12} />` | `Lights.tsx` |
+| `new THREE.Object3D()` (contenedor) | `<group>` | `Earth.tsx` |
+| `scene.add(obj)` | anidar el JSX | todos |
+| El bucle `animate()` | `useFrame((state, delta) => …)` | `Earth.tsx` |
+| `renderer.render(...)` | automático | — |
+| `new THREE.TextureLoader().load(...)` | `useTexture('/ruta.jpg')` de drei | `Earth.tsx` |
+| `controls.update()` cada frame | lo hace `<OrbitControls>` de drei | `Controls.tsx` |
 
-> **Completar la última columna en la Fase 2**, al ir traduciendo cada pieza (issues 2-1 y 2-2).
+✅ **Completada en la Fase 2.** La traducción resultó ser exactamente mecánica: ninguna pieza
+necesitó un enfoque distinto, solo otra sintaxis.
+
+### Lo que se aprendió al traducir
+
+**El linter obligó a la estructura correcta, dos veces.** Con `--deny-warnings` (issue 1.5-1),
+dos avisos que se habrían ignorado bloquearon el commit y ambos señalaban problemas reales:
+
+- `react(only-export-components)` — exportar constantes junto a componentes rompe el *fast
+  refresh* de React. Obligó a crear `constants.ts`, que además es donde tenían que estar.
+- `react(immutability)` — mutar lo que devuelve un hook (`colorMap.colorSpace = …`) puede dar
+  comportamiento inconsistente al re-renderizar. La forma correcta es el callback de
+  `useTexture`.
+
+**`<Suspense>` es obligatorio con `useTexture`.** El componente se suspende mientras carga, y
+sin un `<Suspense>` **envolviéndolo** React lanza un error. No puede ir dentro: un componente no
+puede ser su propio fallback.
+
+**El `<Canvas>` mide lo que mida su contenedor**, y un `div` sin altura mide cero — el canvas
+desaparece sin ningún error. Hace falta altura en toda la cadena: `html`, `body`, `#root`.
 
 ## Lo que hace `<Canvas>` por ti
 
