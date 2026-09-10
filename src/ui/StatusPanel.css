@@ -1,0 +1,89 @@
+/* El panel se superpone al globo. `position: absolute` lo saca del flujo, y
+   el contenedor `.app` es el que da la referencia. */
+.panel {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+
+  /* Fondo translúcido para que se vea el globo detrás sin perder legibilidad. */
+  background: rgb(10 12 20 / 0.72);
+  backdrop-filter: blur(8px);
+
+  font-size: 0.8rem;
+  line-height: 1.45;
+
+  /* ⚠️ Sin esto, el panel captura el ratón y no se puede girar el globo por
+     debajo de él. Los controles de órbita dejarían de responder en esa zona. */
+  pointer-events: none;
+}
+
+.panel--error {
+  border-color: rgb(255 69 58 / 0.45);
+}
+
+.panel--aviso {
+  border-color: rgb(255 159 10 / 0.45);
+}
+
+.panel__coords {
+  font-variant-numeric: tabular-nums; /* cifras de ancho fijo: no bailan al cambiar */
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.panel__detalle {
+  color: rgb(232 234 237 / 0.65);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Indicador de estado: un punto de color. */
+.panel__punto {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+}
+
+.panel__punto--vivo {
+  background: #32d74b;
+}
+
+.panel__punto--aviso {
+  background: #ff9f0a;
+}
+
+.panel__punto--cargando {
+  position: static;
+  display: inline-block;
+  margin-right: 0.4rem;
+  background: #0a84ff;
+  animation: latido 1.4s ease-in-out infinite;
+}
+
+@keyframes latido {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Respeta a quien haya pedido menos movimiento en su sistema. */
+@media (prefers-reduced-motion: reduce) {
+  .panel__punto--cargando {
+    animation: none;
+  }
+}

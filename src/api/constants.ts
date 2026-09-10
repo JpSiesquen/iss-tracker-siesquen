@@ -45,3 +45,20 @@ export const ISS_STALE_TIME_MS = 4000;
  * petición concreta solo retrasa el momento de mostrar el error.
  */
 export const ISS_QUERY_RETRIES = 1;
+
+/**
+ * A partir de cuántos milisegundos se considera «viejo» un dato.
+ *
+ * Con refresco cada 5 s, 30 s significa que han fallado unos seis intentos
+ * seguidos: ya no es una lentitud puntual sino un problema real, y el usuario
+ * merece saber que lo que ve no es de ahora.
+ */
+export const ISS_STALE_WARNING_MS = 30_000;
+
+/**
+ * Cada cuánto se recalcula el «hace N segundos» de la interfaz.
+ *
+ * No tiene nada que ver con pedir datos: es solo repintar un contador. Un
+ * segundo basta para que se vea vivo sin re-renderizar de más.
+ */
+export const ISS_AGE_TICK_MS = 1000;

@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import './App.css';
 import { queryClient } from './api/queryClient';
 import { Scene } from './scene/Scene';
+import { StatusPanel } from './ui/StatusPanel';
 
 /**
  * El QueryClientProvider va aqui, en la raiz y FUERA del <Canvas>.
@@ -18,6 +19,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <div className="app">
         <Scene />
+
+        {/* Fuera del <Canvas>: es HTML normal, superpuesto con CSS. Dentro del
+            Canvas solo viven objetos de Three.js. */}
+        <StatusPanel />
       </div>
 
       {/* Panel para inspeccionar la cache: que consultas hay, en que estado,
