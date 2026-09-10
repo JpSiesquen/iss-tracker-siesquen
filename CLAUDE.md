@@ -5,6 +5,25 @@ se obtiene de una API pública, la órbita se propaga con SGP4 y se dibuja con W
 
 **Producción:** https://iss-tracker-siesquen.vercel.app
 
+## Estado
+
+**Fases 0 a 3 cerradas** (35 issues). La ISS se sigue en vivo: su posición real llega de la
+API, se valida, se refresca cada cinco segundos y se dibuja interpolada sobre el globo, con
+sus estados de carga y error cubiertos.
+
+La Fase 3 era el **corte natural**: a partir de aquí todo es mejora, no necesidad.
+
+| Fase | | |
+|---|---|---|
+| 0 · Three.js puro | 7/7 | ✅ |
+| 1 · Andamiaje | 10/10 | ✅ |
+| 1.5 · Automatización | 3/3 | ✅ |
+| 2 · El globo | 8/8 | ✅ |
+| 3 · La ISS en vivo | 7/7 | ✅ |
+| 4 · El BFF | 0/5 | |
+| 5 · Órbita e interfaz | 0/8 | |
+| 6 · Cierre | 0/5 | |
+
 ## Comandos
 
 ```bash
@@ -24,11 +43,11 @@ bloquea los archivos que otro proceso tiene abiertos.
 React 19 · TypeScript · Vite 8 · oxlint (no ESLint) · Prettier
 
 **Ya instalado:** Three.js 0.186 con React Three Fiber 9.7 y drei · satellite.js 7.1
-(adelantada de la Fase 5: `gstime` orienta la Tierra por GMST).
+(adelantada de la Fase 5: `gstime` orienta la Tierra por GMST) · TanStack Query 5.102
+(datos remotos) · Zod 4.5 (validación).
 
-**Por fase, según se vaya necesitando:** TanStack Query (datos remotos) · Zod (validación) ·
-Zustand (estado de UI) · Material UI (interfaz) · funciones serverless de Vercel (BFF que
-cachea los TLE).
+**Por fase, según se vaya necesitando:** Zustand (estado de UI) · Material UI (interfaz) ·
+funciones serverless de Vercel (BFF que cachea los TLE).
 
 ⚠️ **React está fijado en 19.2.8**, no 19.3: `@react-three/fiber` exige `>=19 <19.3` y ninguna
 versión suya lo soporta todavía.
@@ -38,12 +57,19 @@ Sin base de datos: no hay estado que persistir.
 ## Estructura
 
 ```
-src/           aplicación React
+src/api/       capa de datos: cliente, esquema de Zod y hooks de Query
+src/lib/       funciones puras sin React ni Three (conversión de coordenadas)
+src/scene/     todo lo que vive dentro del <Canvas>
+src/ui/        HTML superpuesto al globo, fuera del <Canvas>
 sandbox/       experimentos de la Fase 0 en Three.js puro, sin bundler
 docs/          documentación técnica del proyecto
 api/           funciones serverless (a partir de la Fase 4)
 public/        estáticos, incluidas las texturas
 ```
+
+La frontera entre `scene/` y `ui/` no es estética: dentro del `<Canvas>` solo valen objetos
+de Three.js, y una etiqueta HTML ahí lanza un error. El contexto de React sí lo atraviesa,
+así que un componente 3D puede usar los hooks de `api/`.
 
 `vite.config.ts` excluye `sandbox/` del escaneo de dependencias: usa un import map contra un
 CDN, que Vite no sabe resolver.
@@ -104,8 +130,20 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
 - **La orientación de la Tierra se deriva del GMST**, no de una velocidad:
   `rotation.y = gstime(new Date())`. La posición de la ISS y la orientación del globo están
   acopladas — acelerar la rotación pondría el marcador sobre el país equivocado.
-- **La ISS irá dentro del `<group>` de inclinación pero fuera del mesh que rota.** Su lat/lon ya
-  expresa dónde está respecto a la superficie; heredar la rotación la aplicaría dos veces.
+- **La ISS va dentro del `<group>` de inclinación pero fuera del mesh que rota** — y aun así
+  **aplica `gstime()` a su propio vector**. Su lat/lon está en ECEF, un sistema que gira con la
+  Tierra: Greenwich no está quieto en la escena. Medido: sin esa rotación el marcador aparece a
+  89.5° del punto correcto, casi 10 000 km. Un punto fijo de la superficie sí es hijo del mesh.
+- **Todo lo que entra de fuera se valida con Zod, no con `as`.** Los tipos desaparecen al
+  compilar; un `as` sobre una respuesta de red es una promesa, no una comprobación. Sin validar,
+  un `latitude: null` no lanza nada: `null * Math.PI / 180` es 0 y el fallo aparece tres archivos
+  después.
+- **Convertir primero, interpolar después.** En cartesianas las longitudes 179.9 y −179.9 son
+  vecinas (0.0053 unidades); en grados el salto sería de 359.8° y el marcador cruzaría el planeta
+  al revés. El orden elimina el problema del antimeridiano en vez de tener que tratarlo.
+- **En datos en vivo, la antigüedad del dato es parte del dato.** Si la conexión se corta, la
+  última posición conocida se queda en pantalla como si fuera actual. Siempre se muestra cuándo
+  se actualizó.
 - **`worker: { format: 'es' }` en `vite.config.ts` es necesario**, no opcional: satellite.js
   incluye una build de WASM con top-level await, y el formato `iife` por defecto de los workers
   no lo admite.
