@@ -7,10 +7,12 @@ se obtiene de una API pública, la órbita se propaga con SGP4 y se dibuja con W
 
 ## Estado
 
-**39 issues cerradas.** La ISS se sigue en vivo sobre el globo, y el BFF ya sirve los
-elementos orbitales cacheados desde `/api/tle`.
+**48 issues cerradas.** El proyecto calcula la posición de la ISS con SGP4 a partir de los
+elementos que sirve su propio BFF, dibuja la traza orbital, y el Sol ilumina el globo donde
+lo hace de verdad.
 
-La Fase 3 era el **corte natural**: a partir de aquí todo es mejora, no necesidad.
+**Ya no depende de ninguna API de terceros en el cliente**: la única URL externa está en
+`api/tle.ts`, en el servidor.
 
 | Fase | | |
 |---|---|---|
@@ -19,13 +21,16 @@ La Fase 3 era el **corte natural**: a partir de aquí todo es mejora, no necesid
 | 1.5 · Automatización | 3/3 | ✅ |
 | 2 · El globo | 8/8 | ✅ |
 | 3 · La ISS en vivo | 7/7 | ✅ |
-| 4 · El BFF | 4/5 | falta #36 |
-| 5 · Órbita e interfaz | 0/8 | |
+| 4 · El BFF | 5/5 | ✅ |
+| 5 · Órbita e interfaz | 8/8 | ✅ |
 | 6 · Cierre | 0/5 | |
 
-**Siguiente:** #36 — que el frontend consuma `/api/tle` en lugar de la API de posición.
-Con eso el proyecto calcula la órbita él mismo y deja de depender de un tercero para la
-posición.
+**Siguiente:** la Fase 6 — móvil (#44), rendimiento (#45), accesibilidad (#46), README (#47)
+y cierre (#48).
+
+⚠️ **Para #45:** el bundle está en **437 KB comprimidos**. Medido por partes: MUI añadió
+~80 KB y Motion ~52 KB. El `backdropFilter` de los paneles tiene coste de GPU con una escena
+3D detrás.
 
 ## Comandos
 
@@ -45,11 +50,11 @@ bloquea los archivos que otro proceso tiene abiertos.
 
 React 19 · TypeScript · Vite 8 · oxlint (no ESLint) · Prettier
 
-**Ya instalado:** Three.js 0.186 con React Three Fiber 9.7 y drei · satellite.js 7.1
-(adelantada de la Fase 5: `gstime` orienta la Tierra por GMST) · TanStack Query 5.102
-(datos remotos) · Zod 4.5 (validación).
+Three.js 0.186 con React Three Fiber 9.7 y drei · satellite.js 7.1 (SGP4 y GMST) ·
+TanStack Query 5.102 (estado de servidor) · Zod 4.5 (validación) · Zustand 5.0 (estado de
+interfaz) · Material UI 9.4 con Emotion · Lucide (iconos) · Motion (transiciones).
 
-**Por fase, según se vaya necesitando:** Zustand (estado de UI) · Material UI (interfaz).
+El stack está completo: no queda nada por instalar.
 
 ⚠️ **React está fijado en 19.2.8**, no 19.3: `@react-three/fiber` exige `>=19 <19.3` y ninguna
 versión suya lo soporta todavía.
@@ -60,7 +65,8 @@ Sin base de datos: no hay estado que persistir.
 
 ```
 src/api/       capa de datos: cliente, esquema de Zod y hooks de Query
-src/lib/       funciones puras sin React ni Three (conversión de coordenadas)
+src/lib/       funciones puras: coordenadas, propagación SGP4, traza, posición solar
+src/store/     estado de interfaz (Zustand)
 src/scene/     todo lo que vive dentro del <Canvas>
 src/ui/        HTML superpuesto al globo, fuera del <Canvas>
 sandbox/       experimentos de la Fase 0 en Three.js puro, sin bundler
@@ -195,6 +201,29 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
 - **En datos en vivo, la antigüedad del dato es parte del dato.** Si la conexión se corta, la
   última posición conocida se queda en pantalla como si fuera actual. Siempre se muestra cuándo
   se actualizó.
+- **Un solo instante para toda la escena.** `useSceneTime` calcula la fecha y el GMST una vez
+  por fotograma; la Tierra, la ISS, la traza y el Sol leen ese valor. Medido: el desfase entre
+  dos `new Date()` en el mismo fotograma es de 7 metros, así que el motivo no es la precisión
+  sino que la fuente sea única y se pueda controlar desde un sitio.
+  ⚠️ Lo que viaja por el contexto es el **ref**, no el valor: pasar el valor re-renderizaría a
+  todos los consumidores sesenta veces por segundo.
+- **Todo lo que se calcula en lat/lon está en ECEF y necesita la rotación GMST.** Vale para la
+  ISS, para la traza y para el Sol. Sin ella el error es consistente y creíble a la vista —el
+  peor tipo—: la escena sigue teniendo un lado día y otro noche perfectamente normales.
+- **Estado de servidor en Query, estado de interfaz en Zustand.** Nunca un dato de API en el
+  store: duplicarlo crea dos fuentes de verdad que se desincronizan. Y siempre con selectores
+  (`useUiStore((s) => s.campo)`), no el store entero — medido: con selectores, alternar una
+  capa produce 0 renders en los componentes que miran otra.
+- **Ocultar una capa la desmonta** (`{cond && <X/>}`), no la esconde. Con `visible={false}` la
+  traza seguiría propagando SGP4 cada 30 s para nadie.
+- **Cada cálculo a su ritmo.** La escena 3D propaga 60 veces por segundo mutando objetos de
+  Three.js; el panel, 1 vez por segundo con render de React; la traza se rehace cada 30 s. No
+  es duplicar trabajo: es el mismo cálculo al ritmo que cada uno necesita.
+- **`prefers-reduced-motion` se respeta en el tema.** No es estético: hay personas a quienes el
+  movimiento les provoca mareo o migraña. Se usa `0.01ms` y no `0` para que `AnimatePresence`
+  siga recibiendo los eventos de fin de animación.
+- **Los iconos acompañan al texto, nunca lo sustituyen**, y van con `aria-hidden` porque el
+  texto ya dice lo que hay.
 - **`worker: { format: 'es' }` en `vite.config.ts` es necesario**, no opcional: satellite.js
   incluye una build de WASM con top-level await, y el formato `iife` por defecto de los workers
   no lo admite.
