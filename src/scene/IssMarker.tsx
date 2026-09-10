@@ -1,10 +1,11 @@
 import { useFrame } from '@react-three/fiber';
-import { useMemo, useRef } from 'react';
+import { useRef } from 'react';
 import { Vector3, type Group, type Mesh } from 'three';
 
-import { useTle } from '../api/useTle';
 import { altitudeToRadius, latLonToVector3 } from '../lib/coordinates';
-import { createSatrec, propagateToGeodetic } from '../lib/orbit';
+import { propagateToGeodetic } from '../lib/orbit';
+import { GroundTrack } from './GroundTrack';
+import { useSatrec } from './useSatrec';
 import { useSceneTime } from './sceneTime';
 import {
   ISS_MARKER_COLOR,
@@ -35,7 +36,7 @@ export function IssMarker() {
   const grupoRef = useRef<Group>(null);
   const meshRef = useRef<Mesh>(null);
   const tiempo = useSceneTime();
-  const { elementos } = useTle();
+  const satrec = useSatrec();
 
   /**
    * Si ya se colocó el marcador alguna vez.
@@ -48,15 +49,6 @@ export function IssMarker() {
 
   /** Vector reutilizado para no crear uno nuevo en cada fotograma. */
   const objetivo = useRef(new Vector3());
-
-  /**
-   * El propagador SGP4, construido a partir de los elementos orbitales.
-   *
-   * `useMemo` porque inicializarlo es caro —SGP4 precalcula constantes— y solo
-   * cambia cuando llegan elementos nuevos, cada seis horas. Rehacerlo sesenta
-   * veces por segundo sería absurdo.
-   */
-  const satrec = useMemo(() => (elementos ? createSatrec(elementos) : null), [elementos]);
 
   /**
    * La posición se calcula EN CADA FOTOGRAMA, no cuando llegan datos.
@@ -104,25 +96,32 @@ export function IssMarker() {
   if (!satrec) return null;
 
   return (
-    /* El grupo existe para separar responsabilidades: la rotación terrestre va
-       en el grupo, la posición orbital en el mesh. Mezclarlas obligaría a
-       recalcular el vector rotado en cada fotograma en lugar de dejar que lo
-       haga la matriz de transformación, que es justo para lo que está. */
-    <group ref={grupoRef}>
-      {/* La posición NO se pasa como prop: la controla useFrame interpolando.
-          Darle una prop position haría que React la reescribiera en cada
-          render con el valor de golpe, anulando el suavizado. */}
-      <mesh ref={meshRef}>
-        <sphereGeometry args={[ISS_MARKER_SIZE, 16, 16]} />
-        {/* Emisivo para que se vea igual sobre el lado nocturno que sobre el
-            diurno. Un marcador que desaparece media órbita no sirve. */}
-        <meshStandardMaterial
-          color={ISS_MARKER_COLOR}
-          emissive={ISS_MARKER_COLOR}
-          emissiveIntensity={ISS_MARKER_EMISSIVE_INTENSITY}
-          toneMapped={false}
-        />
-      </mesh>
-    </group>
+    <>
+      {/* La traza comparte el propagador y la jerarquía del marcador: ambos
+          derivan del mismo cálculo, así que pasar por el mismo punto no es una
+          coincidencia afortunada sino una consecuencia estructural. */}
+      <GroundTrack satrec={satrec} />
+
+      {/* El grupo separa responsabilidades: la rotación terrestre va en el
+          grupo, la posición orbital en el mesh. Mezclarlas obligaría a
+          recalcular el vector rotado en cada fotograma en lugar de dejar que lo
+          haga la matriz de transformación, que es justo para lo que está. */}
+      <group ref={grupoRef}>
+        {/* La posición NO se pasa como prop: la controla useFrame. Darle una
+            prop position haría que React la reescribiera en cada render,
+            anulando el cálculo del fotograma. */}
+        <mesh ref={meshRef}>
+          <sphereGeometry args={[ISS_MARKER_SIZE, 16, 16]} />
+          {/* Emisivo para que se vea igual sobre el lado nocturno que sobre el
+              diurno. Un marcador que desaparece media órbita no sirve. */}
+          <meshStandardMaterial
+            color={ISS_MARKER_COLOR}
+            emissive={ISS_MARKER_COLOR}
+            emissiveIntensity={ISS_MARKER_EMISSIVE_INTENSITY}
+            toneMapped={false}
+          />
+        </mesh>
+      </group>
+    </>
   );
 }

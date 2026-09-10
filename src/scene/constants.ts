@@ -142,3 +142,27 @@ export const ISS_MARKER_EMISSIVE_INTENSITY = 1.8;
  * Se deja anotado en lugar de borrarlo sin más porque la interpolación seguía
  * siendo correcta — dejó de hacer falta, que no es lo mismo que estar mal.
  */
+
+/**
+ * Colores de la traza orbital.
+ *
+ * Pasado y futuro se distinguen a propósito: sin esa diferencia la línea no
+ * dice hacia dónde va la estación, y haría falta una flecha para contarlo.
+ *
+ * El futuro comparte el color del marcador —es hacia donde se dirige— y el
+ * pasado va en un tono frío y apagado, que se lee como estela.
+ */
+export const TRACK_FUTURE_COLOR = '#ffcc00';
+export const TRACK_PAST_COLOR = '#5eb0ff';
+
+/** Grosor de la traza, en píxeles. Independiente de la distancia de la cámara. */
+export const TRACK_LINE_WIDTH = 1.6;
+
+/**
+ * Opacidad de cada tramo.
+ *
+ * La traza no debe competir con el planeta: es contexto, no protagonista. El
+ * pasado va más tenue que el futuro porque ya ocurrió.
+ */
+export const TRACK_FUTURE_OPACITY = 0.85;
+export const TRACK_PAST_OPACITY = 0.4;
