@@ -1,9 +1,14 @@
+import Box from '@mui/material/Box';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Paper from '@mui/material/Paper';
 import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 
+import { Orbit, Lightbulb, RefreshCw, MapPin } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+
 import { useUiStore } from '../store/ui';
+import { ICON_SIZE, ICON_STROKE } from './constants';
 
 /**
  * Los interruptores de las capas de la escena.
@@ -72,16 +77,19 @@ export function LayerControls() {
       </Typography>
 
       <Interruptor
+        icono={Orbit}
         etiqueta="Traza orbital"
         activo={verOrbita}
         onChange={alternarOrbita}
       />
       <Interruptor
+        icono={Lightbulb}
         etiqueta="Luces nocturnas"
         activo={verLucesNocturnas}
         onChange={alternarLucesNocturnas}
       />
       <Interruptor
+        icono={RefreshCw}
         etiqueta="Rotación automática"
         activo={rotacionAutomatica}
         onChange={alternarRotacionAutomatica}
@@ -90,6 +98,7 @@ export function LayerControls() {
       {/* Herramienta de verificación de #28, no una capa del producto. */}
       {import.meta.env.DEV && (
         <Interruptor
+          icono={MapPin}
           etiqueta="Puntos de referencia"
           activo={verReferencias}
           onChange={alternarReferencias}
@@ -108,10 +117,12 @@ export function LayerControls() {
  * añadir nada para que funcione con teclado.
  */
 function Interruptor({
+  icono: Icono,
   etiqueta,
   activo,
   onChange,
 }: {
+  icono: LucideIcon;
   etiqueta: string;
   activo: boolean;
   onChange: () => void;
@@ -119,7 +130,28 @@ function Interruptor({
   return (
     <FormControlLabel
       control={<Switch size="small" checked={activo} onChange={onChange} />}
-      label={etiqueta}
+      label={
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+          {/*
+            ⚠️ El icono ACOMPAÑA al texto, no lo sustituye.
+
+            Un icono de órbita no significa «mostrar la trayectoria» para quien
+            lo ve por primera vez: es una adivinanza. Con el texto al lado, el
+            icono ayuda a localizar la fila de un vistazo y no tiene que
+            cargar con el significado.
+
+            `aria-hidden` porque el texto ya dice lo que hay: sin él, un lector
+            de pantalla anunciaría el icono y la etiqueta por separado.
+          */}
+          <Icono
+            size={ICON_SIZE}
+            strokeWidth={ICON_STROKE}
+            aria-hidden
+            style={{ opacity: activo ? 0.9 : 0.4 }}
+          />
+          {etiqueta}
+        </Box>
+      }
       slotProps={{ typography: { variant: 'body2' } }}
       sx={{ ml: 0, gap: 1 }}
     />

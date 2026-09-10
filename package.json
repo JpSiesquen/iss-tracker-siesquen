@@ -21,6 +21,8 @@
     "@react-three/drei": "10.7.8",
     "@react-three/fiber": "9.7.0",
     "@tanstack/react-query": "5.102.8",
+    "lucide-react": "1.40.0",
+    "motion": "13.2.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "satellite.js": "7.1.0",

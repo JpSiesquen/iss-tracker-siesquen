@@ -147,6 +147,29 @@ export const theme = createTheme({
 
         /** La cadena de altura que necesita el <Canvas>: sin esto mide cero. */
         'html, body, #root': { height: '100%' },
+
+        /**
+         * Quien haya pedido menos movimiento en su sistema, lo obtiene.
+         *
+         * ⚠️ No es un detalle estético. Hay personas para quienes el
+         * movimiento en pantalla provoca mareo o migraña, y lo indican en los
+         * ajustes de accesibilidad de su sistema operativo. Ignorar esa
+         * preferencia les hace la página inutilizable.
+         *
+         * Cuesta tres líneas y casi nadie las escribe.
+         *
+         * Nótese que NO se pone a 0: un valor mínimo mantiene los eventos de
+         * fin de animación, de los que depende `AnimatePresence` para retirar
+         * un elemento que sale.
+         */
+        '@media (prefers-reduced-motion: reduce)': {
+          '*, *::before, *::after': {
+            animationDuration: '0.01ms !important',
+            animationIterationCount: '1 !important',
+            transitionDuration: '0.01ms !important',
+            scrollBehavior: 'auto !important',
+          },
+        },
       },
     },
   },
