@@ -23,9 +23,15 @@ bloquea los archivos que otro proceso tiene abiertos.
 
 React 19 · TypeScript · Vite 8 · oxlint (no ESLint) · Prettier
 
-Por fase, según se vaya necesitando: Three.js con React Three Fiber y drei (globo) · TanStack
-Query (datos remotos) · Zod (validación) · Zustand (estado de UI) · Material UI (interfaz) ·
-satellite.js (SGP4) · funciones serverless de Vercel (BFF que cachea los TLE).
+**Ya instalado:** Three.js 0.186 con React Three Fiber 9.7 y drei · satellite.js 7.1
+(adelantada de la Fase 5: `gstime` orienta la Tierra por GMST).
+
+**Por fase, según se vaya necesitando:** TanStack Query (datos remotos) · Zod (validación) ·
+Zustand (estado de UI) · Material UI (interfaz) · funciones serverless de Vercel (BFF que
+cachea los TLE).
+
+⚠️ **React está fijado en 19.2.8**, no 19.3: `@react-three/fiber` exige `>=19 <19.3` y ninguna
+versión suya lo soporta todavía.
 
 Sin base de datos: no hay estado que persistir.
 
@@ -95,6 +101,14 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   una textura es la VRAM, no la descarga.
 - **`THREE.Timer`, no `THREE.Clock`** (deprecado en r186). Timer exige `update()` antes de
   `getDelta()`, o devuelve 0 sin avisar.
+- **La orientación de la Tierra se deriva del GMST**, no de una velocidad:
+  `rotation.y = gstime(new Date())`. La posición de la ISS y la orientación del globo están
+  acopladas — acelerar la rotación pondría el marcador sobre el país equivocado.
+- **La ISS irá dentro del `<group>` de inclinación pero fuera del mesh que rota.** Su lat/lon ya
+  expresa dónde está respecto a la superficie; heredar la rotación la aplicaría dos veces.
+- **`worker: { format: 'es' }` en `vite.config.ts` es necesario**, no opcional: satellite.js
+  incluye una build de WASM con top-level await, y el formato `iife` por defecto de los workers
+  no lo admite.
 
 ## CI y despliegue
 
