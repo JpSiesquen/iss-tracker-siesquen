@@ -69,3 +69,11 @@ export const SPACE_COLOR = '#05060a';
  */
 export const CAMERA_MIN_DISTANCE = 1.5;
 export const CAMERA_MAX_DISTANCE = 8;
+
+/**
+ * Inclinación axial de la Tierra, en radianes.
+ *
+ * 23.44° es lo que causa las estaciones, y la razón de que el terminador no
+ * pase por los polos salvo en los equinoccios.
+ */
+export const EARTH_TILT = (23.44 * Math.PI) / 180;
