@@ -56,6 +56,9 @@ jobs:
       - name: Formato
         run: npm run format:check
 
+      - name: Ubicaciones geográficas
+        run: npm run test:locations
+
       # tsc -b comprueba los tipos ademas de compilar: un error de
       # TypeScript rompe el build, no solo avisa en el editor.
       - name: Compilar

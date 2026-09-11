@@ -2,6 +2,7 @@
 dist
 node_modules
 package-lock.json
+api/_data/locations.json
 
 # El sandbox de la Fase 0 tiene formato propio, con comentarios alineados a mano
 sandbox

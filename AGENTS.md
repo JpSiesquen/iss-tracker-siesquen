@@ -20,9 +20,9 @@ issue. No crees un segundo documento de contexto activo ni repartas la fuente de
 
 ## Estado
 
-**54 issues cerradas tras reducir la distorsión de perspectiva de la órbita (#120).** El proyecto calcula la posición de la
-ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la traza orbital, y el Sol
-ilumina el globo donde lo hace de verdad.
+**55 issues cerradas tras añadir el país, mar u océano bajo la ISS (#108).** El proyecto calcula la
+posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la traza
+orbital, y el Sol ilumina el globo donde lo hace de verdad.
 
 **Ya no depende de ninguna API de terceros en el cliente**: la única URL externa está en
 `api/tle.ts`, en el servidor.
@@ -36,15 +36,16 @@ ilumina el globo donde lo hace de verdad.
 | 3 · La ISS en vivo | 7/7 | ✅ |
 | 4 · El BFF | 5/5 | ✅ |
 | 5 · Órbita e interfaz | 8/8 | ✅ |
-| 5.5 · Correcciones y realismo | 6/12 | En curso |
+| 5.5 · Correcciones y realismo | 7/12 | En curso |
 | 6 · Cierre | 0/5 | |
 
-**Siguiente:** continuar la Fase 5.5 con las correcciones y mejoras #108–#113. Después sigue la
+**Siguiente:** continuar la Fase 5.5 con las correcciones y mejoras #109–#113. Después sigue la
 Fase 6 — móvil (#44), rendimiento (#45), accesibilidad (#46), README (#47) y cierre (#48).
 
-⚠️ **Para #45:** el bundle está en **437 KB comprimidos**. Medido por partes: MUI añadió
-~80 KB y Motion ~52 KB. El `backdropFilter` de los paneles tiene coste de GPU con una escena
-3D detrás.
+⚠️ **Para #45:** el bundle está en **459 KB comprimidos**. Medido por partes: MUI añadió
+~80 KB y Motion ~52 KB. La geocodificación de #108 añadió solo 0,40 KB al cliente; sus 832 KB de
+geometría viven en el BFF. El `backdropFilter` de los paneles tiene coste de GPU con una escena 3D
+detrás.
 
 El modelo de la ISS (`public/models/iss.glb`) pesa **39,708 bytes**. Viene del repositorio
 oficial NASA 3D Resources; su procedencia y licencia están en `public/models/CREDITS.md`.
@@ -58,6 +59,8 @@ npm run build          # tsc -b && vite build
 npm run lint           # oxlint
 npm run format         # prettier --write .
 npm run format:check   # lo que corre el CI
+npm run test:locations # casos conocidos de geocodificación inversa
+npm run data:locations # regenerar los datos reducidos de Natural Earth
 ```
 
 Antes de un `npm ci`, parar el servidor de desarrollo: `ci` borra `node_modules` y Windows
@@ -88,7 +91,7 @@ src/scene/     todo lo que vive dentro del <Canvas>
 src/ui/        HTML superpuesto al globo, fuera del <Canvas>
 sandbox/       experimentos de la Fase 0 en Three.js puro, sin bundler
 docs/          documentación técnica del proyecto
-api/           funciones serverless: /api/health y /api/tle
+api/           funciones serverless: /api/health, /api/tle y /api/locate
 public/        estáticos, incluidas las texturas
 ```
 
@@ -101,13 +104,14 @@ CDN, que Vite no sabe resolver.
 
 ## El BFF
 
-Dos endpoints en `api/`. **El nombre del archivo es la ruta**, y los que empiezan por `_`
+Tres endpoints en `api/`. **El nombre del archivo es la ruta**, y los que empiezan por `_`
 quedan excluidos del enrutado (por eso el esquema vive en `api/_omm.ts`).
 
 | | |
 |---|---|
 | `/api/health` | comprobación de vida |
 | `/api/tle` | elementos orbitales de la ISS, cacheados |
+| `/api/locate?lat=&lon=` | país, mar u océano para unas coordenadas |
 
 **Se usa `Request`/`Response` del estándar web, no `@vercel/node`.** Ese paquete solo aporta
 tipos pero arrastra `undici`, `ajv` y `path-to-regexp`: cinco avisos de `npm audit`, tres de
@@ -147,6 +151,18 @@ normal. No lanza nada. De ahí que el esquema valide **rangos físicos**, no sol
 Si Celestrak falla y hay un dato previo, se sirve marcado con su antigüedad y un TTL corto
 de 60 s. Los elementos envejecen despacio: uno de ayer da una posición razonable, uno de
 hace una semana ya no.
+
+### Geocodificación inversa
+
+`/api/locate` resuelve localmente contra Natural Earth: países 1:110m y áreas marinas 1:50m. La
+resolución marina mayor es necesaria porque 1:110m omite el mar del Norte. Los datos se reducen a
+nombres en español, cajas y polígonos cuantizados a 0,01°: **832.156 B / 256.294 B gzip**, por lo
+que permanecen en el BFF y nunca entran al bundle del navegador.
+
+Se buscan países antes que mares y las áreas marinas específicas antes que océanos genéricos. El
+ray casting contempla `MultiPolygon`, agujeros y ±180°. El cliente consulta cada 30 s con
+coordenadas cuantizadas a 0,25° y la CDN cachea cada resultado durante un día. Decisión y medidas
+completas en `docs/geocodificacion.md`; procedencia y licencia en `api/_data/CREDITS.md`.
 
 ## Seguridad de dependencias
 
@@ -265,7 +281,8 @@ escena 3D o el comportamiento del cliente, úsalo además de las comprobaciones 
 
 ## CI y despliegue
 
-`.github/workflows/ci.yml` corre en cada PR: `npm ci` → `lint` → `format:check` → `build`.
+`.github/workflows/ci.yml` corre en cada PR: `npm ci` → `lint` → `format:check` →
+`test:locations` → `build`.
 
 ⚠️ El job se llama **`verificar`** y ese nombre exacto lo exige la protección de rama. Si se
 renombra uno sin el otro, todos los PR quedan bloqueados esperando un check que nunca llega.
