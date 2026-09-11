@@ -92,9 +92,9 @@ export const EARTH_NORMAL_SCALE: [number, number] = [0.6, 0.6];
 /**
  * Brillo de las luces nocturnas.
  *
- * ⚠️ Con emissiveMap las luces se ven también de día, lo cual es incorrecto.
- * Un valor moderado deja que el lado iluminado las apague por contraste, sin
- * necesidad de un shader propio.
+ * El shader de `earthNightShader.ts` modula esta emisión con la dirección del
+ * Sol: intensidad completa en la noche, cero durante el día y una transición
+ * gradual alrededor del terminador.
  */
 export const EARTH_NIGHT_INTENSITY = 0.45;
 

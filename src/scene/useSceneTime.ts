@@ -1,15 +1,18 @@
 import { useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
 import { gstime } from 'satellite.js';
+import { Vector3 } from 'three';
+
+import { sunDirection as calculateSunDirection } from '../lib/sun';
 
 /**
- * El instante de la escena y su GMST, calculados una sola vez por fotograma.
+ * El instante, el GMST y la dirección solar, calculados una vez por fotograma.
  *
  * ## Por qué centralizar el tiempo
  *
- * La Tierra se orienta con el GMST y la órbita se propaga con la misma fecha.
- * Si cada componente llamara a `new Date()` por su cuenta, serían instantes
- * distintos.
+ * La Tierra se orienta con el GMST, la órbita se propaga con la misma fecha y
+ * la luz y el shader nocturno comparten una dirección solar. Si cada componente
+ * hiciera estos cálculos por su cuenta, podrían representar instantes distintos.
  *
  * ⚠️ Medido: el desfase real entre dos llamadas dentro del mismo fotograma es
  * de **7 metros** a 60 fps sobre la superficie terrestre. Despreciable frente a
@@ -24,6 +27,8 @@ import { gstime } from 'satellite.js';
  *     retroceder — que es justo lo que necesitaría un control de reproducción.
  *   - `gstime()` se calcula una vez por fotograma en lugar de una por
  *     componente que lo necesite.
+ *   - La luz y el límite de las ciudades nocturnas no pueden tener terminadores
+ *     diferentes: ambos leen el mismo vector solar.
  *
  * ## Por qué devuelve un ref y no estado
  *
@@ -39,6 +44,8 @@ export interface SceneTime {
   date: Date;
   /** Cuánto ha girado la Tierra en ese instante, en radianes. */
   gmst: number;
+  /** Dirección normalizada del Sol en coordenadas de la escena. */
+  sunDirection: Vector3;
 }
 
 /**
@@ -50,6 +57,7 @@ export interface SceneTime {
  * usuario; `-1` conserva el renderizado automático del `<Canvas>`.
  */
 const SCENE_TIME_FRAME_PRIORITY = -1;
+const SCENE_Y_AXIS = new Vector3(0, 1, 0);
 
 /**
  * Debe montarse **una sola vez** y por encima de quien lo consuma. La posición
@@ -58,12 +66,29 @@ const SCENE_TIME_FRAME_PRIORITY = -1;
  * fuente se actualice antes que todos ellos en cada fotograma.
  */
 export function useSceneTimeSource() {
-  const ref = useRef<SceneTime>({ date: new Date(), gmst: gstime(new Date()) });
+  const ref = useRef<SceneTime>(createSceneTime());
 
   useFrame(() => {
     const date = new Date();
-    ref.current = { date, gmst: gstime(date) };
+    const gmst = gstime(date);
+
+    ref.current.date = date;
+    ref.current.gmst = gmst;
+    ref.current.sunDirection
+      .copy(calculateSunDirection(date, 1))
+      .applyAxisAngle(SCENE_Y_AXIS, gmst);
   }, SCENE_TIME_FRAME_PRIORITY);
 
   return ref;
+}
+
+function createSceneTime(): SceneTime {
+  const date = new Date();
+  const gmst = gstime(date);
+
+  return {
+    date,
+    gmst,
+    sunDirection: calculateSunDirection(date, 1).applyAxisAngle(SCENE_Y_AXIS, gmst),
+  };
 }

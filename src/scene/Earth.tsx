@@ -1,10 +1,11 @@
 import { useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
-import { SRGBColorSpace, type Mesh } from 'three';
+import { SRGBColorSpace, type Mesh, type MeshStandardMaterial } from 'three';
 
 import { useUiStore } from '../store/ui';
 import { DebugMarkers } from './DebugMarkers';
+import { applyEarthNightMask } from './earthNightShader';
 import { useSceneTime } from './sceneTime';
 import { IssMarker } from './IssMarker';
 import {
@@ -34,6 +35,10 @@ export function Earth() {
   const tiempo = useSceneTime();
   const verReferencias = useUiStore((s) => s.verReferencias);
   const verLucesNocturnas = useUiStore((s) => s.verLucesNocturnas);
+
+  const configureNightShader = (
+    shader: Parameters<MeshStandardMaterial['onBeforeCompile']>[0],
+  ) => applyEarthNightMask(shader, tiempo.current.sunDirection);
 
   /**
    * Un material PBR combina varias texturas, cada una controlando una propiedad
@@ -132,13 +137,9 @@ export function Earth() {
           roughnessMap={specularMap}
           roughness={1} // se multiplica por el mapa: el valor real lo pone la textura
           metalness={0} // un planeta no es metálico
-          // Las luces de las ciudades. emissiveMap hace que el material emita
-          // luz propia, independiente de las lámparas de la escena.
-          //
-          // ⚠️ Con esto las luces se ven TAMBIÉN de día, lo cual es incorrecto.
-          // Una intensidad moderada deja que el lado iluminado las apague por
-          // contraste. Que solo emitan donde no llega el Sol exige un shader
-          // propio: es un tema en sí mismo y queda fuera de esta issue.
+          // El shader conserva MeshStandardMaterial completo y solo modula su
+          // emisión: normalMap y roughnessMap siguen funcionando sin cambios.
+          onBeforeCompile={configureNightShader}
           emissiveMap={verLucesNocturnas ? nightMap : null}
           emissive="#ffffff"
           emissiveIntensity={verLucesNocturnas ? EARTH_NIGHT_INTENSITY : 0}
