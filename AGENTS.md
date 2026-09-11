@@ -20,7 +20,7 @@ issue. No crees un segundo documento de contexto activo ni repartas la fuente de
 
 ## Estado
 
-**51 issues cerradas tras sustituir el punto por un modelo 3D ligero de la ISS (#107).** El proyecto calcula la posición de la
+**52 issues cerradas tras limitar las luces urbanas al hemisferio nocturno (#105).** El proyecto calcula la posición de la
 ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la traza orbital, y el Sol
 ilumina el globo donde lo hace de verdad.
 
@@ -36,11 +36,11 @@ ilumina el globo donde lo hace de verdad.
 | 3 · La ISS en vivo | 7/7 | ✅ |
 | 4 · El BFF | 5/5 | ✅ |
 | 5 · Órbita e interfaz | 8/8 | ✅ |
-| 5.5 · Correcciones y realismo | 3/11 | En curso |
+| 5.5 · Correcciones y realismo | 4/11 | En curso |
 | 6 · Cierre | 0/5 | |
 
-**Siguiente:** continuar la Fase 5.5 con #105 (luces nocturnas visibles de día) y después las
-restantes correcciones y mejoras #106 y #108–#113. Después sigue la
+**Siguiente:** continuar la Fase 5.5 con #106 y después las restantes correcciones y mejoras
+#108–#113. Después sigue la
 Fase 6 — móvil (#44), rendimiento (#45), accesibilidad (#46), README (#47) y cierre (#48).
 
 ⚠️ **Para #45:** el bundle está en **437 KB comprimidos**. Medido por partes: MUI añadió
@@ -220,7 +220,8 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   última posición conocida se queda en pantalla como si fuera actual. Siempre se muestra cuándo
   se actualizó.
 - **Un solo instante para toda la escena.** `useSceneTime` calcula la fecha y el GMST una vez
-  por fotograma; la Tierra, la ISS, la traza y el Sol leen ese valor. Medido: el desfase entre
+  por fotograma; también calcula una única dirección solar en coordenadas de escena. La Tierra,
+  la ISS, la traza, la luz y el shader nocturno leen ese estado. Medido: el desfase entre
   dos `new Date()` en el mismo fotograma es de 7 metros, así que el motivo no es la precisión
   sino que la fuente sea única y se pueda controlar desde un sitio.
   ⚠️ Lo que viaja por el contexto es el **ref**, no el valor: pasar el valor re-renderizaría a

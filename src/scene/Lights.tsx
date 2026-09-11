@@ -1,8 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
-import type { DirectionalLight, Group } from 'three';
+import type { DirectionalLight } from 'three';
 
-import { sunDirection } from '../lib/sun';
 import { useSceneTime } from './sceneTime';
 import { AMBIENT_INTENSITY, SUN_DISTANCE, SUN_INTENSITY } from './constants';
 
@@ -21,43 +20,32 @@ import { AMBIENT_INTENSITY, SUN_DISTANCE, SUN_INTENSITY } from './constants';
  * Y desaparece un artefacto que se notaba: con la luz fija había una cara del
  * planeta permanentemente en sombra mientras el globo giraba por debajo.
  *
- * ## Por qué la luz va dentro de un grupo que rota
+ * ## Una sola dirección para la luz y el material terrestre
  *
- * ⚠️ El punto subsolar se calcula en lat/lon, o sea en **ECEF**: el sistema que
- * gira con la Tierra. Exactamente el mismo caso que la ISS en #29.
- *
- * Si la luz se colocara sin esa rotación, iluminaría el meridiano equivocado —y
- * el error sería consistente, difícil de detectar a ojo, porque la escena
- * seguiría teniendo un lado día y otro noche perfectamente creíbles.
+ * `useSceneTime` entrega la dirección solar ya convertida a coordenadas de la
+ * escena. Este componente la usa para la luz y `Earth` pasa el mismo objeto al
+ * shader que apaga las ciudades de día. No pueden desalinearse porque no hay
+ * un segundo cálculo independiente.
  */
 export function Lights() {
-  const grupoRef = useRef<Group>(null);
   const luzRef = useRef<DirectionalLight>(null);
   const tiempo = useSceneTime();
 
   useFrame(() => {
-    const { date, gmst } = tiempo.current;
-
-    // La misma rotación que aplican la Tierra, la ISS y la traza: todo sale
-    // del mismo instante y del mismo GMST.
-    if (grupoRef.current) {
-      grupoRef.current.rotation.y = gmst;
-    }
-
     if (luzRef.current) {
-      luzRef.current.position.copy(sunDirection(date, SUN_DISTANCE));
+      luzRef.current.position
+        .copy(tiempo.current.sunDirection)
+        .multiplyScalar(SUN_DISTANCE);
     }
   });
 
   return (
     <>
-      <group ref={grupoRef}>
-        {/* Una esfera iluminada por una luz direccional tiene, por pura
-            geometría, una mitad iluminada y otra en sombra con un degradado
-            entre ambas: ese degradado ES el terminador terrestre. No hay que
-            programar ningún ciclo día/noche. */}
-        <directionalLight ref={luzRef} intensity={SUN_INTENSITY} />
-      </group>
+      {/* Una esfera iluminada por una luz direccional tiene, por pura
+          geometría, una mitad iluminada y otra en sombra con un degradado
+          entre ambas: ese degradado ES el terminador terrestre. No hay que
+          programar ningún ciclo día/noche. */}
+      <directionalLight ref={luzRef} intensity={SUN_INTENSITY} />
 
       {/* Fuera del grupo: la luz ambiente no tiene dirección, así que rotarla
           no significaría nada. */}
