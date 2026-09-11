@@ -20,7 +20,7 @@ issue. No crees un segundo documento de contexto activo ni repartas la fuente de
 
 ## Estado
 
-**53 issues cerradas tras calcular el encuadre inicial según el viewport (#106).** El proyecto calcula la posición de la
+**54 issues cerradas tras reducir la distorsión de perspectiva de la órbita (#120).** El proyecto calcula la posición de la
 ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la traza orbital, y el Sol
 ilumina el globo donde lo hace de verdad.
 
@@ -36,7 +36,7 @@ ilumina el globo donde lo hace de verdad.
 | 3 · La ISS en vivo | 7/7 | ✅ |
 | 4 · El BFF | 5/5 | ✅ |
 | 5 · Órbita e interfaz | 8/8 | ✅ |
-| 5.5 · Correcciones y realismo | 5/11 | En curso |
+| 5.5 · Correcciones y realismo | 6/12 | En curso |
 | 6 · Cierre | 0/5 | |
 
 **Siguiente:** continuar la Fase 5.5 con las correcciones y mejoras #108–#113. Después sigue la
@@ -194,7 +194,9 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   `ISS_ALTITUDE_KM`. Un `0.41` suelto no se puede revisar.
 - **El encuadre inicial se calcula, no se tantea.** `initialCameraDistance()` usa el radio
   orbital, el FOV vertical y la relación de aspecto real del canvas. En una ventana estrecha
-  convierte primero el FOV vertical en el horizontal equivalente.
+  convierte primero el FOV vertical en el horizontal equivalente. Un FOV moderado y una cámara
+  más distante conservan el tamaño aparente sin exagerar la separación entre el lado cercano y
+  el lejano de la órbita.
 - **Rotación en radianes.** `THREE.MathUtils.degToRad()` para convertir.
 - **Movimiento siempre con delta time**, nunca por fotograma: atarlo al framerate falsea las
   velocidades reales.
