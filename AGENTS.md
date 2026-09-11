@@ -20,9 +20,9 @@ issue. No crees un segundo documento de contexto activo ni repartas la fuente de
 
 ## Estado
 
-**55 issues cerradas tras añadir el país, mar u océano bajo la ISS (#108).** El proyecto calcula la
-posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la traza
-orbital, y el Sol ilumina el globo donde lo hace de verdad.
+**56 issues cerradas tras retirar los residuos de la antigua interpolación (#109).** El proyecto
+calcula la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la
+traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 
 **Ya no depende de ninguna API de terceros en el cliente**: la única URL externa está en
 `api/tle.ts`, en el servidor.
@@ -36,10 +36,10 @@ orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 3 · La ISS en vivo | 7/7 | ✅ |
 | 4 · El BFF | 5/5 | ✅ |
 | 5 · Órbita e interfaz | 8/8 | ✅ |
-| 5.5 · Correcciones y realismo | 7/12 | En curso |
+| 5.5 · Correcciones y realismo | 8/12 | En curso |
 | 6 · Cierre | 0/5 | |
 
-**Siguiente:** continuar la Fase 5.5 con las correcciones y mejoras #109–#113. Después sigue la
+**Siguiente:** continuar la Fase 5.5 con las correcciones y mejoras #110–#113. Después sigue la
 Fase 6 — móvil (#44), rendimiento (#45), accesibilidad (#46), README (#47) y cierre (#48).
 
 ⚠️ **Para #45:** el bundle está en **459 KB comprimidos**. Medido por partes: MUI añadió
@@ -233,9 +233,9 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   compilar; un `as` sobre una respuesta de red es una promesa, no una comprobación. Sin validar,
   un `latitude: null` no lanza nada: `null * Math.PI / 180` es 0 y el fallo aparece tres archivos
   después.
-- **Convertir primero, interpolar después.** En cartesianas las longitudes 179.9 y −179.9 son
-  vecinas (0.0053 unidades); en grados el salto sería de 359.8° y el marcador cruzaría el planeta
-  al revés. El orden elimina el problema del antimeridiano en vez de tener que tratarlo.
+- **Conectar posiciones en cartesianas, no en grados.** En la traza orbital, las longitudes 179.9 y
+  −179.9 son vecinas después de convertirlas (0.0053 unidades); en grados el salto sería de 359.8°.
+  El orden elimina el problema del antimeridiano en vez de tener que tratarlo.
 - **En datos en vivo, la antigüedad del dato es parte del dato.** Si la conexión se corta, la
   última posición conocida se queda en pantalla como si fuera actual. Siempre se muestra cuándo
   se actualizó.
