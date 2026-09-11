@@ -63,15 +63,28 @@ export const AMBIENT_INTENSITY = 0.12;
  */
 export const SPACE_COLOR = '#05060a';
 
+/** FOV vertical de la cámara perspectiva, en grados. */
+export const CAMERA_VERTICAL_FOV = 60;
+
+/**
+ * Radio que debe caber completo en el encuadre inicial.
+ *
+ * La órbita visual exagerada de la ISS ronda 1.53 unidades y varía ligeramente
+ * con su altitud. 1.55 cubre esa variación antes de aplicar el margen visual.
+ */
+export const CAMERA_ORBIT_FRAME_RADIUS = 1.55;
+
+/** Espacio libre alrededor de la traza para que no quede pegada al viewport. */
+export const CAMERA_FRAME_MARGIN = 1.12;
+
 /**
  * Límites de zoom de la cámara, en unidades de escena (EARTH_RADIUS = 1).
  *
- * El mínimo evita entrar dentro de la Tierra; el máximo, perderla de vista.
- * En la Fase 3 la ISS se dibujará a ~1.15 del centro, así que el mínimo debe
- * dejar sitio para verla.
+ * El mínimo permite acercarse sin entrar en la Tierra. El máximo admite el
+ * encuadre calculado para ventanas verticales estrechas sin perder el globo.
  */
 export const CAMERA_MIN_DISTANCE = 1.5;
-export const CAMERA_MAX_DISTANCE = 8;
+export const CAMERA_MAX_DISTANCE = 12;
 
 /**
  * Inclinación axial de la Tierra, en radianes.
