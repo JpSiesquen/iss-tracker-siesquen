@@ -1,6 +1,6 @@
 import { useFrame } from '@react-three/fiber';
 import { Suspense, useRef } from 'react';
-import { Vector3, type Group } from 'three';
+import type { Group } from 'three';
 
 import { altitudeToRadius, latLonToVector3 } from '../lib/coordinates';
 import { propagateToGeodetic } from '../lib/orbit';
@@ -50,18 +50,6 @@ export function IssMarker() {
   const verOrbita = useUiStore((s) => s.verOrbita);
 
   /**
-   * Si ya se colocó el marcador alguna vez.
-   *
-   * ⚠️ Sin esto, el primer dato haría que el marcador saliera volando desde el
-   * origen: un mesh recién creado está en (0,0,0), que es el centro de la
-   * Tierra, y la interpolación lo traería desde ahí atravesando el planeta.
-   */
-  const colocado = useRef(false);
-
-  /** Vector reutilizado para no crear uno nuevo en cada fotograma. */
-  const objetivo = useRef(new Vector3());
-
-  /**
    * La posición se calcula EN CADA FOTOGRAMA, no cuando llegan datos.
    *
    * Este es el cambio de fondo de la issue. Antes el marcador esperaba a que
@@ -95,15 +83,12 @@ export function IssMarker() {
     const geo = propagateToGeodetic(satrec, date);
     if (!geo) return;
 
-    objetivo.current.copy(
+    posicion.position.copy(
       latLonToVector3(geo.latitude, geo.longitude, altitudeToRadius(geo.altitude)),
     );
-
-    posicion.position.copy(objetivo.current);
     // Una esfera ocultaba la orientación. El grupo mira al centro de la Tierra
     // para que el modelo asimétrico mantenga una actitud orbital coherente.
     posicion.lookAt(0, 0, 0);
-    colocado.current = true;
   });
 
   // Sin elementos orbitales no hay nada que propagar.
