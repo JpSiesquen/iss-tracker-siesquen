@@ -2,9 +2,11 @@ import { Canvas } from '@react-three/fiber';
 import { Suspense } from 'react';
 
 import { initialCameraDistance } from './camera';
-import { CAMERA_VERTICAL_FOV, SPACE_COLOR } from './constants';
+import { CAMERA_VERTICAL_FOV, EARTH_TILT, SPACE_COLOR } from './constants';
 import { Controls } from './Controls';
 import { Earth } from './Earth';
+import { EcefFrame } from './EcefFrame';
+import { IssMarker } from './IssMarker';
 import { Lights } from './Lights';
 import { SceneTimeProvider } from './SceneTimeContext';
 
@@ -54,14 +56,20 @@ export function Scene() {
           propaguen con exactamente el mismo tiempo: usar instantes distintos
           produce un desfase en longitud consistente y difícil de detectar. */}
       <SceneTimeProvider>
-        {/* Las luces van DENTRO del proveedor: desde la issue #77 la posición
-            del Sol se calcula a partir del instante de la escena, igual que la
-            rotación terrestre y la propagación de la órbita. Todo sale del
-            mismo tiempo. */}
+        {/* Las luces van DENTRO del proveedor, pero FUERA de EcefFrame: la
+            dirección solar ya llega convertida a coordenadas de escena. */}
         <Lights />
 
         <Suspense fallback={null}>
-          <Earth />
+          {/* El orden conserva la transformación original: primero la
+              inclinación axial del sistema y, dentro, la rotación GMST del
+              marco terrestre. Tierra, marcador y traza heredan ambas. */}
+          <group rotation={[0, 0, EARTH_TILT]}>
+            <EcefFrame>
+              <Earth />
+              <IssMarker />
+            </EcefFrame>
+          </group>
         </Suspense>
       </SceneTimeProvider>
     </Canvas>

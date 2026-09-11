@@ -35,7 +35,6 @@ import { IssModel } from './IssModel';
  * ⚠️ Pero eso NO significa que se ignore la rotación terrestre. Ver abajo.
  */
 export function IssMarker() {
-  const grupoRef = useRef<Group>(null);
   const posicionRef = useRef<Group>(null);
   const tiempo = useSceneTime();
   const satrec = useSatrecFromTle();
@@ -65,11 +64,7 @@ export function IssMarker() {
    * disimular.
    */
   useFrame(() => {
-    const { date, gmst } = tiempo.current;
-
-    if (grupoRef.current) {
-      grupoRef.current.rotation.y = gmst;
-    }
+    const { date } = tiempo.current;
 
     const posicion = posicionRef.current;
     if (!posicion || !satrec) return;
@@ -101,19 +96,14 @@ export function IssMarker() {
           coincidencia afortunada sino una consecuencia estructural. */}
       {verOrbita && <GroundTrack satrec={satrec} />}
 
-      {/* El grupo separa responsabilidades: la rotación terrestre va en el
-          grupo, la posición orbital en el hijo. Mezclarlas obligaría a
-          recalcular el vector rotado en cada fotograma en lugar de dejar que lo
-          haga la matriz de transformación, que es justo para lo que está. */}
-      <group ref={grupoRef}>
-        {/* La posición NO se pasa como prop: la controla useFrame. Darle una
-            prop position haría que React la reescribiera en cada render,
-            anulando el cálculo del fotograma. */}
-        <group ref={posicionRef}>
-          <Suspense fallback={<IssMarkerFallback />}>
-            <IssModel />
-          </Suspense>
-        </group>
+      {/* La posición NO se pasa como prop: la controla useFrame. Darle una
+          prop position haría que React la reescribiera en cada render,
+          anulando el cálculo del fotograma. La rotación terrestre se hereda
+          del EcefFrame que envuelve al componente. */}
+      <group ref={posicionRef}>
+        <Suspense fallback={<IssMarkerFallback />}>
+          <IssModel />
+        </Suspense>
       </group>
     </>
   );
