@@ -63,8 +63,14 @@ export const AMBIENT_INTENSITY = 0.12;
  */
 export const SPACE_COLOR = '#05060a';
 
-/** FOV vertical de la cámara perspectiva, en grados. */
-export const CAMERA_VERTICAL_FOV = 60;
+/**
+ * FOV vertical de la cámara perspectiva, en grados.
+ *
+ * 40° conserva profundidad sin el efecto gran angular de 60°: al combinarlo
+ * con `initialCameraDistance`, el encuadre mantiene su tamaño pero la cámara
+ * queda más lejos y ambos lados de la órbita se perciben más equilibrados.
+ */
+export const CAMERA_VERTICAL_FOV = 40;
 
 /**
  * Radio que debe caber completo en el encuadre inicial.
@@ -84,7 +90,7 @@ export const CAMERA_FRAME_MARGIN = 1.12;
  * encuadre calculado para ventanas verticales estrechas sin perder el globo.
  */
 export const CAMERA_MIN_DISTANCE = 1.5;
-export const CAMERA_MAX_DISTANCE = 12;
+export const CAMERA_MAX_DISTANCE = 16;
 
 /**
  * Inclinación axial de la Tierra, en radianes.
