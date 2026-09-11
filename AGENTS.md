@@ -20,7 +20,7 @@ issue. No crees un segundo documento de contexto activo ni repartas la fuente de
 
 ## Estado
 
-**50 issues cerradas tras corregir el desfase de un fotograma del marcador (#104).** El proyecto calcula la posición de la
+**51 issues cerradas tras sustituir el punto por un modelo 3D ligero de la ISS (#107).** El proyecto calcula la posición de la
 ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la traza orbital, y el Sol
 ilumina el globo donde lo hace de verdad.
 
@@ -36,16 +36,19 @@ ilumina el globo donde lo hace de verdad.
 | 3 · La ISS en vivo | 7/7 | ✅ |
 | 4 · El BFF | 5/5 | ✅ |
 | 5 · Órbita e interfaz | 8/8 | ✅ |
-| 5.5 · Correcciones y realismo | 2/11 | En curso |
+| 5.5 · Correcciones y realismo | 3/11 | En curso |
 | 6 · Cierre | 0/5 | |
 
-**Siguiente:** continuar la Fase 5.5 con #107 (modelo 3D de la ISS) y después las restantes
-correcciones y mejoras #105–#106 y #108–#113. Después sigue la
+**Siguiente:** continuar la Fase 5.5 con #105 (luces nocturnas visibles de día) y después las
+restantes correcciones y mejoras #106 y #108–#113. Después sigue la
 Fase 6 — móvil (#44), rendimiento (#45), accesibilidad (#46), README (#47) y cierre (#48).
 
 ⚠️ **Para #45:** el bundle está en **437 KB comprimidos**. Medido por partes: MUI añadió
 ~80 KB y Motion ~52 KB. El `backdropFilter` de los paneles tiene coste de GPU con una escena
 3D detrás.
+
+El modelo de la ISS (`public/models/iss.glb`) pesa **39,708 bytes**. Viene del repositorio
+oficial NASA 3D Resources; su procedencia y licencia están en `public/models/CREDITS.md`.
 
 ## Comandos
 

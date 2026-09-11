@@ -1,6 +1,6 @@
 import { useFrame } from '@react-three/fiber';
-import { useRef } from 'react';
-import { Vector3, type Group, type Mesh } from 'three';
+import { Suspense, useRef } from 'react';
+import { Vector3, type Group } from 'three';
 
 import { altitudeToRadius, latLonToVector3 } from '../lib/coordinates';
 import { propagateToGeodetic } from '../lib/orbit';
@@ -13,6 +13,7 @@ import {
   ISS_MARKER_EMISSIVE_INTENSITY,
   ISS_MARKER_SIZE,
 } from './constants';
+import { IssModel } from './IssModel';
 
 /**
  * El marcador de la ISS sobre el globo.
@@ -35,7 +36,7 @@ import {
  */
 export function IssMarker() {
   const grupoRef = useRef<Group>(null);
-  const meshRef = useRef<Mesh>(null);
+  const posicionRef = useRef<Group>(null);
   const tiempo = useSceneTime();
   const satrec = useSatrecFromTle();
 
@@ -82,8 +83,8 @@ export function IssMarker() {
       grupoRef.current.rotation.y = gmst;
     }
 
-    const mesh = meshRef.current;
-    if (!mesh || !satrec) return;
+    const posicion = posicionRef.current;
+    if (!posicion || !satrec) return;
 
     /**
      * ⚠️ La misma `date` que usa la Tierra para orientarse. Propagar con un
@@ -98,7 +99,10 @@ export function IssMarker() {
       latLonToVector3(geo.latitude, geo.longitude, altitudeToRadius(geo.altitude)),
     );
 
-    mesh.position.copy(objetivo.current);
+    posicion.position.copy(objetivo.current);
+    // Una esfera ocultaba la orientación. El grupo mira al centro de la Tierra
+    // para que el modelo asimétrico mantenga una actitud orbital coherente.
+    posicion.lookAt(0, 0, 0);
     colocado.current = true;
   });
 
@@ -113,25 +117,36 @@ export function IssMarker() {
       {verOrbita && <GroundTrack satrec={satrec} />}
 
       {/* El grupo separa responsabilidades: la rotación terrestre va en el
-          grupo, la posición orbital en el mesh. Mezclarlas obligaría a
+          grupo, la posición orbital en el hijo. Mezclarlas obligaría a
           recalcular el vector rotado en cada fotograma en lugar de dejar que lo
           haga la matriz de transformación, que es justo para lo que está. */}
       <group ref={grupoRef}>
         {/* La posición NO se pasa como prop: la controla useFrame. Darle una
             prop position haría que React la reescribiera en cada render,
             anulando el cálculo del fotograma. */}
-        <mesh ref={meshRef}>
-          <sphereGeometry args={[ISS_MARKER_SIZE, 16, 16]} />
-          {/* Emisivo para que se vea igual sobre el lado nocturno que sobre el
-              diurno. Un marcador que desaparece media órbita no sirve. */}
-          <meshStandardMaterial
-            color={ISS_MARKER_COLOR}
-            emissive={ISS_MARKER_COLOR}
-            emissiveIntensity={ISS_MARKER_EMISSIVE_INTENSITY}
-            toneMapped={false}
-          />
-        </mesh>
+        <group ref={posicionRef}>
+          <Suspense fallback={<IssMarkerFallback />}>
+            <IssModel />
+          </Suspense>
+        </group>
       </group>
     </>
+  );
+}
+
+/** Punto visible mientras el modelo GLB está descargándose. */
+function IssMarkerFallback() {
+  return (
+    <mesh>
+      <sphereGeometry args={[ISS_MARKER_SIZE, 16, 16]} />
+      {/* Emisivo para que se vea igual sobre el lado nocturno que sobre el
+          diurno. Un marcador que desaparece media órbita no sirve. */}
+      <meshStandardMaterial
+        color={ISS_MARKER_COLOR}
+        emissive={ISS_MARKER_COLOR}
+        emissiveIntensity={ISS_MARKER_EMISSIVE_INTENSITY}
+        toneMapped={false}
+      />
+    </mesh>
   );
 }
