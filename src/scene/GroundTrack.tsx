@@ -2,7 +2,6 @@ import { Line } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useRef, useState } from 'react';
 import type { SatRec } from 'satellite.js';
-import type { Group } from 'three';
 
 import { buildGroundTrack, TRACK_REFRESH_MS } from '../lib/groundTrack';
 import { useSceneTime } from './sceneTime';
@@ -38,7 +37,6 @@ import {
  * Es aceptable porque ocurre dos veces por minuto, no sesenta por segundo.
  */
 export function GroundTrack({ satrec }: { satrec: SatRec }) {
-  const grupoRef = useRef<Group>(null);
   const tiempo = useSceneTime();
 
   const [traza, setTraza] = useState(() => buildGroundTrack(satrec, tiempo.current.date));
@@ -47,18 +45,7 @@ export function GroundTrack({ satrec }: { satrec: SatRec }) {
   const calculadoEn = useRef(tiempo.current.date.getTime());
 
   useFrame(() => {
-    const { date, gmst } = tiempo.current;
-
-    /**
-     * La traza gira con la Tierra, igual que el marcador.
-     *
-     * Sus puntos salen de lat/lon, que están en ECEF —un sistema que gira con
-     * el planeta—, así que necesitan la misma rotación GMST. Sin ella la
-     * órbita quedaría dibujada sobre los continentes equivocados.
-     */
-    if (grupoRef.current) {
-      grupoRef.current.rotation.y = gmst;
-    }
+    const { date } = tiempo.current;
 
     if (date.getTime() - calculadoEn.current < TRACK_REFRESH_MS) return;
     calculadoEn.current = date.getTime();
@@ -66,7 +53,7 @@ export function GroundTrack({ satrec }: { satrec: SatRec }) {
   });
 
   return (
-    <group ref={grupoRef}>
+    <>
       {/* Dos líneas y no una: la diferencia de color y opacidad es lo que
           comunica la dirección del movimiento, sin necesidad de flechas. */}
       {traza.past.length > 1 && (
@@ -88,6 +75,6 @@ export function GroundTrack({ satrec }: { satrec: SatRec }) {
           opacity={TRACK_FUTURE_OPACITY}
         />
       )}
-    </group>
+    </>
   );
 }

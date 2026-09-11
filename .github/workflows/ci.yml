@@ -59,6 +59,9 @@ jobs:
       - name: Ubicaciones geográficas
         run: npm run test:locations
 
+      - name: Transformaciones de escena
+        run: npm run test:scene
+
       # tsc -b comprueba los tipos ademas de compilar: un error de
       # TypeScript rompe el build, no solo avisa en el editor.
       - name: Compilar

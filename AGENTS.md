@@ -20,9 +20,9 @@ issue. No crees un segundo documento de contexto activo ni repartas la fuente de
 
 ## Estado
 
-**56 issues cerradas tras retirar los residuos de la antigua interpolación (#109).** El proyecto
-calcula la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la
-traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
+**57 issues cerradas tras unificar la rotación GMST en `EcefFrame` (#110).** El proyecto calcula la
+posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la traza
+orbital, y el Sol ilumina el globo donde lo hace de verdad.
 
 **Ya no depende de ninguna API de terceros en el cliente**: la única URL externa está en
 `api/tle.ts`, en el servidor.
@@ -36,10 +36,10 @@ traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 3 · La ISS en vivo | 7/7 | ✅ |
 | 4 · El BFF | 5/5 | ✅ |
 | 5 · Órbita e interfaz | 8/8 | ✅ |
-| 5.5 · Correcciones y realismo | 8/12 | En curso |
+| 5.5 · Correcciones y realismo | 9/12 | En curso |
 | 6 · Cierre | 0/5 | |
 
-**Siguiente:** continuar la Fase 5.5 con las correcciones y mejoras #110–#113. Después sigue la
+**Siguiente:** continuar la Fase 5.5 con las correcciones y mejoras #111–#113. Después sigue la
 Fase 6 — móvil (#44), rendimiento (#45), accesibilidad (#46), README (#47) y cierre (#48).
 
 ⚠️ **Para #45:** el bundle está en **459 KB comprimidos**. Medido por partes: MUI añadió
@@ -60,6 +60,7 @@ npm run lint           # oxlint
 npm run format         # prettier --write .
 npm run format:check   # lo que corre el CI
 npm run test:locations # casos conocidos de geocodificación inversa
+npm run test:scene     # invariantes numéricas de las transformaciones 3D
 npm run data:locations # regenerar los datos reducidos de Natural Earth
 ```
 
@@ -222,13 +223,13 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   una textura es la VRAM, no la descarga.
 - **`THREE.Timer`, no `THREE.Clock`** (deprecado en r186). Timer exige `update()` antes de
   `getDelta()`, o devuelve 0 sin avisar.
-- **La orientación de la Tierra se deriva del GMST**, no de una velocidad:
-  `rotation.y = gstime(new Date())`. La posición de la ISS y la orientación del globo están
-  acopladas — acelerar la rotación pondría el marcador sobre el país equivocado.
-- **La ISS va dentro del `<group>` de inclinación pero fuera del mesh que rota** — y aun así
-  **aplica `gstime()` a su propio vector**. Su lat/lon está en ECEF, un sistema que gira con la
-  Tierra: Greenwich no está quieto en la escena. Medido: sin esa rotación el marcador aparece a
-  89.5° del punto correcto, casi 10 000 km. Un punto fijo de la superficie sí es hijo del mesh.
+- **La orientación terrestre se deriva del GMST**, no de una velocidad. `EcefFrame` es el único
+  componente que escribe esa rotación y la Tierra, la ISS y la traza la heredan por estructura.
+  Acelerar el giro por estética pondría el marcador sobre el país equivocado.
+- **La inclinación envuelve a `EcefFrame`, y este envuelve la Tierra, la ISS y la traza.** El orden
+  es `Rz(inclinación) × Ry(GMST)` y está verificado numéricamente en `test:scene`. La luz queda
+  fuera: `useSceneTime` ya entrega su dirección en coordenadas de escena y envolverla la rotaría
+  dos veces.
 - **Todo lo que entra de fuera se valida con Zod, no con `as`.** Los tipos desaparecen al
   compilar; un `as` sobre una respuesta de red es una promesa, no una comprobación. Sin validar,
   un `latitude: null` no lanza nada: `null * Math.PI / 180` es 0 y el fallo aparece tres archivos
@@ -246,9 +247,10 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   sino que la fuente sea única y se pueda controlar desde un sitio.
   ⚠️ Lo que viaja por el contexto es el **ref**, no el valor: pasar el valor re-renderizaría a
   todos los consumidores sesenta veces por segundo.
-- **Todo lo que se calcula en lat/lon está en ECEF y necesita la rotación GMST.** Vale para la
-  ISS, para la traza y para el Sol. Sin ella el error es consistente y creíble a la vista —el
-  peor tipo—: la escena sigue teniendo un lado día y otro noche perfectamente normales.
+- **Todo vector calculado en lat/lon nace en ECEF y se convierte una sola vez.** Tierra, ISS y
+  traza viven dentro de `EcefFrame`; la dirección solar se convierte al actualizar el tiempo y
+  permanece fuera. Omitir o duplicar GMST produce un error consistente y creíble a la vista —el
+  peor tipo—.
 - **Estado de servidor en Query, estado de interfaz en Zustand.** Nunca un dato de API en el
   store: duplicarlo crea dos fuentes de verdad que se desincronizan. Y siempre con selectores
   (`useUiStore((s) => s.campo)`), no el store entero — medido: con selectores, alternar una
@@ -282,7 +284,7 @@ escena 3D o el comportamiento del cliente, úsalo además de las comprobaciones 
 ## CI y despliegue
 
 `.github/workflows/ci.yml` corre en cada PR: `npm ci` → `lint` → `format:check` →
-`test:locations` → `build`.
+`test:locations` → `test:scene` → `build`.
 
 ⚠️ El job se llama **`verificar`** y ese nombre exacto lo exige la protección de rama. Si se
 renombra uno sin el otro, todos los PR quedan bloqueados esperando un check que nunca llega.
