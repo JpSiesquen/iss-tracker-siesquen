@@ -1,7 +1,8 @@
 import { Canvas } from '@react-three/fiber';
 import { Suspense } from 'react';
 
-import { SPACE_COLOR } from './constants';
+import { initialCameraDistance } from './camera';
+import { CAMERA_VERTICAL_FOV, SPACE_COLOR } from './constants';
 import { Controls } from './Controls';
 import { Earth } from './Earth';
 import { Lights } from './Lights';
@@ -26,10 +27,13 @@ import { SceneTimeProvider } from './SceneTimeContext';
 export function Scene() {
   return (
     <Canvas
-      // La cámara nace en el origen (0,0,0). Si un objeto estuviera también
-      // ahí, quedaría dentro de él y no se vería nada. Three.js usa Y-up:
-      // X a la derecha, Y arriba, Z hacia el espectador.
-      camera={{ position: [0, 0, 5], fov: 60, near: 0.1, far: 1000 }}
+      // La distancia se ajusta al tamaño REAL del canvas al crearlo. Usar un
+      // z fijo solo funcionaría para la relación de aspecto donde se tanteó.
+      camera={{ fov: CAMERA_VERTICAL_FOV, near: 0.1, far: 1000 }}
+      onCreated={({ camera, size }) => {
+        camera.position.set(0, 0, initialCameraDistance(size.width / size.height));
+        camera.updateProjectionMatrix();
+      }}
       // Limita la densidad de píxeles. En pantallas de alta densidad el
       // navegador renderizaría a 3x, que son nueve veces más píxeles para
       // una mejora casi imperceptible. Vuelve en la issue 6-2 (rendimiento).

@@ -20,7 +20,7 @@ issue. No crees un segundo documento de contexto activo ni repartas la fuente de
 
 ## Estado
 
-**52 issues cerradas tras limitar las luces urbanas al hemisferio nocturno (#105).** El proyecto calcula la posición de la
+**53 issues cerradas tras calcular el encuadre inicial según el viewport (#106).** El proyecto calcula la posición de la
 ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la traza orbital, y el Sol
 ilumina el globo donde lo hace de verdad.
 
@@ -36,11 +36,10 @@ ilumina el globo donde lo hace de verdad.
 | 3 · La ISS en vivo | 7/7 | ✅ |
 | 4 · El BFF | 5/5 | ✅ |
 | 5 · Órbita e interfaz | 8/8 | ✅ |
-| 5.5 · Correcciones y realismo | 4/11 | En curso |
+| 5.5 · Correcciones y realismo | 5/11 | En curso |
 | 6 · Cierre | 0/5 | |
 
-**Siguiente:** continuar la Fase 5.5 con #106 y después las restantes correcciones y mejoras
-#108–#113. Después sigue la
+**Siguiente:** continuar la Fase 5.5 con las correcciones y mejoras #108–#113. Después sigue la
 Fase 6 — móvil (#44), rendimiento (#45), accesibilidad (#46), README (#47) y cierre (#48).
 
 ⚠️ **Para #45:** el bundle está en **437 KB comprimidos**. Medido por partes: MUI añadió
@@ -193,6 +192,9 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
 
 - **Constantes con nombre, no números sueltos** en la escena 3D: `EARTH_TILT`,
   `ISS_ALTITUDE_KM`. Un `0.41` suelto no se puede revisar.
+- **El encuadre inicial se calcula, no se tantea.** `initialCameraDistance()` usa el radio
+  orbital, el FOV vertical y la relación de aspecto real del canvas. En una ventana estrecha
+  convierte primero el FOV vertical en el horizontal equivalente.
 - **Rotación en radianes.** `THREE.MathUtils.degToRad()` para convertir.
 - **Movimiento siempre con delta time**, nunca por fotograma: atarlo al framerate falsea las
   velocidades reales.
