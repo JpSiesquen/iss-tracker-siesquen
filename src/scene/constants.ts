@@ -134,6 +134,15 @@ export const ISS_MARKER_COLOR = '#ffcc00';
  */
 export const ISS_MARKER_EMISSIVE_INTENSITY = 1.8;
 
+/**
+ * Escala del modelo ISS de NASA dentro de la escena.
+ *
+ * El activo está medido en metros y la escena usa EARTH_RADIUS = 1. Su tamaño
+ * físico sería imperceptible (la envergadura real es de unos 109 m), así que se
+ * amplía deliberadamente hasta conservar la silueta de sus paneles solares.
+ */
+export const ISS_MODEL_SCALE = 0.0006;
+
 /*
  * ISS_SMOOTHING se retiró en la issue #37.
  *
