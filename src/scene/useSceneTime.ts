@@ -42,12 +42,20 @@ export interface SceneTime {
 }
 
 /**
- * Debe montarse **una sola vez** y por encima de quien lo consuma.
+ * R3F ordena los callbacks de `useFrame` de menor a mayor prioridad. La
+ * fuente de tiempo debe ejecutarse antes de cada consumidor, incluso cuando
+ * `Suspense` haga que los hijos se registren antes que este hook.
  *
- * El orden importa: R3F ejecuta los `useFrame` en el orden en que se
- * registraron, así que este hook tiene que ir en un componente que se monte
- * antes que la Tierra y el marcador para que ambos lean un valor ya
- * actualizado.
+ * Solo las prioridades positivas entregan el render manual a un callback de
+ * usuario; `-1` conserva el renderizado automático del `<Canvas>`.
+ */
+const SCENE_TIME_FRAME_PRIORITY = -1;
+
+/**
+ * Debe montarse **una sola vez** y por encima de quien lo consuma. La posición
+ * en el árbol no basta para fijar el orden: `Suspense` puede hacer que los
+ * consumidores se registren primero. La prioridad negativa asegura que esta
+ * fuente se actualice antes que todos ellos en cada fotograma.
  */
 export function useSceneTimeSource() {
   const ref = useRef<SceneTime>({ date: new Date(), gmst: gstime(new Date()) });
@@ -55,7 +63,7 @@ export function useSceneTimeSource() {
   useFrame(() => {
     const date = new Date();
     ref.current = { date, gmst: gstime(date) };
-  });
+  }, SCENE_TIME_FRAME_PRIORITY);
 
   return ref;
 }
