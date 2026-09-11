@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import type { ReactNode } from 'react';
 
 import { useIssTelemetry } from '../api/useIssTelemetry';
+import { useIssLocation } from '../api/useIssLocation';
 import { MOTION_DURATION, MOTION_OFFSET } from './constants';
 import { useTle } from '../api/useTle';
 import { useUiStore } from '../store/ui';
@@ -45,6 +46,7 @@ export function StatusPanel() {
    */
   const verPanel = useUiStore((s) => s.verPanel);
   const posicion = useIssTelemetry();
+  const ubicacion = useIssLocation(posicion);
   const { elementos, esObsoleto, edadMs, isError, isPending } = useTle();
 
   if (!verPanel) return null;
@@ -100,6 +102,14 @@ export function StatusPanel() {
         {formatCoordinate(posicion.latitude, 'N', 'S')}{' '}
         {formatCoordinate(posicion.longitude, 'E', 'O')}
       </Box>
+
+      <Dato
+        etiqueta="Sobre"
+        valor={
+          ubicacion.data?.nombre ??
+          (ubicacion.isError ? 'Ubicación no disponible' : 'Localizando…')
+        }
+      />
 
       <Dato etiqueta="Altitud" valor={formatAltitude(posicion.altitude)} />
 

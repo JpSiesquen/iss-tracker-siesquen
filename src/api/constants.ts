@@ -71,3 +71,6 @@ export const TLE_QUERY_RETRIES = 2;
  * el adecuado para lo que hace.
  */
 export const TELEMETRY_TICK_MS = 1000;
+
+/** El nombre geográfico cambia mucho más despacio que las coordenadas. */
+export const LOCATION_REFRESH_INTERVAL_MS = 30_000;
