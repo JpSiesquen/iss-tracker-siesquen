@@ -78,13 +78,13 @@ export const STAR_RADIUS_MAX = 90;
  * Tamaño del sprite con `sizeAttenuation`. Un poco por encima del tono medio
  * (0.42): visibles al mirar el vacío, sin el exceso de ~1.0.
  */
-export const STAR_SIZE = 0.58;
+export const STAR_SIZE = 0.7;
 
 /**
  * Blanco frío sobre `SPACE_COLOR`. Sin tone mapping (ver Starfield).
  */
-export const STAR_COLOR = '#d4dbe8';
-export const STAR_OPACITY = 0.68;
+export const STAR_COLOR = '#dde3ee';
+export const STAR_OPACITY = 0.78;
 /**
  * FOV vertical de la cámara perspectiva, en grados.
  *
