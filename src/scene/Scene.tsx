@@ -8,6 +8,7 @@ import { Earth } from './Earth';
 import { EcefFrame } from './EcefFrame';
 import { IssMarker } from './IssMarker';
 import { Lights } from './Lights';
+import { SceneLoadingFallback } from './SceneLoadingFallback';
 import { SceneTimeProvider } from './SceneTimeContext';
 import { Starfield } from './Starfield';
 
@@ -50,12 +51,6 @@ export function Scene() {
           ni depende del Sol. Ver Starfield.tsx. */}
       <Starfield />
 
-      {/* <Earth> se suspende mientras carga su textura, asi que necesita un
-          Suspense por encima. fallback={null} = no mostrar nada mientras tanto;
-          en la issue 6-x se sustituye por un indicador de carga real.
-
-          ⚠️ El Suspense debe ENVOLVER al componente que carga, no ir dentro de
-          el: un componente no puede ser su propio fallback. */}
       {/* El proveedor calcula el instante una vez por fotograma y lo reparte.
           Envuelve a la Tierra y al marcador para que ambos se orienten y se
           propaguen con exactamente el mismo tiempo: usar instantes distintos
@@ -65,17 +60,24 @@ export function Scene() {
             dirección solar ya llega convertida a coordenadas de escena. */}
         <Lights />
 
-        <Suspense fallback={null}>
-          {/* El orden conserva la transformación original: primero la
-              inclinación axial del sistema y, dentro, la rotación GMST del
-              marco terrestre. Tierra, marcador y traza heredan ambas. */}
-          <group rotation={[0, 0, EARTH_TILT]}>
+        {/* <Earth> se suspende mientras carga sus texturas: necesita Suspense
+            por encima. El fallback es una silueta del mismo radio (#134), no
+            null: una pantalla negra se lee como fallo, no como espera.
+
+            La inclinación axial envuelve también al fallback para que el
+            globo texturizado aparezca en el mismo sitio, sin salto de pose.
+            Starfield y paneles quedan fuera: la carga no bloquea la UI.
+
+            ⚠️ El Suspense debe ENVOLVER al componente que carga, no ir
+            dentro: un componente no puede ser su propio fallback. */}
+        <group rotation={[0, 0, EARTH_TILT]}>
+          <Suspense fallback={<SceneLoadingFallback />}>
             <EcefFrame>
               <Earth />
               <IssMarker />
             </EcefFrame>
-          </group>
-        </Suspense>
+          </Suspense>
+        </group>
       </SceneTimeProvider>
     </Canvas>
   );

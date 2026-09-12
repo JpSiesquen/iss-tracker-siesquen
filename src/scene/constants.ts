@@ -63,6 +63,22 @@ export const AMBIENT_INTENSITY = 0.12;
 export const SPACE_COLOR = '#05060a';
 
 /**
+ * Silueta del globo mientras cargan las texturas (#134).
+ *
+ * Un azul-gris apenas por encima de `SPACE_COLOR`: se lee como volumen, no
+ * como un planeta falso. Misma radio que `Earth`, para que al montar no haya
+ * salto de tamaño.
+ */
+export const SCENE_LOADING_COLOR = '#141a28';
+
+/** Opacidad base y amplitud del pulso (suma ≤ 1). */
+export const SCENE_LOADING_OPACITY = 0.42;
+export const SCENE_LOADING_PULSE_AMPLITUDE = 0.12;
+
+/** Frecuencia del pulso en Hz. Lento: comunica espera, no urgencia. */
+export const SCENE_LOADING_PULSE_HZ = 0.4;
+
+/**
  * Campo de estrellas (#133): puntos estáticos detrás del globo.
  *
  * Un draw call, sprite 64×64 en memoria (no asset), sin luces reales. El
