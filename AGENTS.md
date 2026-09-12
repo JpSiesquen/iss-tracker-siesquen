@@ -37,10 +37,11 @@ traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 4 · El BFF | 5/5 | ✅ |
 | 5 · Órbita e interfaz | 8/8 | ✅ |
 | 5.5 · Correcciones y realismo | 13/13 | ✅ |
+| 5.6 · Identidad visual | 0/6 | En curso |
 | 6 · Cierre | 0/5 | |
 
-**Siguiente:** la Fase 6 — móvil (#44), rendimiento (#45), accesibilidad (#46), README (#47)
-y cierre (#48).
+**Siguiente:** la Fase 5.6 — tipografía Geist (#130), paneles (#131–#132), estrellas (#133),
+carga (#134) y crédito (#135). Después la Fase 6, que depende de #135.
 
 ⚠️ **Para #45:** el bundle está en **459 KB comprimidos**. Medido por partes: MUI añadió
 ~80 KB y Motion ~52 KB. La geocodificación de #108 añadió solo 0,40 KB al cliente; sus 832 KB de
@@ -76,7 +77,8 @@ React 19 · TypeScript · Vite 8 · oxlint (no ESLint) · Prettier
 
 Three.js 0.186 con React Three Fiber 9.7 y drei · satellite.js 7.1 (SGP4 y GMST) ·
 TanStack Query 5.102 (estado de servidor) · Zod 4.5 (validación) · Zustand 5.0 (estado de
-interfaz) · Material UI 9.4 con Emotion · Lucide (iconos) · Motion (transiciones).
+interfaz) · Material UI 9.4 con Emotion · Geist (tipografía, self-hosted) · Lucide (iconos) ·
+Motion (transiciones).
 
 El stack está completo: no queda nada por instalar.
 
