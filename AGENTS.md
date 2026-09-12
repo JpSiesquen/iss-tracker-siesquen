@@ -20,7 +20,7 @@ issue. No crees un segundo documento de contexto activo ni repartas la fuente de
 
 ## Estado
 
-**59 issues cerradas tras activar por defecto la rotación automática (#126).** El proyecto calcula
+**60 issues cerradas tras centralizar la normalización de longitudes (#112).** El proyecto calcula
 la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la traza
 orbital, y el Sol ilumina el globo donde lo hace de verdad.
 
@@ -36,10 +36,10 @@ orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 3 · La ISS en vivo | 7/7 | ✅ |
 | 4 · El BFF | 5/5 | ✅ |
 | 5 · Órbita e interfaz | 8/8 | ✅ |
-| 5.5 · Correcciones y realismo | 11/13 | En curso |
+| 5.5 · Correcciones y realismo | 12/13 | En curso |
 | 6 · Cierre | 0/5 | |
 
-**Siguiente:** continuar la Fase 5.5 con las correcciones y mejoras #112–#113. Después sigue la
+**Siguiente:** terminar la Fase 5.5 con la revisión de comentarios #113. Después sigue la
 Fase 6 — móvil (#44), rendimiento (#45), accesibilidad (#46), README (#47) y cierre (#48).
 
 ⚠️ **Para #45:** el bundle está en **459 KB comprimidos**. Medido por partes: MUI añadió
@@ -60,6 +60,7 @@ npm run lint           # oxlint
 npm run format         # prettier --write .
 npm run format:check   # lo que corre el CI
 npm run test:locations # casos conocidos de geocodificación inversa
+npm run test:sun       # regresión numérica del punto subsolar
 npm run test:scene     # invariantes numéricas de las transformaciones 3D
 npm run test:omm       # esquema OMM válido e inválido en ambas fronteras
 npm run test:bundle    # comprueba dist/ después del build: ningún código del BFF
@@ -245,6 +246,8 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
 - **Conectar posiciones en cartesianas, no en grados.** En la traza orbital, las longitudes 179.9 y
   −179.9 son vecinas después de convertirlas (0.0053 unidades); en grados el salto sería de 359.8°.
   El orden elimina el problema del antimeridiano en vez de tener que tratarlo.
+- **Normalizar longitudes con `normalizeLongitude`.** Su doble módulo corrige el resto negativo de
+  JavaScript y mantiene en un solo sitio el rango `[-180, 180]`; no se reimplementa a mano.
 - **En datos en vivo, la antigüedad del dato es parte del dato.** Si la conexión se corta, la
   última posición conocida se queda en pantalla como si fuera actual. Siempre se muestra cuándo
   se actualizó.
@@ -295,7 +298,7 @@ escena 3D o el comportamiento del cliente, úsalo además de las comprobaciones 
 ## CI y despliegue
 
 `.github/workflows/ci.yml` corre en cada PR: `npm ci` → `lint` → `format:check` →
-`test:locations` → `test:scene` → `test:omm` → `build` → `test:bundle`.
+`test:locations` → `test:sun` → `test:scene` → `test:omm` → `build` → `test:bundle`.
 
 ⚠️ El job se llama **`verificar`** y ese nombre exacto lo exige la protección de rama. Si se
 renombra uno sin el otro, todos los PR quedan bloqueados esperando un check que nunca llega.
