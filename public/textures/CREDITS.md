@@ -74,3 +74,10 @@ licencia** — en un repositorio público eso significa que los derechos son del
 se usó.
 
 El repositorio oficial de Three.js sí las incluye en sus ejemplos, con licencia **MIT** clara.
+
+## Variantes móviles
+
+`earth-color-mobile.jpg`, `earth-night-mobile.jpg`, `earth-normal-mobile.jpg` y
+`earth-specular-mobile.jpg` son derivados de 1024×512 de sus archivos homónimos descritos arriba;
+conservan sus licencias respectivas. Se generaron mediante remuestreo bicúbico de alta calidad y
+JPEG con calidad 85 para la optimización móvil de la issue #45.

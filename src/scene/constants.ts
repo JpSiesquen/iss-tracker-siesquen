@@ -21,6 +21,19 @@ export const EARTH_RADIUS = 1;
 export const EARTH_SEGMENTS = 64;
 
 /**
+ * Teléfonos y dispositivos táctiles reciben texturas y DPR adaptados.
+ *
+ * Incluye el ancho móvil de MUI y poca altura junto a `pointer: coarse` para
+ * cubrir teléfonos horizontales sin degradar una laptop táctil grande.
+ */
+export const MOBILE_PERFORMANCE_MEDIA_QUERY =
+  '(max-width: 599.95px), (max-height: 500px) and (pointer: coarse)';
+
+/** DPR máximo por clase de dispositivo. */
+export const MOBILE_MAX_DPR = 1.5;
+export const DESKTOP_MAX_DPR = 2;
+
+/**
  * Distancia a la que se coloca la luz del Sol, en unidades de escena.
  *
  * Solo importa la DIRECCIÓN: una luz direccional emite rayos paralelos, así que
