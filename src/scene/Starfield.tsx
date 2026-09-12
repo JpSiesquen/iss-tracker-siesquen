@@ -22,7 +22,7 @@ import {
  * ## Por qué un campo de puntos y no un skybox
  *
  * Una cubemap añadiría VRAM y una costura posible con `SPACE_COLOR`. Un
- * `Points` estático son ~2 200 vértices, un material y un draw call. La
+ * `Points` estático son ~1 600 vértices, un material y un draw call. La
  * textura del sprite es un canvas 64×64 generado en memoria —no un asset—
  * solo para que el punto se lea como chispa y no como subpíxel cuadrado.
  *
@@ -91,10 +91,9 @@ function createStarSprite(): Texture {
 
   const center = size / 2;
   const gradient = ctx.createRadialGradient(center, center, 0, center, center, center);
-  /** Núcleo opaco: si el centro es tenue, sizeAttenuation lo deja invisible. */
   gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-  gradient.addColorStop(0.25, 'rgba(255, 255, 255, 1)');
-  gradient.addColorStop(0.55, 'rgba(255, 255, 255, 0.45)');
+  gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.7)');
+  gradient.addColorStop(0.65, 'rgba(255, 255, 255, 0.2)');
   gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, size, size);

@@ -68,24 +68,23 @@ export const SPACE_COLOR = '#05060a';
  * Un draw call, sprite 64×64 en memoria (no asset), sin luces reales. El
  * presupuesto importa para #45. Fuera de ECEF, así que no giran con el planeta.
  */
-export const STAR_COUNT = 2200;
+export const STAR_COUNT = 1600;
 
 /** Casquete esférico lejano; dentro del `far` de la cámara (1000). */
-export const STAR_RADIUS_MIN = 40;
-export const STAR_RADIUS_MAX = 85;
+export const STAR_RADIUS_MIN = 45;
+export const STAR_RADIUS_MAX = 90;
 
 /**
- * Tamaño del sprite con `sizeAttenuation`. El núcleo del gradiente es lo que
- * se ve; hace falta este tamaño para que no quede en subpíxel.
+ * Tamaño del sprite con `sizeAttenuation`. Equilibrio entre subpíxel (0.09) y
+ * chispas que robaban protagonismo al globo (~1.0).
  */
-export const STAR_SIZE = 1.05;
+export const STAR_SIZE = 0.42;
 
 /**
- * Blanco frío sobre `SPACE_COLOR`. Sin tone mapping (ver Starfield); el
- * blending aditivo y el sprite llevan el brillo.
+ * Blanco frío sobre `SPACE_COLOR`. Sin tone mapping (ver Starfield).
  */
-export const STAR_COLOR = '#ffffff';
-export const STAR_OPACITY = 1;
+export const STAR_COLOR = '#c8d0de';
+export const STAR_OPACITY = 0.55;
 /**
  * FOV vertical de la cámara perspectiva, en grados.
  *
