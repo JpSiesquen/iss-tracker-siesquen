@@ -38,3 +38,11 @@ export const MOTION_DURATION = 0.2;
  * eso pide atención que el globo necesita más.
  */
 export const MOTION_OFFSET = 8;
+
+/**
+ * Perfil público del autor (#135).
+ *
+ * Provisional: cuando exista el portafolio, se cambia aquí en una issue
+ * aparte. No inventar esa URL ahora.
+ */
+export const AUTHOR_URL = 'https://github.com/JpSiesquen';

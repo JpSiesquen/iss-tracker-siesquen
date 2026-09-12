@@ -7,6 +7,7 @@ import './App.css';
 import { queryClient } from './api/queryClient';
 import { Scene } from './scene/Scene';
 import { theme } from './theme';
+import { AuthorCredit } from './ui/AuthorCredit';
 import { LayerControls } from './ui/LayerControls';
 import { StatusPanel } from './ui/StatusPanel';
 
@@ -35,6 +36,7 @@ function App() {
               del Canvas solo viven objetos de Three.js. */}
           <StatusPanel />
           <LayerControls />
+          <AuthorCredit />
         </div>
 
         {/* Panel para inspeccionar la caché: qué consultas hay, en qué estado,

@@ -37,12 +37,11 @@ traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 4 · El BFF | 5/5 | ✅ |
 | 5 · Órbita e interfaz | 8/8 | ✅ |
 | 5.5 · Correcciones y realismo | 13/13 | ✅ |
-| 5.6 · Identidad visual | 5/6 | En curso |
+| 5.6 · Identidad visual | 6/6 | ✅ |
 | 6 · Cierre | 0/5 | |
 
-**Siguiente:** crédito de autor (#135). Después la Fase 6, que depende de #135.
-Las issues #130–#134 (tipografía, paneles, estrellas, carga visible) ya están
-cerradas o en PR.
+**Siguiente:** Fase 6 (cierre). La 5.6 quedó completa con el crédito de autor
+(#135).
 
 ⚠️ **Para #45:** el bundle está en **459 KB comprimidos**. Medido por partes: MUI añadió
 ~80 KB y Motion ~52 KB. La geocodificación de #108 añadió solo 0,40 KB al cliente; sus 832 KB de
