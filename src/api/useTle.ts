@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 
-import { TLE_QUERY_RETRIES, TLE_STALE_TIME_MS } from './constants';
+import { ISS_AGE_TICK_MS, TLE_QUERY_RETRIES, TLE_STALE_TIME_MS } from './constants';
 import { fetchTle } from './tle';
 
 /**
@@ -10,6 +11,30 @@ import { fetchTle } from './tle';
  * vive en Query — se propaga en local a partir de estos elementos.
  */
 export const TLE_QUERY_KEY = ['tle'] as const;
+
+/**
+ * Antigüedad viva a partir de un instante Unix.
+ *
+ * ⚠️ No usar el `edadMs` de la respuesta del BFF para mostrarla: ese valor se
+ * congela al generar el JSON y la CDN puede servir `0` durante horas. La edad
+ * real es `ahora - descargadoEn`, con `ahora` avanzando cada segundo.
+ *
+ * `Date.now()` solo corre en el inicializador del estado y en el intervalo —
+ * no durante el render — para no chocar con la regla de pureza de React.
+ */
+function useLiveAge(sinceMs: number | undefined): number | undefined {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (sinceMs === undefined) return;
+
+    const id = setInterval(() => setNow(Date.now()), ISS_AGE_TICK_MS);
+    return () => clearInterval(id);
+  }, [sinceMs]);
+
+  if (sinceMs === undefined) return undefined;
+  return Math.max(0, now - sinceMs);
+}
 
 /**
  * Los elementos orbitales de la ISS, servidos por el BFF.
@@ -40,13 +65,22 @@ export function useTle() {
     retry: TLE_QUERY_RETRIES,
   });
 
+  const descargadoEn = query.data?.descargadoEn;
+  const edadMs = useLiveAge(descargadoEn);
+
   return {
     ...query,
     /** Los elementos, o `undefined` mientras no hayan llegado. */
     elementos: query.data?.elementos,
     /** Si el servidor está sirviendo un dato que no pudo actualizar. */
     esObsoleto: query.data?.stale === true,
-    /** Antigüedad de los elementos en el momento en que los sirvió el BFF. */
-    edadMs: query.data?.edadMs,
+    /** Instantánea Unix en la que el BFF descargó estos elementos. */
+    descargadoEn,
+    /**
+     * Antigüedad viva en el cliente: `Date.now() - descargadoEn`.
+     *
+     * No es el `edadMs` congelado del JSON (ése miente tras un HIT de CDN).
+     */
+    edadMs,
   };
 }
