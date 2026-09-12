@@ -176,8 +176,11 @@ export const DEBUG_MARKER_RADIUS = 1.005;
  * A escala real sería absurdo: la estación mide 109 m frente a los 12 742 km
  * de diámetro terrestre, o sea 0.0000086 unidades. Un punto invisible. El
  * marcador no representa su tamaño, sino su posición.
+ *
+ * #145: un poco mayor que el halo del modelo para que el fallback (mientras
+ * carga el GLB) ya se encuentre a distancia de cámara.
  */
-export const ISS_MARKER_SIZE = 0.022;
+export const ISS_MARKER_SIZE = 0.032;
 
 /** Color del marcador. Cálido, para contrastar con el azul del planeta. */
 export const ISS_MARKER_COLOR = '#ffcc00';
@@ -192,21 +195,41 @@ export const ISS_MARKER_COLOR = '#ffcc00';
 export const ISS_MARKER_EMISSIVE_INTENSITY = 1.8;
 
 /**
+ * Halo de localización detrás del modelo (#145).
+ *
+ * Más grande que la silueta del GLB y con `depthWrite: false` para que se lea
+ * como brillo, no como una bola que tapa la estación. Opacidad moderada: con
+ * la traza encendida no debe competir con la línea orbital.
+ */
+export const ISS_BEACON_SIZE = 0.038;
+export const ISS_BEACON_OPACITY = 0.42;
+
+/**
+ * Pulso del halo (#145): opacidad oscila alrededor de `ISS_BEACON_OPACITY`.
+ *
+ * ~0.6 Hz: término medio entre faro urgente y respiración lenta. La amplitud
+ * deja el mínimo aún visible para no «apagar» el punto entre destellos.
+ */
+export const ISS_BEACON_PULSE_HZ = 0.6;
+export const ISS_BEACON_PULSE_AMPLITUDE = 0.28;
+
+/**
  * Escala del modelo ISS de NASA dentro de la escena.
  *
  * El activo está medido en metros y la escena usa EARTH_RADIUS = 1. Su tamaño
  * físico sería imperceptible (la envergadura real es de unos 109 m), así que se
  * amplía deliberadamente hasta conservar la silueta de sus paneles solares.
+ *
+ * #145: 0.01 quedaba como un punto a la distancia de cámara habitual.
  */
-export const ISS_MODEL_SCALE = 0.01;
+export const ISS_MODEL_SCALE = 0.017;
 
 /**
- * Emisión moderada del modelo para conservar su silueta sobre el hemisferio
- * nocturno. La luz ambiental por sí sola no alcanza para distinguir sus
- * paneles solares contra el espacio.
+ * Emisión del modelo para conservar su silueta sobre el hemisferio nocturno.
+ * La luz ambiental sola no alcanza; #145 sube un poco la intensidad.
  */
 export const ISS_MODEL_EMISSIVE_COLOR = '#9bb8ff';
-export const ISS_MODEL_EMISSIVE_INTENSITY = 0.6;
+export const ISS_MODEL_EMISSIVE_INTENSITY = 1.05;
 
 /*
  * ISS_SMOOTHING se retiró en la issue #37.

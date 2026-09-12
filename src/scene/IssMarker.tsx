@@ -1,6 +1,6 @@
 import { useFrame } from '@react-three/fiber';
-import { Suspense, useRef } from 'react';
-import type { Group } from 'three';
+import { Suspense, useEffect, useRef } from 'react';
+import type { Group, MeshBasicMaterial } from 'three';
 
 import { altitudeToRadius, latLonToVector3 } from '../lib/coordinates';
 import { propagateToGeodetic } from '../lib/orbit';
@@ -9,6 +9,10 @@ import { useSatrecFromTle } from '../api/useSatrecFromTle';
 import { useUiStore } from '../store/ui';
 import { useSceneTime } from './sceneTime';
 import {
+  ISS_BEACON_OPACITY,
+  ISS_BEACON_PULSE_AMPLITUDE,
+  ISS_BEACON_PULSE_HZ,
+  ISS_BEACON_SIZE,
   ISS_MARKER_COLOR,
   ISS_MARKER_EMISSIVE_INTENSITY,
   ISS_MARKER_SIZE,
@@ -95,6 +99,9 @@ export function IssMarker() {
           del EcefFrame que envuelve al componente. */}
       <group ref={posicionRef}>
         <Suspense fallback={<IssMarkerFallback />}>
+          {/* Halo con el modelo: si fuera fuera del Suspense, durante la
+              descarga se verían dos esferas amarillas a la vez. */}
+          <IssBeacon />
           <IssModel />
         </Suspense>
       </group>
@@ -116,5 +123,61 @@ function IssMarkerFallback() {
         toneMapped={false}
       />
     </mesh>
+  );
+}
+
+/**
+ * Brillo de localización detrás del modelo (#145).
+ *
+ * No sustituye a la estación: la hace encontrable a distancia de cámara sin
+ * convertirla en un juguete. Con la traza encendida sigue siendo secundario.
+ * El pulso usa tiempo real (`clock`), no fotogramas; con
+ * `prefers-reduced-motion` queda fijo en la opacidad base.
+ */
+function IssBeacon() {
+  const materialRef = useRef<MeshBasicMaterial>(null);
+  const reduceMotionRef = useRef(prefersReducedMotion());
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const sync = () => {
+      reduceMotionRef.current = media.matches;
+      const material = materialRef.current;
+      if (material && media.matches) {
+        material.opacity = ISS_BEACON_OPACITY;
+      }
+    };
+    sync();
+    media.addEventListener('change', sync);
+    return () => media.removeEventListener('change', sync);
+  }, []);
+
+  useFrame(({ clock }) => {
+    const material = materialRef.current;
+    if (!material || reduceMotionRef.current) return;
+
+    const phase = clock.elapsedTime * Math.PI * 2 * ISS_BEACON_PULSE_HZ;
+    material.opacity = ISS_BEACON_OPACITY + Math.sin(phase) * ISS_BEACON_PULSE_AMPLITUDE;
+  });
+
+  return (
+    <mesh>
+      <sphereGeometry args={[ISS_BEACON_SIZE, 16, 16]} />
+      <meshBasicMaterial
+        ref={materialRef}
+        color={ISS_MARKER_COLOR}
+        transparent
+        opacity={ISS_BEACON_OPACITY}
+        depthWrite={false}
+        toneMapped={false}
+      />
+    </mesh>
+  );
+}
+
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
   );
 }
