@@ -88,7 +88,39 @@ export const theme = createTheme({
   },
 
   typography: {
-    fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif',
+    /**
+     * Geist Variable (Vercel), self-hosted vía `@fontsource-variable/geist`.
+     *
+     * Sustituye el stack `system-ui`: comunica identidad de producto sin
+     * depender de la fuente del sistema del reclutador. Una sola familia para
+     * toda la UI; la jerarquía sale del peso y del tamaño, no de mezclar
+     * tipografías.
+     *
+     * Pesos de trabajo: 400 (cuerpo), 500 (etiquetas), 600 (valores
+     * protagonistas). El eje variable cubre 100–900 sin cargar archivos extra.
+     */
+    fontFamily: '"Geist Variable", "Geist", system-ui, sans-serif',
+    fontWeightRegular: 400,
+    fontWeightMedium: 500,
+    fontWeightBold: 600,
+    /** Escala densa de producto (~1.15), no display de marketing. */
+    h6: {
+      fontSize: '1.05rem',
+      fontWeight: 600,
+      lineHeight: 1.3,
+      letterSpacing: '-0.01em',
+    },
+    subtitle1: { fontSize: '0.95rem', fontWeight: 600, lineHeight: 1.35 },
+    subtitle2: { fontSize: '0.85rem', fontWeight: 500, lineHeight: 1.4 },
+    body1: { fontSize: '0.9rem', fontWeight: 400, lineHeight: 1.45 },
+    body2: { fontSize: '0.8rem', fontWeight: 400, lineHeight: 1.45 },
+    caption: {
+      fontSize: '0.7rem',
+      fontWeight: 500,
+      lineHeight: 1.4,
+      letterSpacing: '0.04em',
+    },
+    button: { fontWeight: 500, textTransform: 'none' },
   },
 
   components: {
