@@ -5,22 +5,26 @@ se obtiene de una API pública, la órbita se propaga con SGP4 y se dibuja con W
 
 **Producción:** https://iss-tracker-siesquen.vercel.app
 
-## Fuente de verdad para Codex
+## Fuente de verdad para agentes
 
-Este `AGENTS.md` es el documento de contexto activo y la fuente de verdad del proyecto para Codex.
-Debe mantenerse actualizado cuando cambien el estado, la arquitectura, las convenciones, los riesgos
-o el siguiente trabajo previsto.
+Este `AGENTS.md` es el documento de contexto activo y la fuente de verdad del proyecto (Cursor,
+Codex u otro agente). Debe mantenerse actualizado cuando cambien el estado, la arquitectura, las
+convenciones, los riesgos o el siguiente trabajo previsto.
 
-`CLAUDE.md` conserva el contexto de la etapa anterior y puede quedar desfasado. No se usa como
-referencia para decidir el estado actual del proyecto; solo sirve como registro histórico si alguna
-vez hace falta comparar cómo estaba antes de la transición a Codex.
+| Documento | Rol |
+|---|---|
+| `AGENTS.md` | Contexto activo: estado, stack, convenciones, siguiente trabajo |
+| `CLAUDE.md` | Registro histórico de la etapa anterior; no decidir el presente con él |
+| `Notas/` | Apuntes personales de estudio (gitignored; no van al repo) |
+| Issues (`## Concepto`, `## Qué aprendes`) | Decisiones técnicas y aprendizaje, issue a issue |
 
-Al terminar una issue que cambie información relevante, actualiza este archivo dentro de la misma
-issue. No crees un segundo documento de contexto activo ni repartas la fuente de verdad entre ambos.
+Al terminar una issue que cambie información relevante, actualiza este archivo **dentro de la misma
+issue** (mismo PR). No crees un segundo documento de contexto activo ni repartas la fuente de verdad
+entre `AGENTS.md` y `CLAUDE.md`.
 
 ## Estado
 
-**63 issues cerradas tras adaptar la interfaz a móvil (#44).** El proyecto calcula
+**72 issues cerradas tras optimizar el rendimiento en móvil (#45).** El proyecto calcula
 la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la
 traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 
@@ -37,15 +41,15 @@ traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 4 · El BFF | 5/5 | ✅ |
 | 5 · Órbita e interfaz | 8/8 | ✅ |
 | 5.5 · Correcciones y realismo | 13/13 | ✅ |
-| 5.6 · Identidad visual | 6/6 | ✅ |
-| 6 · Cierre | 1/5 | |
+| 5.6 · Identidad visual | 9/9 | ✅ |
+| 6 · Cierre | 2/5 | |
 
-**Siguiente:** rendimiento en móvil (#45).
+**Siguiente:** accesibilidad: teclado, contraste y lector de pantalla (#46).
 
-⚠️ **Para #45:** el bundle está en **459 KB comprimidos**. Medido por partes: MUI añadió
-~80 KB y Motion ~52 KB. La geocodificación de #108 añadió solo 0,40 KB al cliente; sus 832 KB de
-geometría viven en el BFF. El `backdropFilter` de los paneles tiene coste de GPU con una escena 3D
-detrás.
+En móvil se sirven texturas de 1024 × 512 y el DPR se limita a 1.5; escritorio conserva las
+texturas originales y DPR máximo 2. En la medición de #45 esto redujo la transferencia de texturas
+un 86 %, su VRAM estimada un 90 % y dejó la escena lista en 2.12 s con Fast 4G. Método, cifras y
+límites en `docs/rendimiento-movil.md`.
 
 El modelo de la ISS (`public/models/iss.glb`) pesa **39,708 bytes**. Viene del repositorio
 oficial NASA 3D Resources; su procedencia y licencia están en `public/models/CREDITS.md`.
@@ -65,6 +69,7 @@ npm run test:scene     # invariantes numéricas de las transformaciones 3D
 npm run test:omm       # esquema OMM válido e inválido en ambas fronteras
 npm run test:bundle    # comprueba dist/ después del build: ningún código del BFF
 npm run data:locations # regenerar los datos reducidos de Natural Earth
+npm run measure:mobile # con `preview` activo: Chrome móvil, FPS, carga y memoria
 ```
 
 Antes de un `npm ci`, parar el servidor de desarrollo: `ci` borra `node_modules` y Windows
@@ -280,6 +285,17 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   siga recibiendo los eventos de fin de animación.
 - **Los iconos acompañan al texto, nunca lo sustituyen**, y van con `aria-hidden` porque el
   texto ya dice lo que hay.
+- **En móvil el globo sigue siendo el contenido (#44).** Telemetría abajo en barra compacta;
+  controles de capas detrás de un botón; tipografía ≥ 13 px (coordenadas 16 px); objetivos
+  táctiles ≥ 44 px; crédito de autor siempre visible completo; `viewport-fit=cover` y
+  `env(safe-area-inset-*)` para notch e indicador. El indicador de datos vivos va en línea
+  después de las coordenadas (no en esquina absoluta) y pulsa a 0.6 Hz como el faro de la ISS.
+- **El perfil móvil cuida píxeles y texturas (#45).** Bajo 600 px —o con poca altura y
+  `pointer: coarse`— el Canvas limita el DPR a 1.5 y carga mapas de 1024×512; escritorio conserva
+  DPR 2 y los originales. Las cifras y el método están en `docs/rendimiento-movil.md`.
+- **`npm run dev` no sirve el BFF.** `vite.config.ts` hace proxy de `/api` a producción para que
+  el marcador y el panel tengan elementos orbitales en local. Para probar cambios del BFF,
+  usar `vercel dev`.
 - **`worker: { format: 'es' }` en `vite.config.ts` es necesario**, no opcional: satellite.js
   incluye una build de WASM con top-level await, y el formato `iife` por defecto de los workers
   no lo admite.

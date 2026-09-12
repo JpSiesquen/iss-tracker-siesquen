@@ -12,6 +12,20 @@ import {
   EARTH_SEGMENTS,
 } from './constants';
 
+const DESKTOP_TEXTURES = [
+  '/textures/earth-color.jpg',
+  '/textures/earth-night.jpg',
+  '/textures/earth-normal.jpg',
+  '/textures/earth-specular.jpg',
+];
+
+const MOBILE_TEXTURES = [
+  '/textures/earth-color-mobile.jpg',
+  '/textures/earth-night-mobile.jpg',
+  '/textures/earth-normal-mobile.jpg',
+  '/textures/earth-specular-mobile.jpg',
+];
+
 /**
  * La Tierra: geometría, texturas y rotación.
  *
@@ -26,7 +40,7 @@ import {
  * ⚠️ Este componente se SUSPENDE mientras cargan las texturas, así que necesita un
  * <Suspense> por encima (ver Scene.tsx). Sin él, React lanza un error.
  */
-export function Earth() {
+export function Earth({ usarPerfilMovil }: { usarPerfilMovil: boolean }) {
   const tiempo = useSceneTime();
   const verReferencias = useUiStore((s) => s.verReferencias);
   const verLucesNocturnas = useUiStore((s) => s.verLucesNocturnas);
@@ -57,12 +71,7 @@ export function Earth() {
    * (react/immutability).
    */
   const [colorMap, nightMap, normalMap, specularMap] = useTexture(
-    [
-      '/textures/earth-color.jpg',
-      '/textures/earth-night.jpg',
-      '/textures/earth-normal.jpg',
-      '/textures/earth-specular.jpg',
-    ],
+    usarPerfilMovil ? MOBILE_TEXTURES : DESKTOP_TEXTURES,
     (texturas) => {
       const lista = Array.isArray(texturas) ? texturas : [texturas];
       lista[0].colorSpace = SRGBColorSpace; // color

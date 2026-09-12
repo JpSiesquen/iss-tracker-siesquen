@@ -1,8 +1,16 @@
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { Canvas } from '@react-three/fiber';
 import { Suspense } from 'react';
 
 import { initialCameraDistance } from './camera';
-import { CAMERA_VERTICAL_FOV, EARTH_TILT, SPACE_COLOR } from './constants';
+import {
+  CAMERA_VERTICAL_FOV,
+  DESKTOP_MAX_DPR,
+  EARTH_TILT,
+  MOBILE_MAX_DPR,
+  MOBILE_PERFORMANCE_MEDIA_QUERY,
+  SPACE_COLOR,
+} from './constants';
 import { Controls } from './Controls';
 import { Earth } from './Earth';
 import { EcefFrame } from './EcefFrame';
@@ -29,6 +37,8 @@ import { Starfield } from './Starfield';
  * dentro—. El panel de telemetría vive fuera, superpuesto con CSS.
  */
 export function Scene() {
+  const usarPerfilMovil = useMediaQuery(MOBILE_PERFORMANCE_MEDIA_QUERY);
+
   return (
     <Canvas
       // La distancia se ajusta al tamaño REAL del canvas al crearlo. Usar un
@@ -40,8 +50,8 @@ export function Scene() {
       }}
       // Limita la densidad de píxeles. En pantallas de alta densidad el
       // navegador renderizaría a 3x, que son nueve veces más píxeles para
-      // una mejora casi imperceptible. Vuelve en la issue 6-2 (rendimiento).
-      dpr={[1, 2]}
+      // una mejora casi imperceptible. #45 reduce además el máximo móvil.
+      dpr={[1, usarPerfilMovil ? MOBILE_MAX_DPR : DESKTOP_MAX_DPR]}
       // El espacio no es gris.
       style={{ background: SPACE_COLOR }}
     >
@@ -73,7 +83,7 @@ export function Scene() {
         <group rotation={[0, 0, EARTH_TILT]}>
           <Suspense fallback={<SceneLoadingFallback />}>
             <EcefFrame>
-              <Earth />
+              <Earth usarPerfilMovil={usarPerfilMovil} />
               <IssMarker />
             </EcefFrame>
           </Suspense>
