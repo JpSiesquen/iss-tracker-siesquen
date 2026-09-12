@@ -1,14 +1,14 @@
-import Box from '@mui/material/Box';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Paper from '@mui/material/Paper';
 import Switch from '@mui/material/Switch';
-import Typography from '@mui/material/Typography';
 
 import { Orbit, Lightbulb, RefreshCw, MapPin } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import { useUiStore } from '../store/ui';
 import { ICON_SIZE, ICON_STROKE } from './constants';
+
+import './LayerControls.css';
 
 /**
  * Los interruptores de las capas de la escena.
@@ -22,6 +22,12 @@ import { ICON_SIZE, ICON_STROKE } from './constants';
  * El interruptor **no sabe qué es una traza orbital**: cambia un booleano. Y
  * la traza no sabe que existe un interruptor: lee un booleano. Por eso añadir
  * una capa nueva es trivial — un campo en el store y una línea aquí.
+ *
+ * ## Instrumento, no settings
+ *
+ * Misma tipografía y ritmo que el panel de telemetría: eyebrow, filas densas,
+ * acento amarillo ISS. Sigue siendo un `Switch` accesible con etiqueta de
+ * texto; solo cambia el chrome.
  *
  * ## Menos es más
  *
@@ -50,16 +56,15 @@ export function LayerControls() {
   return (
     <Paper
       component="section"
+      className="capas"
       aria-label="Capas de la escena"
       sx={{
         position: 'absolute',
         top: 16,
         right: 16,
         zIndex: 1,
-        px: 2,
-        py: 1.25,
-        display: 'flex',
-        flexDirection: 'column',
+        px: 1.85,
+        py: 1.4,
         /**
          * ⚠️ Al contrario que el panel de telemetría, este SÍ recibe el ratón:
          * es interactivo. El panel lleva `pointerEvents: none` porque solo
@@ -67,14 +72,7 @@ export function LayerControls() {
          */
       }}
     >
-      <Typography
-        component="h2"
-        variant="caption"
-        color="text.secondary"
-        sx={{ letterSpacing: '0.08em', textTransform: 'uppercase', mb: 0.5 }}
-      >
-        Capas
-      </Typography>
+      <h2 className="capas__titulo">Capas</h2>
 
       <Interruptor
         icono={Orbit}
@@ -129,9 +127,26 @@ function Interruptor({
 }) {
   return (
     <FormControlLabel
-      control={<Switch size="small" checked={activo} onChange={onChange} />}
+      className="capas__fila"
+      control={
+        <Switch
+          size="small"
+          checked={activo}
+          onChange={onChange}
+          sx={{
+            /** Compacta el control para que no domine la fila. */
+            width: 36,
+            height: 22,
+            padding: 0,
+            '& .MuiSwitch-switchBase': { padding: '3px' },
+            '& .MuiSwitch-thumb': { width: 16, height: 16 },
+            '& .MuiSwitch-track': { borderRadius: 11, opacity: 0.35 },
+            '& .Mui-checked + .MuiSwitch-track': { opacity: 0.55 },
+          }}
+        />
+      }
       label={
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+        <span className="capas__etiqueta">
           {/*
             ⚠️ El icono ACOMPAÑA al texto, no lo sustituye.
 
@@ -144,16 +159,20 @@ function Interruptor({
             de pantalla anunciaría el icono y la etiqueta por separado.
           */}
           <Icono
+            className={`capas__icono ${activo ? 'capas__icono--activo' : 'capas__icono--inactivo'}`}
             size={ICON_SIZE}
             strokeWidth={ICON_STROKE}
             aria-hidden
-            style={{ opacity: activo ? 0.9 : 0.4 }}
           />
           {etiqueta}
-        </Box>
+        </span>
       }
-      slotProps={{ typography: { variant: 'body2' } }}
-      sx={{ ml: 0, gap: 1 }}
+      labelPlacement="start"
+      sx={{
+        width: '100%',
+        justifyContent: 'space-between',
+        '& .MuiFormControlLabel-label': { flex: 1 },
+      }}
     />
   );
 }
