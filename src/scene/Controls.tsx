@@ -22,9 +22,8 @@ export function Controls() {
       // Sin desplazamiento lateral: en un visor de planeta solo sirve para
       // perderse. Que el globo esté siempre centrado es lo correcto aquí.
       enablePan={false}
-      /* Giro lento y continuo. Apagado por defecto: queda bien en una
-         captura, pero molesta en cuanto alguien intenta mirar una zona
-         concreta. */
+      /* Giro lento y continuo. Empieza activado para presentar la escena en
+         movimiento; el control permite detenerlo al explorar una zona. */
       autoRotate={rotacionAutomatica}
       autoRotateSpeed={0.4}
       // Límites de zoom. Sin ellos se puede entrar dentro de la Tierra

@@ -20,9 +20,9 @@ issue. No crees un segundo documento de contexto activo ni repartas la fuente de
 
 ## Estado
 
-**58 issues cerradas tras compartir el esquema OMM entre el BFF y el cliente (#111).** El proyecto
-calcula la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la
-traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
+**59 issues cerradas tras activar por defecto la rotación automática (#126).** El proyecto calcula
+la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la traza
+orbital, y el Sol ilumina el globo donde lo hace de verdad.
 
 **Ya no depende de ninguna API de terceros en el cliente**: la única URL externa está en
 `api/tle.ts`, en el servidor.
@@ -36,7 +36,7 @@ traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 3 · La ISS en vivo | 7/7 | ✅ |
 | 4 · El BFF | 5/5 | ✅ |
 | 5 · Órbita e interfaz | 8/8 | ✅ |
-| 5.5 · Correcciones y realismo | 10/12 | En curso |
+| 5.5 · Correcciones y realismo | 11/13 | En curso |
 | 6 · Cierre | 0/5 | |
 
 **Siguiente:** continuar la Fase 5.5 con las correcciones y mejoras #112–#113. Después sigue la
@@ -265,6 +265,9 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   capa produce 0 renders en los componentes que miran otra.
 - **Ocultar una capa la desmonta** (`{cond && <X/>}`), no la esconde. Con `visible={false}` la
   traza seguiría propagando SGP4 cada 30 s para nadie.
+- **La rotación automática empieza activada.** La escena se presenta en movimiento desde la carga;
+  el control sigue permitiendo detenerla y reanudarla. El store no persiste esta preferencia, así
+  que cada carga nueva recupera el valor inicial.
 - **Cada cálculo a su ritmo.** La escena 3D propaga 60 veces por segundo mutando objetos de
   Three.js; el panel, 1 vez por segundo con render de React; la traza se rehace cada 30 s. No
   es duplicar trabajo: es el mismo cálculo al ritmo que cada uno necesita.
