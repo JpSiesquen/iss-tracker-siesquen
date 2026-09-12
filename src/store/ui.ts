@@ -52,8 +52,8 @@ interface UiState {
   /**
    * Giro lento y continuo de la cámara.
    *
-   * Apagado por defecto: queda bien en una captura, pero molesta en cuanto
-   * alguien intenta mirar una zona concreta — la escena se le va de las manos.
+   * Activado por defecto para que la escena se presente en movimiento desde
+   * la primera carga. El control permite detenerlo al explorar una zona.
    */
   rotacionAutomatica: boolean;
 
@@ -75,7 +75,7 @@ export const useUiStore = create<UiState>((set) => ({
   verOrbita: true,
   verPanel: true,
   verLucesNocturnas: true,
-  rotacionAutomatica: false,
+  rotacionAutomatica: true,
 
   /**
    * Las referencias empiezan ocultas incluso en desarrollo: sirvieron para
