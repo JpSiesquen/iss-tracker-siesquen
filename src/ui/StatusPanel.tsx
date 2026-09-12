@@ -142,10 +142,10 @@ function Dato({
   valorSecundario?: string;
 }) {
   return (
-    <div className="panel__dato">
+    <div className={`panel__dato${valorSecundario ? ' panel__dato--apilado' : ''}`}>
       <span className="panel__etiqueta">{etiqueta}</span>
-      <span className="panel__valor">
-        {valor}
+      <span className="panel__valores">
+        <span className="panel__valor">{valor}</span>
         {valorSecundario ? (
           <span className="panel__valor-secundario">{valorSecundario}</span>
         ) : null}
