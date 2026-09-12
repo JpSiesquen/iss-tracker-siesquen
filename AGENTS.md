@@ -20,9 +20,9 @@ issue. No crees un segundo documento de contexto activo ni repartas la fuente de
 
 ## Estado
 
-**60 issues cerradas tras centralizar la normalización de longitudes (#112).** El proyecto calcula
-la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la traza
-orbital, y el Sol ilumina el globo donde lo hace de verdad.
+**61 issues cerradas tras revisar los comentarios desfasados (#113).** El proyecto calcula
+la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la
+traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 
 **Ya no depende de ninguna API de terceros en el cliente**: la única URL externa está en
 `api/tle.ts`, en el servidor.
@@ -36,11 +36,11 @@ orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 3 · La ISS en vivo | 7/7 | ✅ |
 | 4 · El BFF | 5/5 | ✅ |
 | 5 · Órbita e interfaz | 8/8 | ✅ |
-| 5.5 · Correcciones y realismo | 12/13 | En curso |
+| 5.5 · Correcciones y realismo | 13/13 | ✅ |
 | 6 · Cierre | 0/5 | |
 
-**Siguiente:** terminar la Fase 5.5 con la revisión de comentarios #113. Después sigue la
-Fase 6 — móvil (#44), rendimiento (#45), accesibilidad (#46), README (#47) y cierre (#48).
+**Siguiente:** la Fase 6 — móvil (#44), rendimiento (#45), accesibilidad (#46), README (#47)
+y cierre (#48).
 
 ⚠️ **Para #45:** el bundle está en **459 KB comprimidos**. Medido por partes: MUI añadió
 ~80 KB y Motion ~52 KB. La geocodificación de #108 añadió solo 0,40 KB al cliente; sus 832 KB de

@@ -18,21 +18,19 @@ import { IssModel } from './IssModel';
 /**
  * El marcador de la ISS sobre el globo.
  *
- * Aquí converge todo lo anterior: los datos llegan de la API (#25) validados
+ * Aquí converge todo lo anterior: los elementos llegan del BFF (#25) validados
  * por Zod (#26) y refrescados por Query (#27), y la conversión de #28 los
  * traduce a un punto del espacio.
  *
  * ## Dónde va en la jerarquía, y por qué
  *
- * Dentro del `<group>` de inclinación axial, pero NO dentro del mesh que rota.
- * Son dos cosas distintas y conviene no mezclarlas:
+ * Dentro de `EcefFrame`, junto a la Tierra y la traza. Hereda la inclinación
+ * axial del grupo exterior y la rotación GMST del marco terrestre por
+ * estructura: su lat/lon nace en ECEF y no hace falta volver a aplicar
+ * `gstime()` al vector.
  *
- *   - **Hereda la inclinación** porque el eje inclinado afecta a todo el
- *     sistema Tierra-satélite por igual.
- *   - **No hereda la rotación diaria como hijo**, porque la ISS no está pegada
- *     a la superficie: orbita por su cuenta.
- *
- * ⚠️ Pero eso NO significa que se ignore la rotación terrestre. Ver abajo.
+ * No es hija del mesh de la Tierra: la estación no está pegada a la
+ * superficie, pero sí comparte el mismo marco que gira con el planeta.
  */
 export function IssMarker() {
   const posicionRef = useRef<Group>(null);
@@ -51,17 +49,12 @@ export function IssMarker() {
   /**
    * La posición se calcula EN CADA FOTOGRAMA, no cuando llegan datos.
    *
-   * Este es el cambio de fondo de la issue. Antes el marcador esperaba a que
-   * la API dijera dónde estaba la ISS, cada cinco segundos, y entre medias
-   * interpolaba hacia el último punto conocido.
-   *
-   * Ahora el proyecto **calcula** la posición: con los elementos orbitales y
-   * la hora, SGP4 da dónde está la estación en ese instante exacto. No hay
-   * dato que esperar ni hueco que rellenar — la trayectoria es continua porque
-   * se evalúa una función, no porque se suavice entre lecturas.
-   *
-   * Por eso desaparece la interpolación de la issue #30: ya no hay saltos que
-   * disimular.
+   * Antes el marcador esperaba a que una API dijera dónde estaba la ISS,
+   * cada cinco segundos, y entre medias interpolaba hacia el último punto
+   * conocido. Eso desapareció con #37 y #30: con los elementos orbitales y la
+   * hora, SGP4 da dónde está la estación en ese instante exacto. No hay dato
+   * que esperar ni hueco que rellenar — la trayectoria es continua porque se
+   * evalúa una función.
    */
   useFrame(() => {
     const { date } = tiempo.current;

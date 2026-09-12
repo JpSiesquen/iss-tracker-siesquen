@@ -123,15 +123,15 @@ export function subsolarPoint(date: Date): {
 }
 
 /**
- * La dirección desde la que ilumina el Sol, en coordenadas de la escena.
+ * La dirección desde la que ilumina el Sol, en coordenadas ECEF.
  *
  * Reutiliza `latLonToVector3` de la issue #28: el punto subsolar es un punto
  * sobre la esfera como cualquier otro, y su dirección desde el centro es la
  * dirección de la luz.
  *
- * ⚠️ El vector va en el sistema ECEF —el que gira con la Tierra—, igual que la
- * ISS. Quien lo use tiene que aplicarle la misma rotación GMST, o el Sol
- * iluminaría el meridiano equivocado.
+ * ⚠️ El vector nace en ECEF —el sistema que gira con la Tierra—, igual que la
+ * ISS. `useSceneTime` lo convierte una sola vez a coordenadas de escena antes
+ * de repartirlo; quien lo lea desde ahí no debe volver a aplicar GMST.
  *
  * @param distance Distancia a la que se coloca la luz. Para una luz
  *                 direccional solo importa la dirección, pero Three.js necesita

@@ -5,11 +5,16 @@ se obtiene de una API pública, la órbita se propaga con SGP4 y se dibuja con W
 
 **Producción:** https://iss-tracker-siesquen.vercel.app
 
+⚠️ **Contexto histórico.** El estado activo, la arquitectura vigente y el siguiente trabajo
+están en `AGENTS.md`. Este archivo conserva el contexto de la etapa anterior a Codex; no se
+usa para decidir qué hacer ahora. Las convenciones de abajo se alinean con el código para no
+contradecir los comentarios del repositorio.
+
 ## Estado
 
-**48 issues cerradas.** El proyecto calcula la posición de la ISS con SGP4 a partir de los
-elementos que sirve su propio BFF, dibuja la traza orbital, y el Sol ilumina el globo donde
-lo hace de verdad.
+**Registro al cerrar la Fase 5:** el proyecto calcula la posición de la ISS con SGP4 a partir
+de los elementos que sirve su propio BFF, dibuja la traza orbital, y el Sol ilumina el globo
+donde lo hace de verdad. La Fase 5.5 y el cierre actual viven en `AGENTS.md`.
 
 **Ya no depende de ninguna API de terceros en el cliente**: la única URL externa está en
 `api/tle.ts`, en el servidor.
@@ -23,14 +28,12 @@ lo hace de verdad.
 | 3 · La ISS en vivo | 7/7 | ✅ |
 | 4 · El BFF | 5/5 | ✅ |
 | 5 · Órbita e interfaz | 8/8 | ✅ |
-| 6 · Cierre | 0/5 | |
+| 6 · Cierre | ver `AGENTS.md` | |
 
-**Siguiente:** la Fase 6 — móvil (#44), rendimiento (#45), accesibilidad (#46), README (#47)
-y cierre (#48).
+**Siguiente:** ver `AGENTS.md` (Fase 6 tras cerrar 5.5).
 
-⚠️ **Para #45:** el bundle está en **437 KB comprimidos**. Medido por partes: MUI añadió
-~80 KB y Motion ~52 KB. El `backdropFilter` de los paneles tiene coste de GPU con una escena
-3D detrás.
+⚠️ **Para #45:** el tamaño del bundle y sus partidas medidas viven en `AGENTS.md`; no
+duplicarlos aquí para que no vuelvan a divergir.
 
 ## Comandos
 
@@ -69,9 +72,10 @@ src/lib/       funciones puras: coordenadas, propagación SGP4, traza, posición
 src/store/     estado de interfaz (Zustand)
 src/scene/     todo lo que vive dentro del <Canvas>
 src/ui/        HTML superpuesto al globo, fuera del <Canvas>
+shared/        contratos de datos ejecutables compartidos por api/ y src/
 sandbox/       experimentos de la Fase 0 en Three.js puro, sin bundler
 docs/          documentación técnica del proyecto
-api/           funciones serverless: /api/health y /api/tle
+api/           funciones serverless: /api/health, /api/tle y /api/locate
 public/        estáticos, incluidas las texturas
 ```
 
@@ -84,21 +88,23 @@ CDN, que Vite no sabe resolver.
 
 ## El BFF
 
-Dos endpoints en `api/`. **El nombre del archivo es la ruta**, y los que empiezan por `_`
-quedan excluidos del enrutado (por eso el esquema vive en `api/_omm.ts`).
+Tres endpoints en `api/`. **El nombre del archivo es la ruta**, y los módulos internos que
+empiezan por `_` quedan excluidos del enrutado. El esquema OMM vive en `shared/omm.ts`,
+fuera de `api/`, para que el servidor y el cliente lo importen sin depender uno del otro.
 
 | | |
 |---|---|
 | `/api/health` | comprobación de vida |
 | `/api/tle` | elementos orbitales de la ISS, cacheados |
+| `/api/locate?lat=&lon=` | país, mar u océano para unas coordenadas |
 
 **Se usa `Request`/`Response` del estándar web, no `@vercel/node`.** Ese paquete solo aporta
 tipos pero arrastra `undici`, `ajv` y `path-to-regexp`: cinco avisos de `npm audit`, tres de
 gravedad alta. Ninguna versión lo evita. Además, el estándar no ata el código a Vercel.
 
 ⚠️ **`api/` necesita su propio `tsconfig.api.json`**, ya presente como tercera referencia.
-`tsconfig.app.json` solo incluye `src/`, así que sin él `tsc -b` decía OK **sin haber mirado
-la carpeta**.
+`tsconfig.app.json` no incluye `api/`, así que sin él `tsc -b` decía OK **sin haber mirado la
+carpeta**. Ambos `tsconfig` incluyen también `shared/`, cada uno bajo las reglas de su entorno.
 
 ⚠️ **Exportar solo `GET` hace que Vercel responda 405** a los demás métodos por sí mismo. No
 hace falta comprobar `req.method`.
@@ -184,32 +190,34 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   una textura es la VRAM, no la descarga.
 - **`THREE.Timer`, no `THREE.Clock`** (deprecado en r186). Timer exige `update()` antes de
   `getDelta()`, o devuelve 0 sin avisar.
-- **La orientación de la Tierra se deriva del GMST**, no de una velocidad:
-  `rotation.y = gstime(new Date())`. La posición de la ISS y la orientación del globo están
-  acopladas — acelerar la rotación pondría el marcador sobre el país equivocado.
-- **La ISS va dentro del `<group>` de inclinación pero fuera del mesh que rota** — y aun así
-  **aplica `gstime()` a su propio vector**. Su lat/lon está en ECEF, un sistema que gira con la
-  Tierra: Greenwich no está quieto en la escena. Medido: sin esa rotación el marcador aparece a
-  89.5° del punto correcto, casi 10 000 km. Un punto fijo de la superficie sí es hijo del mesh.
+- **La orientación terrestre se deriva del GMST**, no de una velocidad.
+  `EcefFrame` es el único componente que escribe esa rotación y la Tierra, la ISS y la traza
+  la heredan por estructura. Acelerar el giro por estética pondría el marcador sobre el país
+  equivocado.
+- **La inclinación envuelve a `EcefFrame`, y este envuelve la Tierra, la ISS y la traza.** El
+  orden es `Rz(inclinación) × Ry(GMST)`. La luz queda fuera: `useSceneTime` ya entrega su
+  dirección en coordenadas de escena y envolverla la rotaría dos veces.
 - **Todo lo que entra de fuera se valida con Zod, no con `as`.** Los tipos desaparecen al
   compilar; un `as` sobre una respuesta de red es una promesa, no una comprobación. Sin validar,
   un `latitude: null` no lanza nada: `null * Math.PI / 180` es 0 y el fallo aparece tres archivos
   después.
-- **Convertir primero, interpolar después.** En cartesianas las longitudes 179.9 y −179.9 son
-  vecinas (0.0053 unidades); en grados el salto sería de 359.8° y el marcador cruzaría el planeta
-  al revés. El orden elimina el problema del antimeridiano en vez de tener que tratarlo.
+- **Conectar posiciones en cartesianas, no en grados.** En la traza orbital, las longitudes
+  179.9 y −179.9 son vecinas después de convertirlas (0.0053 unidades); en grados el salto
+  sería de 359.8°. El orden elimina el problema del antimeridiano en vez de tener que tratarlo.
 - **En datos en vivo, la antigüedad del dato es parte del dato.** Si la conexión se corta, la
   última posición conocida se queda en pantalla como si fuera actual. Siempre se muestra cuándo
   se actualizó.
 - **Un solo instante para toda la escena.** `useSceneTime` calcula la fecha y el GMST una vez
-  por fotograma; la Tierra, la ISS, la traza y el Sol leen ese valor. Medido: el desfase entre
+  por fotograma; también calcula una única dirección solar en coordenadas de escena. La Tierra,
+  la ISS, la traza, la luz y el shader nocturno leen ese estado. Medido: el desfase entre
   dos `new Date()` en el mismo fotograma es de 7 metros, así que el motivo no es la precisión
   sino que la fuente sea única y se pueda controlar desde un sitio.
   ⚠️ Lo que viaja por el contexto es el **ref**, no el valor: pasar el valor re-renderizaría a
   todos los consumidores sesenta veces por segundo.
-- **Todo lo que se calcula en lat/lon está en ECEF y necesita la rotación GMST.** Vale para la
-  ISS, para la traza y para el Sol. Sin ella el error es consistente y creíble a la vista —el
-  peor tipo—: la escena sigue teniendo un lado día y otro noche perfectamente normales.
+- **Todo vector calculado en lat/lon nace en ECEF y se convierte una sola vez.** Tierra, ISS y
+  traza viven dentro de `EcefFrame`; la dirección solar se convierte al actualizar el tiempo y
+  permanece fuera. Omitir o duplicar GMST produce un error consistente y creíble a la vista —el
+  peor tipo—.
 - **Estado de servidor en Query, estado de interfaz en Zustand.** Nunca un dato de API en el
   store: duplicarlo crea dos fuentes de verdad que se desincronizan. Y siempre con selectores
   (`useUiStore((s) => s.campo)`), no el store entero — medido: con selectores, alternar una
@@ -230,7 +238,8 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
 
 ## CI y despliegue
 
-`.github/workflows/ci.yml` corre en cada PR: `npm ci` → `lint` → `format:check` → `build`.
+`.github/workflows/ci.yml` corre en cada PR: `npm ci` → `lint` → `format:check` → tests →
+`build` → `test:bundle`. La lista exacta de scripts está en `AGENTS.md`.
 
 ⚠️ El job se llama **`verificar`** y ese nombre exacto lo exige la protección de rama. Si se
 renombra uno sin el otro, todos los PR quedan bloqueados esperando un check que nunca llega.

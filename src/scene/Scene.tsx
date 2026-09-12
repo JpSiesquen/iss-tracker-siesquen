@@ -24,7 +24,7 @@ import { SceneTimeProvider } from './SceneTimeContext';
  *
  * ⚠️ Dentro del <Canvas> NO se pueden usar etiquetas HTML: solo objetos de
  * Three.js. Son dos árboles de componentes que conviven —React DOM fuera, R3F
- * dentro—. El panel de telemetría de la Fase 5 irá fuera, superpuesto con CSS.
+ * dentro—. El panel de telemetría vive fuera, superpuesto con CSS.
  */
 export function Scene() {
   return (

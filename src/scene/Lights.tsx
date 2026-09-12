@@ -47,8 +47,8 @@ export function Lights() {
           programar ningún ciclo día/noche. */}
       <directionalLight ref={luzRef} intensity={SUN_INTENSITY} />
 
-      {/* Fuera del grupo: la luz ambiente no tiene dirección, así que rotarla
-          no significaría nada. */}
+      {/* La luz ambiente no tiene dirección: solo evita que el lado nocturno
+          sea negro absoluto. */}
       <ambientLight intensity={AMBIENT_INTENSITY} />
     </>
   );

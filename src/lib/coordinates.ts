@@ -37,8 +37,8 @@ export const ALTITUDE_EXAGGERATION = 8;
  *
  * ## La conversión
  *
- * La API da coordenadas ESFÉRICAS (lat, lon, alt); Three.js necesita
- * CARTESIANAS (x, y, z).
+ * La conversión geométrica parte de coordenadas ESFÉRICAS (lat, lon, alt);
+ * Three.js necesita CARTESIANAS (x, y, z).
  *
  * `phi` (ángulo polar) se mide desde el eje Y: 0 en el polo norte, 180° en el
  * sur. La latitud se mide desde el ecuador: +90° norte, −90° sur. `90 - lat`
