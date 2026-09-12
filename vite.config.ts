@@ -51,5 +51,20 @@ export default defineConfig({
       // Tampoco hace falta recargar el servidor al tocar el sandbox.
       ignored: ['**/sandbox/**'],
     },
+    /**
+     * En `npm run dev` no hay funciones `api/`. Sin esto, `/api/tle` falla y
+     * el marcador no monta (`satrec` queda null): la escena se ve sin ISS.
+     *
+     * Solo afecta al servidor de Vite. El build de producción sigue sirviendo
+     * el BFF en el mismo origen. Para probar cambios del BFF en local, usar
+     * `vercel dev` (ese entorno no necesita este proxy).
+     */
+    proxy: {
+      '/api': {
+        target: 'https://iss-tracker-siesquen.vercel.app',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
 });
