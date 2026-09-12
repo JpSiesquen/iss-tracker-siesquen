@@ -1,0 +1,65 @@
+/* Panel de capas: mismo registro visual que la telemetría, denser y
+   orientado a instrumento de escena — no a un menú de settings. */
+
+.capas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 200px;
+}
+
+.capas__titulo {
+  margin: 0 0 0.45rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(232 234 237 / 0.55);
+}
+
+.capas__fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0;
+  min-height: 2rem;
+  /* Anula el margen por defecto de FormControlLabel (parece formulario). */
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.capas__etiqueta {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: rgb(232 234 237 / 0.88);
+}
+
+.capas__icono {
+  flex-shrink: 0;
+  color: rgb(232 234 237 / 0.55);
+  transition:
+    color 0.15s ease-out,
+    opacity 0.15s ease-out;
+}
+
+.capas__icono--activo {
+  color: #ffcc00;
+  opacity: 1;
+}
+
+.capas__icono--inactivo {
+  opacity: 0.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .capas__icono {
+    transition: none;
+  }
+}
