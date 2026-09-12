@@ -20,9 +20,9 @@ issue. No crees un segundo documento de contexto activo ni repartas la fuente de
 
 ## Estado
 
-**57 issues cerradas tras unificar la rotación GMST en `EcefFrame` (#110).** El proyecto calcula la
-posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la traza
-orbital, y el Sol ilumina el globo donde lo hace de verdad.
+**58 issues cerradas tras compartir el esquema OMM entre el BFF y el cliente (#111).** El proyecto
+calcula la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la
+traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 
 **Ya no depende de ninguna API de terceros en el cliente**: la única URL externa está en
 `api/tle.ts`, en el servidor.
@@ -36,10 +36,10 @@ orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 3 · La ISS en vivo | 7/7 | ✅ |
 | 4 · El BFF | 5/5 | ✅ |
 | 5 · Órbita e interfaz | 8/8 | ✅ |
-| 5.5 · Correcciones y realismo | 9/12 | En curso |
+| 5.5 · Correcciones y realismo | 10/12 | En curso |
 | 6 · Cierre | 0/5 | |
 
-**Siguiente:** continuar la Fase 5.5 con las correcciones y mejoras #111–#113. Después sigue la
+**Siguiente:** continuar la Fase 5.5 con las correcciones y mejoras #112–#113. Después sigue la
 Fase 6 — móvil (#44), rendimiento (#45), accesibilidad (#46), README (#47) y cierre (#48).
 
 ⚠️ **Para #45:** el bundle está en **459 KB comprimidos**. Medido por partes: MUI añadió
@@ -61,6 +61,8 @@ npm run format         # prettier --write .
 npm run format:check   # lo que corre el CI
 npm run test:locations # casos conocidos de geocodificación inversa
 npm run test:scene     # invariantes numéricas de las transformaciones 3D
+npm run test:omm       # esquema OMM válido e inválido en ambas fronteras
+npm run test:bundle    # comprueba dist/ después del build: ningún código del BFF
 npm run data:locations # regenerar los datos reducidos de Natural Earth
 ```
 
@@ -90,6 +92,7 @@ src/lib/       funciones puras: coordenadas, propagación SGP4, traza, posición
 src/store/     estado de interfaz (Zustand)
 src/scene/     todo lo que vive dentro del <Canvas>
 src/ui/        HTML superpuesto al globo, fuera del <Canvas>
+shared/        contratos de datos ejecutables compartidos por api/ y src/
 sandbox/       experimentos de la Fase 0 en Three.js puro, sin bundler
 docs/          documentación técnica del proyecto
 api/           funciones serverless: /api/health, /api/tle y /api/locate
@@ -105,8 +108,9 @@ CDN, que Vite no sabe resolver.
 
 ## El BFF
 
-Tres endpoints en `api/`. **El nombre del archivo es la ruta**, y los que empiezan por `_`
-quedan excluidos del enrutado (por eso el esquema vive en `api/_omm.ts`).
+Tres endpoints en `api/`. **El nombre del archivo es la ruta**, y los módulos internos que empiezan
+por `_` quedan excluidos del enrutado. El esquema OMM vive en `shared/omm.ts`, fuera de `api/`, para
+que el servidor y el cliente lo importen sin depender uno del otro.
 
 | | |
 |---|---|
@@ -119,8 +123,8 @@ tipos pero arrastra `undici`, `ajv` y `path-to-regexp`: cinco avisos de `npm aud
 gravedad alta. Ninguna versión lo evita. Además, el estándar no ata el código a Vercel.
 
 ⚠️ **`api/` necesita su propio `tsconfig.api.json`**, ya presente como tercera referencia.
-`tsconfig.app.json` solo incluye `src/`, así que sin él `tsc -b` decía OK **sin haber mirado
-la carpeta**.
+`tsconfig.app.json` no incluye `api/`, así que sin él `tsc -b` decía OK **sin haber mirado la
+carpeta**. Ambos `tsconfig` incluyen también `shared/`, cada uno bajo las reglas de su entorno.
 
 ⚠️ **Exportar solo `GET` hace que Vercel responda 405** a los demás métodos por sí mismo. No
 hace falta comprobar `req.method`.
@@ -234,6 +238,10 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   compilar; un `as` sobre una respuesta de red es una promesa, no una comprobación. Sin validar,
   un `latitude: null` no lanza nada: `null * Math.PI / 180` es 0 y el fallo aparece tres archivos
   después.
+- **Los contratos compartidos viven fuera de `api/` y `src/`.** `shared/omm.ts` define una sola vez
+  los campos y rangos OMM, pero se ejecuta en las dos fronteras: servidor contra Celestrak y cliente
+  contra el BFF. `test:bundle` comprueba sobre `dist/` que compartir el contrato no arrastre código
+  serverless al navegador.
 - **Conectar posiciones en cartesianas, no en grados.** En la traza orbital, las longitudes 179.9 y
   −179.9 son vecinas después de convertirlas (0.0053 unidades); en grados el salto sería de 359.8°.
   El orden elimina el problema del antimeridiano en vez de tener que tratarlo.
@@ -284,7 +292,7 @@ escena 3D o el comportamiento del cliente, úsalo además de las comprobaciones 
 ## CI y despliegue
 
 `.github/workflows/ci.yml` corre en cada PR: `npm ci` → `lint` → `format:check` →
-`test:locations` → `test:scene` → `build`.
+`test:locations` → `test:scene` → `test:omm` → `build` → `test:bundle`.
 
 ⚠️ El job se llama **`verificar`** y ese nombre exacto lo exige la protección de rama. Si se
 renombra uno sin el otro, todos los PR quedan bloqueados esperando un check que nunca llega.

@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { ommSchema } from '../../shared/omm.ts';
+
 /**
  * Cliente de los datos orbitales, servidos por nuestro propio BFF.
  *
@@ -34,7 +36,7 @@ const TLE_ENDPOINT = '/api/tle';
 /**
  * Esquema de lo que devuelve el BFF.
  *
- * ⚠️ El servidor ya valida los elementos con este mismo rigor (`api/_omm.ts`),
+ * ⚠️ El servidor ya valida los elementos con este mismo esquema (`shared/omm.ts`),
  * así que esto puede parecer redundante. No lo es: son dos fronteras distintas.
  * El servidor se protege de Celestrak; el cliente se protege de recibir algo
  * inesperado —una versión desplegada a medias, un proxy que reescribe, una
@@ -50,23 +52,7 @@ export const tleResponseSchema = z.object({
    * son los mismos que aplica el servidor porque describen qué es físicamente
    * posible, no una preferencia.
    */
-  elementos: z.object({
-    OBJECT_NAME: z.string().min(1),
-    /** Obligatorios en el estándar OMM: el tipo de satellite.js los exige. */
-    OBJECT_ID: z.string().min(1),
-    ELEMENT_SET_NO: z.number().int(),
-    EPOCH: z.string().min(1),
-    NORAD_CAT_ID: z.number().int().positive(),
-    MEAN_MOTION: z.number().positive().max(20),
-    ECCENTRICITY: z.number().min(0).lt(1),
-    INCLINATION: z.number().min(0).max(180),
-    RA_OF_ASC_NODE: z.number().min(0).max(360),
-    ARG_OF_PERICENTER: z.number().min(0).max(360),
-    MEAN_ANOMALY: z.number().min(0).max(360),
-    BSTAR: z.number(),
-    MEAN_MOTION_DOT: z.number(),
-    MEAN_MOTION_DDOT: z.number(),
-  }),
+  elementos: ommSchema,
 
   /** Cuándo descargó el servidor estos elementos, en milisegundos Unix. */
   descargadoEn: z.number().int(),

@@ -62,7 +62,13 @@ jobs:
       - name: Transformaciones de escena
         run: npm run test:scene
 
+      - name: Esquema OMM compartido
+        run: npm run test:omm
+
       # tsc -b comprueba los tipos ademas de compilar: un error de
       # TypeScript rompe el build, no solo avisa en el editor.
       - name: Compilar
         run: npm run build
+
+      - name: Frontera del bundle
+        run: npm run test:bundle
