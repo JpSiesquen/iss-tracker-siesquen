@@ -2,20 +2,99 @@
    
    El fondo translúcido, el desenfoque, el borde y el radio los aplica MUI
    desde `src/theme.ts`: son decisiones del sistema y viven en un solo sitio.
-   Aquí quedan solo los detalles propios de este panel. */
+   Aquí queda la jerarquía propia de este panel: qué se lee primero y qué
+   queda como contexto. */
+
+.panel {
+  /* El ritmo vertical empuja la mirada a coords + ubicación; las métricas
+     viven en un bloque más denso debajo. */
+  gap: 0;
+}
+
+.panel__cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-bottom: 0.7rem;
+  margin-bottom: 0.65rem;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.panel__objeto {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(232 234 237 / 0.55);
+}
 
 .panel__coords {
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: #e8eaed;
+}
+
+.panel__ubicacion {
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: rgb(232 234 237 / 0.78);
+}
+
+.panel__metricas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.panel__dato {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.panel__etiqueta {
+  color: rgb(232 234 237 / 0.5);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.panel__valor {
+  color: rgb(232 234 237 / 0.9);
+  font-weight: 500;
+  text-align: right;
+}
+
+.panel__valor-secundario {
+  margin-left: 0.45rem;
+  color: rgb(232 234 237 / 0.48);
+  font-weight: 400;
+}
+
+.panel__pie {
+  margin-top: 0.65rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgb(255 255 255 / 0.06);
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: rgb(232 234 237 / 0.5);
+}
+
+/* Detalle que reclama atención sin llegar a ser un error: un dato orbital que
+   el servidor no pudo actualizar sigue siendo utilizable. */
+.panel__pie--aviso {
+  color: #ff9f0a;
 }
 
 .panel__detalle {
   color: rgb(232 234 237 / 0.65);
 }
 
-/* Detalle que reclama atención sin llegar a ser un error: un dato orbital que
-   el servidor no pudo actualizar sigue siendo utilizable. */
 .panel__detalle--aviso {
   color: #ff9f0a;
 }
@@ -23,10 +102,10 @@
 /* Indicador de estado: un punto de color en la esquina. */
 .panel__punto {
   position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  width: 0.5rem;
-  height: 0.5rem;
+  top: 0.85rem;
+  right: 0.85rem;
+  width: 0.45rem;
+  height: 0.45rem;
   border-radius: 50%;
 }
 
