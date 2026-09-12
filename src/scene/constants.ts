@@ -75,16 +75,16 @@ export const STAR_RADIUS_MIN = 45;
 export const STAR_RADIUS_MAX = 90;
 
 /**
- * Tamaño del sprite con `sizeAttenuation`. Equilibrio entre subpíxel (0.09) y
- * chispas que robaban protagonismo al globo (~1.0).
+ * Tamaño del sprite con `sizeAttenuation`. Un poco por encima del tono medio
+ * (0.42): visibles al mirar el vacío, sin el exceso de ~1.0.
  */
-export const STAR_SIZE = 0.42;
+export const STAR_SIZE = 0.58;
 
 /**
  * Blanco frío sobre `SPACE_COLOR`. Sin tone mapping (ver Starfield).
  */
-export const STAR_COLOR = '#c8d0de';
-export const STAR_OPACITY = 0.55;
+export const STAR_COLOR = '#d4dbe8';
+export const STAR_OPACITY = 0.68;
 /**
  * FOV vertical de la cámara perspectiva, en grados.
  *
