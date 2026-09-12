@@ -11,21 +11,20 @@ import { LayerControls } from './ui/LayerControls';
 import { StatusPanel } from './ui/StatusPanel';
 
 /**
- * El QueryClientProvider va aqui, en la raiz y FUERA del <Canvas>.
+ * Raíz de la aplicación: tema → datos → escena e interfaz.
  *
- * El <Canvas> de R3F abre un arbol de objetos de Three.js donde no valen
- * etiquetas HTML, pero sigue siendo React: el contexto lo atraviesa sin
- * problema. Por eso un componente 3D puede usar los hooks de datos aunque el
- * proveedor este fuera del lienzo.
+ * El orden importa. `ThemeProvider` envuelve todo —incluido el `<Canvas>`—
+ * porque los paneles de MUI necesitan el tema y `CssBaseline` pinta el mismo
+ * fondo que el espacio de la escena. Dentro, `QueryClientProvider` queda
+ * fuera del lienzo: el `<Canvas>` de R3F abre un árbol de objetos de Three.js
+ * donde no valen etiquetas HTML, pero el contexto de React lo atraviesa, así
+ * que un componente 3D puede usar los hooks de datos igual.
  */
 function App() {
   return (
-    /* El ThemeProvider envuelve todo, incluido el <Canvas>: los componentes de
-       MUI que van superpuestos necesitan el tema, y el fondo de CssBaseline
-       usa el mismo color del espacio de la escena para que no se vea costura. */
     <ThemeProvider theme={theme}>
       {/* Normaliza los estilos del navegador y aplica el fondo del tema. Sin
-          el, el body seguiria siendo blanco. */}
+          él, el body seguiría siendo blanco. */}
       <CssBaseline />
 
       <QueryClientProvider client={queryClient}>
@@ -38,13 +37,13 @@ function App() {
           <LayerControls />
         </div>
 
-        {/* Panel para inspeccionar la cache: que consultas hay, en que estado,
-          cuando se refrescaron y con que datos.
+        {/* Panel para inspeccionar la caché: qué consultas hay, en qué estado,
+          cuándo se refrescaron y con qué datos.
 
           import.meta.env.DEV es una constante que Vite SUSTITUYE por true o
-          false al compilar. En produccion el bloque queda como
+          false al compilar. En producción el bloque queda como
           `false && <ReactQueryDevtools />`, el minificador lo borra entero y
-          el paquete no entra en el bundle: por eso esta en devDependencies y
+          el paquete no entra en el bundle: por eso está en devDependencies y
           no en dependencies. */}
         {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
       </QueryClientProvider>

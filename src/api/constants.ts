@@ -7,15 +7,16 @@
  */
 
 /*
- * Las constantes de la API de posición se retiraron en la issue #40.
+ * La API de posición se retiró en la issue #40.
  *
- * ISS_REFETCH_INTERVAL_MS, ISS_STALE_TIME_MS, ISS_QUERY_RETRIES y
- * ISS_AGE_TICK_MS existían para pedir la posición a wheretheiss.at cada cinco
- * segundos. Desde #37 el proyecto la calcula con SGP4 a partir de los
- * elementos orbitales del BFF, así que no queda nada que pedir.
+ * Antes el cliente pedía lat/lon a wheretheiss.at cada cinco segundos
+ * (`ISS_REFETCH_INTERVAL_MS`, `ISS_STALE_TIME_MS`, `ISS_QUERY_RETRIES`). Desde
+ * #37 la posición se calcula con SGP4 a partir de los elementos del BFF, así
+ * que no queda nada que pedir a terceros. El patrón de TanStack Query que se
+ * aprendió ahí sigue vivo en `useTle`.
  *
- * Se anota en vez de borrarlo en silencio: la capa que sustituyeron funcionaba
- * y sirvió para aprender el patrón de TanStack Query que sigue usando useTle.
+ * `ISS_AGE_TICK_MS` se reutilizó: ya no marca el ritmo de una petición, solo
+ * el del contador «hace N segundos» en la interfaz.
  */
 
 export const ISS_STALE_WARNING_MS = 30_000;
@@ -38,25 +39,26 @@ export const ISS_AGE_TICK_MS = 1000;
  *
  * ## El contraste que importa
  *
- * La POSICIÓN se refresca cada 5 segundos; los ELEMENTOS ORBITALES, cada 6
- * horas. Son dos datos con ritmos completamente distintos y por eso viven en
- * dos consultas separadas:
+ * La POSICIÓN se propaga en local (60 fps en la escena, 1 Hz en el panel); los
+ * ELEMENTOS ORBITALES se piden al BFF cada 6 horas. Son dos datos con ritmos
+ * completamente distintos:
  *
- *   - La posición cambia continuamente: la ISS recorre 38 km entre lecturas.
+ *   - La posición cambia continuamente: SGP4 la evalúa cuando hace falta.
  *   - Los elementos describen la FORMA de la órbita, que solo se recalcula
  *     cuando el catálogo publica una actualización, una o dos veces al día.
  *
- * Meterlos en la misma consulta obligaría a elegir un ritmo intermedio que
- * sería demasiado lento para uno y un desperdicio para el otro.
+ * Meter la forma de la órbita en el mismo ritmo que la posición obligaría a
+ * elegir un intervalo intermedio: demasiado lento para una y un desperdicio
+ * para la otra.
  */
 export const TLE_STALE_TIME_MS = 6 * 60 * 60 * 1000;
 
 /**
  * Reintentos del cliente al pedir los elementos.
  *
- * Dos, uno más que para la posición: aquí no hay un refresco cada cinco
- * segundos que dé otra oportunidad enseguida. Si esta petición falla del todo,
- * no hay órbita que propagar hasta la siguiente carga.
+ * Dos: aquí no hay un refresco continuo que dé otra oportunidad enseguida. Si
+ * esta petición falla del todo, no hay órbita que propagar hasta la siguiente
+ * carga.
  */
 export const TLE_QUERY_RETRIES = 2;
 

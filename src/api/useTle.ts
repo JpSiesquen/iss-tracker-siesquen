@@ -6,9 +6,8 @@ import { fetchTle } from './tle';
 /**
  * Clave de los elementos orbitales en la caché.
  *
- * Distinta de `['iss-position']` a propósito: son dos datos con ritmos
- * distintos, y compartir clave los obligaría a compartir también el ritmo de
- * refresco.
+ * Es la única consulta de red del cliente para la órbita: la posición ya no
+ * vive en Query — se propaga en local a partir de estos elementos.
  */
 export const TLE_QUERY_KEY = ['tle'] as const;
 
@@ -22,8 +21,8 @@ export const TLE_QUERY_KEY = ['tle'] as const;
  * toda la tarde hace **una sola** petición a `/api/tle`.
  *
  * Ese es el comportamiento correcto para un dato que se publica una o dos
- * veces al día. La posición, que cambia continuamente, sí lleva su intervalo
- * de cinco segundos.
+ * veces al día. La posición, que cambia continuamente, se calcula con SGP4 en
+ * el cliente a partir de estos elementos.
  *
  * ## Qué hacer con `stale`
  *

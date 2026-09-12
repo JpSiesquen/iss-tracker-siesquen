@@ -72,9 +72,9 @@ export function Earth() {
   );
 
   return (
-    /* La inclinación axial y la rotación GMST viven en Scene.tsx. Esta malla
-       solo describe la superficie terrestre y hereda ambas transformaciones
-       del árbol, igual que las demás capas ECEF. */
+    /* La inclinación axial vive en Scene.tsx y la rotación GMST en
+       EcefFrame. Esta malla solo describe la superficie terrestre y hereda
+       ambas transformaciones del árbol, igual que las demás capas ECEF. */
     <mesh>
       {/* La geometría y el material van DENTRO del mesh, y no es decoración de
           JSX: R3F usa la posición del hijo para saber a qué propiedad del padre

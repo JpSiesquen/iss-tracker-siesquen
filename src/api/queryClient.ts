@@ -16,9 +16,9 @@ export const queryClient = new QueryClient({
     queries: {
       /**
        * Por defecto Query vuelve a pedir al recuperar el foco de la ventana.
-       * Para datos que cambian poco es útil; aquí sobra, porque ya se refresca
-       * cada cinco segundos por su cuenta y solo añadiría peticiones contra
-       * una API sin clave que pide moderación.
+       * Aquí sobra: los elementos orbitales ya tienen `staleTime` de seis
+       * horas, y la posición se calcula en local. Reactivar el foco solo
+       * añadiría peticiones al BFF sin información nueva.
        */
       refetchOnWindowFocus: false,
     },

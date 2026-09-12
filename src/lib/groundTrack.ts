@@ -20,8 +20,9 @@ import { propagateToGeodetic } from './orbit';
  * problema no existe: cada muestra se convierte a un punto del espacio antes
  * de unirla con la siguiente, y ahí 179.9° y −179.9° son vecinos.
  *
- * Es la misma razón que en la interpolación de #30, y merece notarlo: trabajar
- * en tres dimensiones elimina de raíz un problema clásico de la cartografía.
+ * Es la misma razón que motivó la interpolación en cartesianas de #30, y
+ * merece notarlo: trabajar en tres dimensiones elimina de raíz un problema
+ * clásico de la cartografía.
  */
 
 /** Minutos hacia atrás y hacia delante que cubre la traza. */

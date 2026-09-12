@@ -3,8 +3,7 @@
  *
  * Viven aparte de los componentes por dos razones: el linter avisa de que
  * exportar constantes junto a componentes rompe el fast refresh de React, y
- * varias de estas las van a necesitar issues posteriores (la posición del Sol
- * en la 2-5, el radio en la 3-4 para colocar la ISS).
+ * varias las comparten la cámara, la luz, el marcador y la traza.
  *
  * Convención del proyecto: constantes con nombre, nunca números sueltos. Un
  * 0.41 suelto en medio de una escena no se puede revisar.
