@@ -1,0 +1,14 @@
+/* Etiqueta del fallback 3D: tipografía del tema, sin caja que compita
+   con los paneles HTML de la app. */
+.scene-loading {
+  margin: 0;
+  color: rgba(232, 234, 237, 0.72);
+  font-family: 'Geist Variable', Geist, system-ui, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+}
