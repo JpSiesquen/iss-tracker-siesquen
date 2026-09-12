@@ -12,6 +12,7 @@
     "format:check": "prettier --check .",
     "data:locations": "node scripts/build-location-data.mjs",
     "test:locations": "node --experimental-strip-types scripts/check-locations.mjs",
+    "test:sun": "node --experimental-strip-types scripts/check-sun.mjs",
     "test:scene": "node --experimental-strip-types scripts/check-ecef-frame.mjs",
     "test:omm": "node --experimental-strip-types scripts/check-omm-schema.mjs",
     "test:bundle": "node scripts/check-client-bundle.mjs",

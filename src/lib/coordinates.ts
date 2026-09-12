@@ -1,6 +1,6 @@
 import { MathUtils, Vector3 } from 'three';
 
-import { EARTH_RADIUS } from '../scene/constants';
+import { EARTH_RADIUS } from '../scene/constants.ts';
 
 /**
  * Radio medio de la Tierra en kilómetros.
@@ -109,10 +109,9 @@ export function altitudeToRadius(altitudeKm: number): number {
 /**
  * Normaliza una longitud al rango [-180, 180].
  *
- * Hace falta porque la API no es consistente consigo misma: `longitude` viene
- * en ±180, pero `solar_lon` viene en 0-360 (comprobado en vivo: 271.82). Pasar
- * un valor de 0-360 a `latLonToVector3` lo colocaría en el hemisferio
- * equivocado sin dar ningún error.
+ * El doble módulo importa porque `%` conserva el signo en JavaScript: aplicar
+ * uno solo dejaría fuera del rango algunos ángulos negativos. Se usa tanto
+ * para datos externos como para longitudes calculadas dentro del proyecto.
  */
 export function normalizeLongitude(degrees: number): number {
   return ((((degrees + 180) % 360) + 360) % 360) - 180;

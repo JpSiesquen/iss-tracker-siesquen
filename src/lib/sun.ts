@@ -1,6 +1,6 @@
 import { Vector3 } from 'three';
 
-import { latLonToVector3 } from './coordinates';
+import { latLonToVector3, normalizeLongitude } from './coordinates.ts';
 
 /**
  * Dónde está el Sol respecto a la Tierra en un instante dado.
@@ -116,9 +116,8 @@ export function subsolarPoint(date: Date): {
   /** Tiempo sidéreo aparente en Greenwich, en grados. */
   const gmstGrados = (280.16 + 360.9856235 * d) % 360;
 
-  let longitud = ascensionRecta - gmstGrados;
-  // Normalizar a [-180, 180]: sin esto el punto salta al otro hemisferio.
-  longitud = ((((longitud + 180) % 360) + 360) % 360) - 180;
+  // Sin normalizar a [-180, 180], el punto salta al otro hemisferio.
+  const longitud = normalizeLongitude(ascensionRecta - gmstGrados);
 
   return { latitude: declinacion, longitude: longitud };
 }
