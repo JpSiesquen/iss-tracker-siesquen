@@ -9,6 +9,7 @@ import { EcefFrame } from './EcefFrame';
 import { IssMarker } from './IssMarker';
 import { Lights } from './Lights';
 import { SceneTimeProvider } from './SceneTimeContext';
+import { Starfield } from './Starfield';
 
 /**
  * El <Canvas> de React Three Fiber crea por nosotros tres de las cosas que en
@@ -44,6 +45,10 @@ export function Scene() {
       style={{ background: SPACE_COLOR }}
     >
       <Controls />
+
+      {/* Fondo de escena, fuera de ECEF y del tiempo: no gira con el planeta
+          ni depende del Sol. Ver Starfield.tsx. */}
+      <Starfield />
 
       {/* <Earth> se suspende mientras carga su textura, asi que necesita un
           Suspense por encima. fallback={null} = no mostrar nada mientras tanto;

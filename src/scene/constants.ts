@@ -63,6 +63,32 @@ export const AMBIENT_INTENSITY = 0.12;
 export const SPACE_COLOR = '#05060a';
 
 /**
+ * Campo de estrellas (#133): puntos estáticos detrás del globo.
+ *
+ * Un solo draw call, sin textura ni luces reales. El presupuesto importa para
+ * #45: ~1 400 vértices y material sin escritura de profundidad. Fuera de
+ * ECEF, así que no giran con el planeta.
+ */
+export const STAR_COUNT = 1400;
+
+/** Casquete esférico lejano; dentro del `far` de la cámara (1000). */
+export const STAR_RADIUS_MIN = 45;
+export const STAR_RADIUS_MAX = 95;
+
+/**
+ * Tamaño del punto con `sizeAttenuation`. A esta distancia se lee como chispa,
+ * no como disco.
+ */
+export const STAR_SIZE = 0.09;
+
+/**
+ * Gris frío sobre `SPACE_COLOR`. Sin tone mapping (ver Starfield) para que la
+ * opacidad controle la sutileza y ACES no las apague del todo.
+ */
+export const STAR_COLOR = '#9aa3b5';
+export const STAR_OPACITY = 0.45;
+
+/**
  * FOV vertical de la cámara perspectiva, en grados.
  *
  * 40° conserva profundidad sin el efecto gran angular de 60°: al combinarlo
