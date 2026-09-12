@@ -1,4 +1,4 @@
-import { ommSchema, type Omm } from './_omm.js';
+import { ommSchema, type Omm } from '../shared/omm.js';
 
 /**
  * Datos orbitales de la ISS: `GET /api/tle`.
