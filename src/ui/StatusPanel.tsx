@@ -34,6 +34,11 @@ import './StatusPanel.css';
  * Del mismo cálculo SGP4 que mueve el marcador (#37), no de una API. Lo que se
  * lee aquí y lo que se ve ahí son el mismo dato, así que no pueden discrepar.
  *
+ * ## Jerarquía visual
+ *
+ * Coordenadas primero, ubicación como apoyo, métricas y antigüedad como
+ * contexto. El panel informa; el globo protagoniza.
+ *
  * ## Colocación
  *
  * Arriba a la izquierda, nunca centrado: el globo es el protagonista y la zona
@@ -77,6 +82,10 @@ export function StatusPanel() {
     );
   }
 
+  const nombreUbicacion =
+    ubicacion.data?.nombre ??
+    (ubicacion.isError ? 'Ubicación no disponible' : 'Localizando…');
+
   return (
     <PanelBase
       role="status"
@@ -88,53 +97,58 @@ export function StatusPanel() {
         className={`panel__punto ${esObsoleto ? 'panel__punto--aviso' : 'panel__punto--vivo'}`}
       />
 
-      <Typography
-        component="span"
-        variant="caption"
-        color="text.secondary"
-        sx={{ letterSpacing: '0.08em', textTransform: 'uppercase' }}
-      >
-        {elementos.OBJECT_NAME}
-      </Typography>
+      <header className="panel__cabecera">
+        <span className="panel__objeto">{elementos.OBJECT_NAME}</span>
 
-      {/* Las coordenadas son el dato principal: mayor y con más peso. */}
-      <Box className="panel__coords">
-        {formatCoordinate(posicion.latitude, 'N', 'S')}{' '}
-        {formatCoordinate(posicion.longitude, 'E', 'O')}
-      </Box>
+        {/* Las coordenadas son el dato principal: mayor y con más peso. */}
+        <Box className="panel__coords">
+          {formatCoordinate(posicion.latitude, 'N', 'S')}{' '}
+          {formatCoordinate(posicion.longitude, 'E', 'O')}
+        </Box>
 
-      <Dato
-        etiqueta="Sobre"
-        valor={
-          ubicacion.data?.nombre ??
-          (ubicacion.isError ? 'Ubicación no disponible' : 'Localizando…')
-        }
-      />
+        <Box className="panel__ubicacion">{nombreUbicacion}</Box>
+      </header>
 
-      <Dato etiqueta="Altitud" valor={formatAltitude(posicion.altitude)} />
+      <div className="panel__metricas">
+        <Dato etiqueta="Altitud" valor={formatAltitude(posicion.altitude)} />
 
-      {/* Las dos velocidades dicen cosas distintas: km/h comunica magnitud a
-          cualquiera, km/s es la cifra que usa quien conoce el tema. */}
-      <Dato etiqueta="Velocidad" valor={formatSpeedKmh(posicion.speed)} />
-      <Dato etiqueta="" valor={formatSpeedKms(posicion.speed)} />
+        {/* Las dos velocidades dicen cosas distintas: km/h comunica magnitud a
+            cualquiera, km/s es la cifra que usa quien conoce el tema. */}
+        <Dato
+          etiqueta="Velocidad"
+          valor={formatSpeedKmh(posicion.speed)}
+          valorSecundario={formatSpeedKms(posicion.speed)}
+        />
+      </div>
 
-      <span className={`panel__detalle ${esObsoleto ? 'panel__detalle--aviso' : ''}`}>
+      <footer className={`panel__pie ${esObsoleto ? 'panel__pie--aviso' : ''}`}>
         Órbita {edadMs !== undefined ? formatAge(edadMs).replace('hace ', '') : '—'}
         {esObsoleto ? ' · sin actualizar' : ''}
-      </span>
+      </footer>
     </PanelBase>
   );
 }
 
-/** Una fila de etiqueta y valor. */
-function Dato({ etiqueta, valor }: { etiqueta: string; valor: string }) {
+/** Una fila de etiqueta y valor(es) de apoyo. */
+function Dato({
+  etiqueta,
+  valor,
+  valorSecundario,
+}: {
+  etiqueta: string;
+  valor: string;
+  valorSecundario?: string;
+}) {
   return (
-    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between' }}>
-      <Box component="span" sx={{ color: 'text.secondary' }}>
-        {etiqueta}
-      </Box>
-      <Box component="span">{valor}</Box>
-    </Box>
+    <div className="panel__dato">
+      <span className="panel__etiqueta">{etiqueta}</span>
+      <span className="panel__valor">
+        {valor}
+        {valorSecundario ? (
+          <span className="panel__valor-secundario">{valorSecundario}</span>
+        ) : null}
+      </span>
+    </div>
   );
 }
 
@@ -177,6 +191,7 @@ function PanelBase({
          */
         key={clave}
         component={motion.div}
+        className="panel"
         initial={{ opacity: 0, y: -MOTION_OFFSET }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -MOTION_OFFSET }}
@@ -189,12 +204,10 @@ function PanelBase({
           zIndex: 1,
           display: 'flex',
           flexDirection: 'column',
-          gap: 0.4,
-          px: 1.75,
-          py: 1.25,
-          minWidth: 210,
-          fontSize: '0.8rem',
-          lineHeight: 1.45,
+          px: 1.85,
+          py: 1.4,
+          minWidth: 228,
+          maxWidth: 280,
           pointerEvents: 'none',
           ...(borderColor ? { borderColor } : {}),
         }}
