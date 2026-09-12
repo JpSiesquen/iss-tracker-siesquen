@@ -1,5 +1,11 @@
 import { useEffect, useMemo } from 'react';
-import { BufferAttribute, BufferGeometry } from 'three';
+import {
+  AdditiveBlending,
+  BufferAttribute,
+  BufferGeometry,
+  CanvasTexture,
+  type Texture,
+} from 'three';
 
 import {
   STAR_COLOR,
@@ -15,9 +21,10 @@ import {
  *
  * ## Por qué un campo de puntos y no un skybox
  *
- * Una textura o cubemap añadiría VRAM y una costura posible con
- * `SPACE_COLOR`. Un `Points` estático son ~1 400 vértices, un material y un
- * draw call: se lee como cielo sin competir con Tierra, traza ni ISS.
+ * Una cubemap añadiría VRAM y una costura posible con `SPACE_COLOR`. Un
+ * `Points` estático son ~2 200 vértices, un material y un draw call. La
+ * textura del sprite es un canvas 64×64 generado en memoria —no un asset—
+ * solo para que el punto se lea como chispa y no como subpíxel cuadrado.
  *
  * ## Fuera de ECEF a propósito
  *
@@ -32,31 +39,67 @@ import {
  * estático; no hay nada que desactivar.
  */
 export function Starfield() {
-  const geometry = useMemo(() => buildStarGeometry(), []);
+  const { geometry, texture } = useMemo(
+    () => ({
+      geometry: buildStarGeometry(),
+      texture: createStarSprite(),
+    }),
+    [],
+  );
 
   useEffect(() => {
     return () => {
       geometry.dispose();
+      texture.dispose();
     };
-  }, [geometry]);
+  }, [geometry, texture]);
 
   return (
     <points geometry={geometry} frustumCulled={false}>
       <pointsMaterial
+        map={texture}
         color={STAR_COLOR}
         size={STAR_SIZE}
         sizeAttenuation
         transparent
         opacity={STAR_OPACITY}
         depthWrite={false}
+        blending={AdditiveBlending}
         /**
          * ACES comprimiría puntos tenues hasta hacerlos ilegibles. Sin tone
-         * mapping, la opacidad es el único dial de sutileza.
+         * mapping, opacidad y sprite controlan la lectura.
          */
         toneMapped={false}
       />
     </points>
   );
+}
+
+/**
+ * Sprite circular suave. Sin él, `PointsMaterial` dibuja cuadrados de 1–2 px
+ * que en pantallas densas casi no se ven.
+ */
+function createStarSprite(): Texture {
+  const size = 64;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('No se pudo crear el sprite de estrellas');
+  }
+
+  const center = size / 2;
+  const gradient = ctx.createRadialGradient(center, center, 0, center, center, center);
+  /** Núcleo opaco: si el centro es tenue, sizeAttenuation lo deja invisible. */
+  gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+  gradient.addColorStop(0.25, 'rgba(255, 255, 255, 1)');
+  gradient.addColorStop(0.55, 'rgba(255, 255, 255, 0.45)');
+  gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, size, size);
+
+  return new CanvasTexture(canvas);
 }
 
 /**

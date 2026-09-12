@@ -65,29 +65,27 @@ export const SPACE_COLOR = '#05060a';
 /**
  * Campo de estrellas (#133): puntos estáticos detrás del globo.
  *
- * Un solo draw call, sin textura ni luces reales. El presupuesto importa para
- * #45: ~1 400 vértices y material sin escritura de profundidad. Fuera de
- * ECEF, así que no giran con el planeta.
+ * Un draw call, sprite 64×64 en memoria (no asset), sin luces reales. El
+ * presupuesto importa para #45. Fuera de ECEF, así que no giran con el planeta.
  */
-export const STAR_COUNT = 1400;
+export const STAR_COUNT = 2200;
 
 /** Casquete esférico lejano; dentro del `far` de la cámara (1000). */
-export const STAR_RADIUS_MIN = 45;
-export const STAR_RADIUS_MAX = 95;
+export const STAR_RADIUS_MIN = 40;
+export const STAR_RADIUS_MAX = 85;
 
 /**
- * Tamaño del punto con `sizeAttenuation`. A esta distancia se lee como chispa,
- * no como disco.
+ * Tamaño del sprite con `sizeAttenuation`. El núcleo del gradiente es lo que
+ * se ve; hace falta este tamaño para que no quede en subpíxel.
  */
-export const STAR_SIZE = 0.09;
+export const STAR_SIZE = 1.05;
 
 /**
- * Gris frío sobre `SPACE_COLOR`. Sin tone mapping (ver Starfield) para que la
- * opacidad controle la sutileza y ACES no las apague del todo.
+ * Blanco frío sobre `SPACE_COLOR`. Sin tone mapping (ver Starfield); el
+ * blending aditivo y el sprite llevan el brillo.
  */
-export const STAR_COLOR = '#9aa3b5';
-export const STAR_OPACITY = 0.45;
-
+export const STAR_COLOR = '#ffffff';
+export const STAR_OPACITY = 1;
 /**
  * FOV vertical de la cámara perspectiva, en grados.
  *
