@@ -38,6 +38,16 @@
   border-radius: 2px;
 }
 
+@media (max-width: 599.95px), (max-height: 500px) and (pointer: coarse) {
+  .credito {
+    top: calc(12px + env(safe-area-inset-top));
+    bottom: auto;
+    left: calc(12px + env(safe-area-inset-left));
+    max-width: calc(100% - 80px);
+    font-size: 0.8125rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .credito {
     transition: none;

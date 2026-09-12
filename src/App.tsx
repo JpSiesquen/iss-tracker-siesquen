@@ -1,5 +1,6 @@
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
@@ -22,6 +23,8 @@ import { StatusPanel } from './ui/StatusPanel';
  * que un componente 3D puede usar los hooks de datos igual.
  */
 function App() {
+  const mostrarDevtools = useMediaQuery('(min-width: 600px)');
+
   return (
     <ThemeProvider theme={theme}>
       {/* Normaliza los estilos del navegador y aplica el fondo del tema. Sin
@@ -47,7 +50,9 @@ function App() {
           `false && <ReactQueryDevtools />`, el minificador lo borra entero y
           el paquete no entra en el bundle: por eso está en devDependencies y
           no en dependencies. */}
-        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+        {import.meta.env.DEV && mostrarDevtools && (
+          <ReactQueryDevtools initialIsOpen={false} />
+        )}
       </QueryClientProvider>
     </ThemeProvider>
   );

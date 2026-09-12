@@ -1,6 +1,8 @@
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import { AnimatePresence, motion } from 'motion/react';
 import type { ReactNode } from 'react';
 
@@ -92,18 +94,21 @@ export function StatusPanel() {
       borderColor={esObsoleto ? 'rgb(255 159 10 / 0.45)' : undefined}
       clave="datos"
     >
-      <Box
-        component="span"
-        className={`panel__punto ${esObsoleto ? 'panel__punto--aviso' : 'panel__punto--vivo'}`}
-      />
-
       <header className="panel__cabecera">
         <span className="panel__objeto">{elementos.OBJECT_NAME}</span>
 
         {/* Las coordenadas son el dato principal: mayor y con más peso. */}
-        <Box className="panel__coords">
-          {formatCoordinate(posicion.latitude, 'N', 'S')}{' '}
-          {formatCoordinate(posicion.longitude, 'E', 'O')}
+        <Box className="panel__coords-fila">
+          <Box className="panel__coords">
+            {formatCoordinate(posicion.latitude, 'N', 'S')}{' '}
+            {formatCoordinate(posicion.longitude, 'E', 'O')}
+          </Box>
+          <Box
+            component="span"
+            className={`panel__punto ${
+              esObsoleto ? 'panel__punto--aviso' : 'panel__punto--vivo'
+            }`}
+          />
         </Box>
 
         <Box className="panel__ubicacion">{nombreUbicacion}</Box>
@@ -176,6 +181,12 @@ function PanelBase({
   borderColor?: string;
   clave: string;
 }) {
+  const theme = useTheme();
+  const compacto = useMediaQuery(
+    `${theme.breakpoints.down('sm')}, (max-height: 500px) and (pointer: coarse)`,
+  );
+  const muyEstrecho = useMediaQuery('(max-width: 339.95px)');
+
   return (
     <AnimatePresence mode="wait">
       <Paper
@@ -201,15 +212,24 @@ function PanelBase({
         role={role}
         sx={{
           position: 'absolute',
-          top: 16,
-          left: 16,
+          top: compacto ? 'auto' : 16,
+          right: compacto ? 'calc(12px + env(safe-area-inset-right))' : 'auto',
+          bottom: compacto ? 'calc(12px + env(safe-area-inset-bottom))' : 'auto',
+          left: compacto ? 'calc(12px + env(safe-area-inset-left))' : 16,
           zIndex: 1,
-          display: 'flex',
+          display: clave === 'datos' && compacto ? 'grid' : 'flex',
+          gridTemplateColumns: compacto
+            ? muyEstrecho
+              ? 'minmax(0, 1fr)'
+              : 'minmax(0, 1fr) auto'
+            : 'none',
+          alignItems: compacto ? 'center' : 'stretch',
+          columnGap: compacto ? 1.5 : 0,
           flexDirection: 'column',
-          px: 1.85,
-          py: 1.4,
-          minWidth: 228,
-          maxWidth: 280,
+          px: compacto ? 1.5 : 1.85,
+          py: compacto ? 1.1 : 1.4,
+          minWidth: compacto ? 0 : 228,
+          maxWidth: compacto ? 'none' : 280,
           pointerEvents: 'none',
           ...(borderColor ? { borderColor } : {}),
         }}
