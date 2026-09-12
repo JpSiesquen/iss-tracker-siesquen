@@ -24,7 +24,7 @@ entre `AGENTS.md` y `CLAUDE.md`.
 
 ## Estado
 
-**72 issues cerradas tras optimizar el rendimiento en móvil (#45).** El proyecto calcula
+**73 issues cerradas tras adelantar la carga de texturas móviles (#150).** El proyecto calcula
 la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la
 traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 
@@ -42,7 +42,7 @@ traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 5 · Órbita e interfaz | 8/8 | ✅ |
 | 5.5 · Correcciones y realismo | 13/13 | ✅ |
 | 5.6 · Identidad visual | 9/9 | ✅ |
-| 6 · Cierre | 2/5 | |
+| 6 · Cierre | 3/6 | |
 
 **Siguiente:** accesibilidad: teclado, contraste y lector de pantalla (#46).
 
@@ -68,6 +68,7 @@ npm run test:sun       # regresión numérica del punto subsolar
 npm run test:scene     # invariantes numéricas de las transformaciones 3D
 npm run test:omm       # esquema OMM válido e inválido en ambas fronteras
 npm run test:bundle    # comprueba dist/ después del build: ningún código del BFF
+npm run test:preloads  # HTML y escena comparten rutas y criterio de texturas móviles
 npm run data:locations # regenerar los datos reducidos de Natural Earth
 npm run measure:mobile # con `preview` activo: Chrome móvil, FPS, carga y memoria
 ```
@@ -293,6 +294,9 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
 - **El perfil móvil cuida píxeles y texturas (#45).** Bajo 600 px —o con poca altura y
   `pointer: coarse`— el Canvas limita el DPR a 1.5 y carga mapas de 1024×512; escritorio conserva
   DPR 2 y los originales. Las cifras y el método están en `docs/rendimiento-movil.md`.
+- **Las texturas móviles se descubren desde el HTML (#150).** Cuatro `preload` con la misma media
+  query adelantan su descarga sin afectar escritorio. `test:preloads` impide que sus rutas o el
+  criterio responsive se desincronicen de la escena.
 - **`npm run dev` no sirve el BFF.** `vite.config.ts` hace proxy de `/api` a producción para que
   el marcador y el panel tengan elementos orbitales en local. Para probar cambios del BFF,
   usar `vercel dev`.
@@ -315,7 +319,8 @@ escena 3D o el comportamiento del cliente, úsalo además de las comprobaciones 
 ## CI y despliegue
 
 `.github/workflows/ci.yml` corre en cada PR: `npm ci` → `lint` → `format:check` →
-`test:locations` → `test:sun` → `test:scene` → `test:omm` → `build` → `test:bundle`.
+`test:locations` → `test:sun` → `test:scene` → `test:omm` → `build` → `test:bundle` →
+`test:preloads`.
 
 ⚠️ El job se llama **`verificar`** y ese nombre exacto lo exige la protección de rama. Si se
 renombra uno sin el otro, todos los PR quedan bloqueados esperando un check que nunca llega.

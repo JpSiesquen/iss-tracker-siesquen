@@ -235,12 +235,14 @@ try {
         const textures = resources.filter((entry) =>
           expected.some((name) => entry.name.includes(name)),
         );
+        const canvas = document.querySelector('canvas');
+        const canvasOcupaViewport =
+          canvas?.clientWidth === innerWidth && canvas?.clientHeight === innerHeight;
 
-        if (textures.length === expected.length && document.querySelector('canvas')) {
+        if (textures.length === expected.length && canvasOcupaViewport) {
           await new Promise((resolveFrame) =>
             requestAnimationFrame(() => requestAnimationFrame(resolveFrame)),
           );
-          const canvas = document.querySelector('canvas');
           const panel = document.querySelector('.panel');
           const panelRect = panel?.getBoundingClientRect();
           return {

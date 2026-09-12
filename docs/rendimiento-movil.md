@@ -65,3 +65,16 @@ documentan sin confundir ese escenario severo con el criterio Fast 4G.
 
 La diferencia de heap tras forzar GC quedó por debajo de 1 MB y la cadencia no descendió. No se
 observó crecimiento sostenido ni acumulación que indicara una fuga durante los dos minutos.
+
+## Precarga en producción (#150)
+
+La validación posterior al merge de #45 reveló una diferencia que la medición local no mostraba:
+producción tardó 4.77 s en frío y 4.00 s con la CDN caliente bajo Fast 4G. Las texturas se descubrían
+desde React, después de descargar y ejecutar el bundle.
+
+#150 declara los cuatro mapas móviles como `preload` en el HTML con la misma media query de la
+escena. En el build local, Fast 4G pasó de 2.12 a 1.92 s. Chrome registró exactamente cuatro
+transferencias —ninguna duplicada— y escritorio continuó solicitando solo los originales.
+
+El preview de Vercel redirige a SSO, así que no se presenta una medición autenticada como si fuera
+pública. La cifra remota posterior al despliegue queda registrada en la propia issue #150.

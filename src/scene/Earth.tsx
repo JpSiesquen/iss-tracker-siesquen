@@ -6,25 +6,13 @@ import { DebugMarkers } from './DebugMarkers';
 import { applyEarthNightMask } from './earthNightShader';
 import { useSceneTime } from './sceneTime';
 import {
+  DESKTOP_EARTH_TEXTURE_PATHS,
   EARTH_NIGHT_INTENSITY,
   EARTH_NORMAL_SCALE,
   EARTH_RADIUS,
   EARTH_SEGMENTS,
+  MOBILE_EARTH_TEXTURE_PATHS,
 } from './constants';
-
-const DESKTOP_TEXTURES = [
-  '/textures/earth-color.jpg',
-  '/textures/earth-night.jpg',
-  '/textures/earth-normal.jpg',
-  '/textures/earth-specular.jpg',
-];
-
-const MOBILE_TEXTURES = [
-  '/textures/earth-color-mobile.jpg',
-  '/textures/earth-night-mobile.jpg',
-  '/textures/earth-normal-mobile.jpg',
-  '/textures/earth-specular-mobile.jpg',
-];
 
 /**
  * La Tierra: geometría, texturas y rotación.
@@ -71,7 +59,7 @@ export function Earth({ usarPerfilMovil }: { usarPerfilMovil: boolean }) {
    * (react/immutability).
    */
   const [colorMap, nightMap, normalMap, specularMap] = useTexture(
-    usarPerfilMovil ? MOBILE_TEXTURES : DESKTOP_TEXTURES,
+    usarPerfilMovil ? MOBILE_EARTH_TEXTURE_PATHS : DESKTOP_EARTH_TEXTURE_PATHS,
     (texturas) => {
       const lista = Array.isArray(texturas) ? texturas : [texturas];
       lista[0].colorSpace = SRGBColorSpace; // color

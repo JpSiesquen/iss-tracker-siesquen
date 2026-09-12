@@ -33,6 +33,21 @@ export const MOBILE_PERFORMANCE_MEDIA_QUERY =
 export const MOBILE_MAX_DPR = 1.5;
 export const DESKTOP_MAX_DPR = 2;
 
+/** Texturas por perfil. También las usa la comprobación de precargas de #150. */
+export const DESKTOP_EARTH_TEXTURE_PATHS = [
+  '/textures/earth-color.jpg',
+  '/textures/earth-night.jpg',
+  '/textures/earth-normal.jpg',
+  '/textures/earth-specular.jpg',
+];
+
+export const MOBILE_EARTH_TEXTURE_PATHS = [
+  '/textures/earth-color-mobile.jpg',
+  '/textures/earth-night-mobile.jpg',
+  '/textures/earth-normal-mobile.jpg',
+  '/textures/earth-specular-mobile.jpg',
+];
+
 /**
  * Distancia a la que se coloca la luz del Sol, en unidades de escena.
  *
