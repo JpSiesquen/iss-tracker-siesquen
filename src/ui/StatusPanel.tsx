@@ -122,7 +122,9 @@ export function StatusPanel() {
       </div>
 
       <footer className={`panel__pie ${esObsoleto ? 'panel__pie--aviso' : ''}`}>
-        Órbita {edadMs !== undefined ? formatAge(edadMs).replace('hace ', '') : '—'}
+        {/* Antigüedad de los ELEMENTOS, no de la posición: esa se propaga en
+            local. El copy evita «Órbita», que sugería el periodo o un fallo. */}
+        Elementos {edadMs !== undefined ? formatAge(edadMs) : '—'}
         {esObsoleto ? ' · sin actualizar' : ''}
       </footer>
     </PanelBase>

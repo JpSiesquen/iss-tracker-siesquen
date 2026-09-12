@@ -24,8 +24,9 @@ export const ISS_STALE_WARNING_MS = 30_000;
 /**
  * Cada cuánto se recalcula el «hace N segundos» de la interfaz.
  *
- * No tiene nada que ver con pedir datos: es solo repintar un contador. Un
- * segundo basta para que se vea vivo sin re-renderizar de más.
+ * No tiene nada que ver con pedir datos: es solo repintar la antigüedad de
+ * los elementos a partir de `descargadoEn`. Un segundo basta para que se vea
+ * vivo sin re-renderizar de más.
  */
 export const ISS_AGE_TICK_MS = 1000;
 
