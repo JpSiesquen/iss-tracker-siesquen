@@ -20,7 +20,7 @@ issue. No crees un segundo documento de contexto activo ni repartas la fuente de
 
 ## Estado
 
-**62 issues cerradas tras mejorar la legibilidad de la ISS (#145).** El proyecto calcula
+**63 issues cerradas tras adaptar la interfaz a móvil (#44).** El proyecto calcula
 la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la
 traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 
@@ -38,9 +38,9 @@ traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 5 · Órbita e interfaz | 8/8 | ✅ |
 | 5.5 · Correcciones y realismo | 13/13 | ✅ |
 | 5.6 · Identidad visual | 6/6 | ✅ |
-| 6 · Cierre | 0/5 | |
+| 6 · Cierre | 1/5 | |
 
-**Siguiente:** Fase 6 (`#44`).
+**Siguiente:** rendimiento en móvil (#45).
 
 ⚠️ **Para #45:** el bundle está en **459 KB comprimidos**. Medido por partes: MUI añadió
 ~80 KB y Motion ~52 KB. La geocodificación de #108 añadió solo 0,40 KB al cliente; sus 832 KB de

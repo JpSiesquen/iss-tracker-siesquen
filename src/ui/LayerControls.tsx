@@ -1,9 +1,13 @@
 import FormControlLabel from '@mui/material/FormControlLabel';
+import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Switch from '@mui/material/Switch';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
-import { Orbit, Lightbulb, RefreshCw, MapPin } from 'lucide-react';
+import { Lightbulb, MapPin, Orbit, RefreshCw, SlidersHorizontal, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useState } from 'react';
 
 import { useUiStore } from '../store/ui';
 import { ICON_SIZE, ICON_STROKE } from './constants';
@@ -36,6 +40,12 @@ import './LayerControls.css';
  * desarrollo, porque son una herramienta de verificación, no una capa.
  */
 export function LayerControls() {
+  const theme = useTheme();
+  const esMovil = useMediaQuery(
+    `${theme.breakpoints.down('sm')}, (max-height: 500px) and (pointer: coarse)`,
+  );
+  const [abierto, setAbierto] = useState(false);
+
   /**
    * Un selector por campo, no el store entero.
    *
@@ -53,56 +63,82 @@ export function LayerControls() {
   const alternarRotacionAutomatica = useUiStore((s) => s.alternarRotacionAutomatica);
   const alternarReferencias = useUiStore((s) => s.alternarReferencias);
 
+  const mostrarPanel = !esMovil || abierto;
+
   return (
-    <Paper
-      component="section"
-      className="capas"
-      aria-label="Capas de la escena"
-      sx={{
-        position: 'absolute',
-        top: 16,
-        right: 16,
-        zIndex: 1,
-        px: 1.85,
-        py: 1.4,
-        /**
-         * ⚠️ Al contrario que el panel de telemetría, este SÍ recibe el ratón:
-         * es interactivo. El panel lleva `pointerEvents: none` porque solo
-         * informa y no debe estorbar al girar el globo.
-         */
-      }}
-    >
-      <h2 className="capas__titulo">Capas</h2>
-
-      <Interruptor
-        icono={Orbit}
-        etiqueta="Traza orbital"
-        activo={verOrbita}
-        onChange={alternarOrbita}
-      />
-      <Interruptor
-        icono={Lightbulb}
-        etiqueta="Luces nocturnas"
-        activo={verLucesNocturnas}
-        onChange={alternarLucesNocturnas}
-      />
-      <Interruptor
-        icono={RefreshCw}
-        etiqueta="Rotación automática"
-        activo={rotacionAutomatica}
-        onChange={alternarRotacionAutomatica}
-      />
-
-      {/* Herramienta de verificación de #28, no una capa del producto. */}
-      {import.meta.env.DEV && (
-        <Interruptor
-          icono={MapPin}
-          etiqueta="Puntos de referencia"
-          activo={verReferencias}
-          onChange={alternarReferencias}
-        />
+    <>
+      {esMovil && (
+        <Paper className="capas__activador">
+          <IconButton
+            aria-label={
+              abierto ? 'Cerrar controles de capas' : 'Abrir controles de capas'
+            }
+            aria-controls="controles-capas"
+            aria-expanded={abierto}
+            onClick={() => setAbierto((valor) => !valor)}
+          >
+            {abierto ? (
+              <X size={20} strokeWidth={ICON_STROKE} aria-hidden />
+            ) : (
+              <SlidersHorizontal size={20} strokeWidth={ICON_STROKE} aria-hidden />
+            )}
+          </IconButton>
+        </Paper>
       )}
-    </Paper>
+
+      {mostrarPanel && (
+        <Paper
+          id="controles-capas"
+          component="section"
+          className="capas"
+          aria-label="Capas de la escena"
+          sx={{
+            position: 'absolute',
+            top: esMovil ? 'calc(64px + env(safe-area-inset-top))' : 16,
+            right: esMovil ? 'calc(12px + env(safe-area-inset-right))' : 16,
+            zIndex: 1,
+            px: 1.85,
+            py: 1.4,
+            /**
+             * ⚠️ Al contrario que el panel de telemetría, este SÍ recibe el ratón:
+             * es interactivo. El panel lleva `pointerEvents: none` porque solo
+             * informa y no debe estorbar al girar el globo.
+             */
+          }}
+        >
+          <h2 className="capas__titulo">Capas</h2>
+
+          <Interruptor
+            icono={Orbit}
+            etiqueta="Traza orbital"
+            activo={verOrbita}
+            onChange={alternarOrbita}
+          />
+          <Interruptor
+            icono={Lightbulb}
+            etiqueta="Luces nocturnas"
+            activo={verLucesNocturnas}
+            onChange={alternarLucesNocturnas}
+          />
+          <Interruptor
+            icono={RefreshCw}
+            etiqueta="Rotación automática"
+            activo={rotacionAutomatica}
+            onChange={alternarRotacionAutomatica}
+          />
+
+          {/* Herramienta de verificación de #28, no una capa del producto. */}
+          {import.meta.env.DEV && (
+            <Interruptor
+              icono={MapPin}
+              etiqueta="Puntos de referencia"
+              activo={verReferencias}
+              onChange={alternarReferencias}
+            />
+          )}
+        </Paper>
+      )}
+    </>
   );
 }
 
