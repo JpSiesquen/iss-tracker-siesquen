@@ -24,9 +24,9 @@ entre `AGENTS.md` y `CLAUDE.md`.
 
 ## Estado
 
-**76 issues cerradas tras publicar el README bilingüe del proyecto (#47).** El proyecto calcula
-la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la
-traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
+**77 issues cerradas tras actualizar el contexto operativo del cierre (#157).** El proyecto
+calcula la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja
+la traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 
 **Ya no depende de ninguna API de terceros en el cliente**: la única URL externa está en
 `api/tle.ts`, en el servidor.
@@ -42,14 +42,31 @@ traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 5 · Órbita e interfaz | 8/8 | ✅ |
 | 5.5 · Correcciones y realismo | 13/13 | ✅ |
 | 5.6 · Identidad visual | 9/9 | ✅ |
-| 6 · Cierre | 5/6 | |
+| 6 · Cierre | 5/7 | |
 
-**Siguiente:** repaso final y cierre del proyecto (#48).
+**Siguiente:** separar autoría y código fuente en el crédito (#155); después, repaso final y
+cierre del proyecto (#48).
 
 El README público tiene español como idioma principal y una versión completa en inglés. Presenta
 capturas reales de la aplicación sobre Rusia, Angola y China, una animación optimizada y un diagrama
 de arquitectura; al renovarlo, mantener ambos idiomas alineados y no sustituir esas evidencias por
 mockups que inventen estados del producto.
+
+### Trabajo abierto
+
+- **#155 — crédito con dos destinos (Fase 6).** La pieza sigue siendo visualmente una sola, pero
+  su raíz deja de ser un enlace: contiene dos enlaces hermanos, nunca anidados. «Jonathan
+  Siesquen» conserva el protagonismo y abre temporalmente `https://github.com/JpSiesquen`; una
+  marca de GitHub blanca y secundaria abre el repositorio exacto. Ambos destinos abren en otra
+  pestaña, tienen foco visible y nombre accesible; el segmento táctil de GitHub mide al menos
+  44 × 44 px. Verificar escritorio, 390 × 844 y el ancho mínimo con Chrome. Resolver antes de
+  #48.
+- **#48 — auditoría final.** Sigue siendo la última issue de la Fase 6 y depende de #47 y #155.
+- **#156 — migración futura al portafolio (fuera del milestone).** No iniciarla hasta que el
+  dominio esté adquirido y el portafolio responda por HTTPS. Entonces el enlace del nombre pasa
+  a la URL canónica personal y la otra variante del dominio redirige a ella; el enlace de la
+  marca de GitHub al repositorio no cambia. La migración revisa `AUTHOR_URL`, ambos README y la
+  documentación por intención, sin reemplazar URLs técnicas de GitHub.
 
 En móvil se sirven texturas de 1024 × 512 y el DPR se limita a 1.5; escritorio conserva las
 texturas originales y DPR máximo 2. En la medición de #45 esto redujo la transferencia de texturas
@@ -289,8 +306,11 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
 - **`prefers-reduced-motion` se respeta en el tema.** No es estético: hay personas a quienes el
   movimiento les provoca mareo o migraña. Se usa `0.01ms` y no `0` para que `AnimatePresence`
   siga recibiendo los eventos de fin de animación.
-- **Los iconos acompañan al texto, nunca lo sustituyen**, y van con `aria-hidden` porque el
-  texto ya dice lo que hay.
+- **Los iconos de controles acompañan al texto, nunca lo sustituyen**, y van con `aria-hidden`
+  porque el texto ya dice lo que hay. La marca de GitHub prevista en #155 es una excepción
+  estrecha de enlace de marca dentro de un crédito que ya aporta contexto: puede mostrarse sin
+  una etiqueta visual redundante, pero necesita nombre accesible, foco visible y objetivo táctil
+  de 44 × 44 px. No generalizar esta excepción a otros controles.
 - **El Canvas WebGL queda fuera del árbol de accesibilidad.** Una descripción textual presenta
   la escena y el panel expone la posición con HTML semántico. Solo la carga y los errores son
   regiones vivas: las coordenadas cambian cada segundo y no deben interrumpir al lector.
