@@ -24,7 +24,7 @@ entre `AGENTS.md` y `CLAUDE.md`.
 
 ## Estado
 
-**78 issues cerradas tras separar autoría y código fuente en el crédito (#155).** El proyecto
+**81 issues cerradas tras renovar las evidencias visuales del README (#160).** El proyecto
 calcula la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja
 la traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 
@@ -42,18 +42,20 @@ la traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 5 · Órbita e interfaz | 8/8 | ✅ |
 | 5.5 · Correcciones y realismo | 13/13 | ✅ |
 | 5.6 · Identidad visual | 9/9 | ✅ |
-| 6 · Cierre | 6/7 | |
+| 6 · Cierre | 9/10 | |
 
 **Siguiente:** repaso final y cierre del proyecto (#48).
 
-El README público tiene español como idioma principal y una versión completa en inglés. Presenta
-capturas reales de la aplicación sobre Rusia, Angola y China, una animación optimizada y un diagrama
-de arquitectura; al renovarlo, mantener ambos idiomas alineados y no sustituir esas evidencias por
-mockups que inventen estados del producto.
+El README público tiene español como idioma principal y una versión completa en inglés. Sus cuatro
+evidencias visuales muestran estados reales propagados con SGP4 y países distintos: hero de
+escritorio sobre Brasil, GIF de 12 s a 8 fps sobre España, móvil sobre Kazajistán y tablet sobre
+Venezuela. La ISS permanece visible en todas; móvil y tablet se muestran directamente, sin
+desplegables. Al renovarlas, mantener ambos idiomas alineados y no sustituirlas por mockups que
+inventen estados del producto.
 
 ### Trabajo abierto
 
-- **#48 — auditoría final.** Última issue de la Fase 6; depende de #47 y #155 (ambas cerradas).
+- **#48 — auditoría final.** Última issue de la Fase 6; depende de #47, #155 y #160 (cerradas).
 - **#156 — migración futura al portafolio (fuera del milestone).** No iniciarla hasta que el
   dominio esté adquirido y el portafolio responda por HTTPS. Entonces el enlace del nombre pasa
   a la URL canónica personal y la otra variante del dominio redirige a ella; el enlace de la

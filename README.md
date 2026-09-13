@@ -9,7 +9,7 @@
 [![Demo en vivo](https://img.shields.io/badge/ABRIR_DEMO-EN_VIVO-FFCC00?style=for-the-badge&logo=vercel&logoColor=000000)](https://iss-tracker-siesquen.vercel.app)
 [![CI](https://img.shields.io/github/actions/workflow/status/JpSiesquen/iss-tracker-siesquen/ci.yml?branch=main&style=for-the-badge&label=CI)](https://github.com/JpSiesquen/iss-tracker-siesquen/actions/workflows/ci.yml)
 
-![ISS Tracker mostrando la estación sobre Rusia, su traza orbital y telemetría en tiempo real](docs/assets/iss-tracker-hero.webp)
+![ISS Tracker mostrando la estación sobre Brasil, su traza orbital y telemetría en tiempo real](docs/assets/iss-tracker-hero.webp)
 
 </div>
 
@@ -30,9 +30,9 @@ interfaz adaptable diseñada para que el globo siga siendo el protagonista.
 
 <div align="center">
 
-![ISS Tracker en movimiento mientras la estación pasa sobre Angola](docs/assets/iss-tracker-demo.gif)
+![ISS Tracker en movimiento mientras la estación pasa sobre España](docs/assets/iss-tracker-demo.gif)
 
-_Propagación orbital y rotación automática durante un paso sobre Angola._
+_Doce segundos de propagación orbital y rotación automática durante un paso sobre España._
 
 </div>
 
@@ -40,13 +40,15 @@ La aplicación muestra latitud, longitud, ubicación, altitud, velocidad y antig
 elementos orbitales. La traza pasada y futura, las luces nocturnas y la rotación automática pueden
 activarse por separado.
 
-<details>
-<summary><strong>Vista móvil — paso sobre China</strong></summary>
-<br />
+### Una experiencia que se adapta a cada pantalla
+
 <div align="center">
-  <img src="docs/assets/iss-tracker-mobile.webp" width="390" alt="ISS Tracker adaptado a móvil mientras la estación pasa sobre China" />
+  <img src="docs/assets/iss-tracker-mobile.webp" width="300" alt="Vista móvil de ISS Tracker durante un paso sobre Kazajistán" />
+  &nbsp;&nbsp;
+  <img src="docs/assets/iss-tracker-tablet.webp" width="486" alt="Vista tablet de ISS Tracker durante un paso sobre Venezuela" />
+
+_Móvil sobre Kazajistán · Tablet sobre Venezuela_
 </div>
-</details>
 
 ## Ingeniería detrás de la escena
 
