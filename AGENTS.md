@@ -62,8 +62,9 @@ mockups que inventen estados del producto.
 
 En móvil se sirven texturas de 1024 × 512 y el DPR se limita a 1.5; escritorio conserva las
 texturas originales y DPR máximo 2. En la medición de #45 esto redujo la transferencia de texturas
-un 86 %, su VRAM estimada un 90 % y dejó la escena lista en 2.12 s con Fast 4G. Método, cifras y
-límites en `docs/rendimiento-movil.md`.
+un 86 % y su VRAM estimada un 90 % (escena lista en 2.12 s con Fast 4G). Tras las precargas del
+HTML (#150), la cifra vigente en medición local es 1.92 s. Método, cifras y límites en
+`docs/rendimiento-movil.md`.
 
 El modelo de la ISS (`public/models/iss.glb`) pesa **39,708 bytes**. Viene del repositorio
 oficial NASA 3D Resources; su procedencia y licencia están en `public/models/CREDITS.md`.
