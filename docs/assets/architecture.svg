@@ -1,0 +1,180 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1200"
+  height="640"
+  viewBox="0 0 1200 640"
+  role="img"
+  aria-labelledby="title description"
+>
+  <title id="title">ISS Tracker architecture</title>
+  <desc id="description">
+    Data flows from CelesTrak and Natural Earth through a serverless BFF into the browser,
+    where SGP4, ECEF transformations, Three.js and React render the scene and telemetry.
+  </desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#080a10" />
+      <stop offset="1" stop-color="#111827" />
+    </linearGradient>
+    <linearGradient id="yellow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffcc00" />
+      <stop offset="1" stop-color="#ff9f0a" />
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5eb0ff" />
+      <stop offset="1" stop-color="#7dd3fc" />
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <marker
+      id="arrow-yellow"
+      viewBox="0 0 10 10"
+      refX="8"
+      refY="5"
+      markerWidth="6"
+      markerHeight="6"
+      orient="auto-start-reverse"
+    >
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffcc00" />
+    </marker>
+    <marker
+      id="arrow-blue"
+      viewBox="0 0 10 10"
+      refX="8"
+      refY="5"
+      markerWidth="6"
+      markerHeight="6"
+      orient="auto-start-reverse"
+    >
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5eb0ff" />
+    </marker>
+    <style>
+      .eyebrow {
+        fill: #8f98a8;
+        font:
+          600 13px system-ui,
+          sans-serif;
+        letter-spacing: 2px;
+      }
+      .label {
+        fill: #f3f4f6;
+        font:
+          600 18px system-ui,
+          sans-serif;
+      }
+      .headline {
+        fill: #f3f4f6;
+        font:
+          600 25px system-ui,
+          sans-serif;
+      }
+      .detail {
+        fill: #aeb6c5;
+        font:
+          400 14px system-ui,
+          sans-serif;
+      }
+      .box {
+        fill: #141a27;
+        stroke: #30394a;
+        stroke-width: 1.5;
+      }
+      .group {
+        fill: #0e1420;
+        stroke: #273143;
+        stroke-width: 1.5;
+      }
+      .flow-yellow {
+        fill: none;
+        stroke: #ffcc00;
+        stroke-width: 2.5;
+        marker-end: url(#arrow-yellow);
+      }
+      .flow-blue {
+        fill: none;
+        stroke: #5eb0ff;
+        stroke-width: 2.5;
+        marker-end: url(#arrow-blue);
+      }
+    </style>
+  </defs>
+
+  <rect width="1200" height="640" rx="24" fill="url(#background)" />
+  <circle cx="1040" cy="90" r="160" fill="#1d4ed8" opacity="0.06" />
+  <circle cx="560" cy="600" r="210" fill="#ffcc00" opacity="0.035" />
+
+  <text x="54" y="54" class="eyebrow">ARCHITECTURE</text>
+  <text x="54" y="86" class="headline">
+    From orbital elements to one synchronized WebGL scene
+  </text>
+
+  <text x="54" y="142" class="eyebrow">SOURCES</text>
+  <rect x="54" y="162" width="210" height="104" rx="14" class="box" />
+  <rect x="54" y="162" width="5" height="104" rx="3" fill="url(#yellow)" />
+  <text x="78" y="201" class="label">CelesTrak</text>
+  <text x="78" y="229" class="detail">OMM orbital elements</text>
+
+  <rect x="54" y="294" width="210" height="104" rx="14" class="box" />
+  <rect x="54" y="294" width="5" height="104" rx="3" fill="url(#blue)" />
+  <text x="78" y="333" class="label">Natural Earth</text>
+  <text x="78" y="361" class="detail">Countries · marine areas</text>
+
+  <rect x="326" y="132" width="292" height="316" rx="20" class="group" />
+  <text x="354" y="168" class="eyebrow">SERVERLESS BFF</text>
+  <rect x="354" y="190" width="236" height="104" rx="14" class="box" />
+  <text x="378" y="228" class="label">/api/tle</text>
+  <text x="378" y="256" class="detail">Zod · CDN cache · stale fallback</text>
+  <rect x="354" y="318" width="236" height="104" rx="14" class="box" />
+  <text x="378" y="356" class="label">/api/locate</text>
+  <text x="378" y="384" class="detail">Ray casting · local geometry</text>
+
+  <path d="M264 214 H354" class="flow-yellow" />
+  <path d="M264 346 H354" class="flow-blue" />
+
+  <rect x="680" y="132" width="466" height="450" rx="20" class="group" />
+  <text x="708" y="168" class="eyebrow">BROWSER</text>
+
+  <rect x="708" y="190" width="184" height="88" rx="14" class="box" />
+  <text x="732" y="226" class="label">TanStack Query</text>
+  <text x="732" y="252" class="detail">Validated server state</text>
+
+  <rect x="934" y="190" width="184" height="88" rx="14" class="box" />
+  <text x="958" y="226" class="label">satellite.js</text>
+  <text x="958" y="252" class="detail">SGP4 · GMST</text>
+
+  <rect x="708" y="318" width="184" height="88" rx="14" class="box" />
+  <text x="732" y="354" class="label">Scene time</text>
+  <text x="732" y="380" class="detail">One instant per frame</text>
+
+  <rect x="934" y="318" width="184" height="88" rx="14" class="box" />
+  <text x="958" y="354" class="label">ECEF frame</text>
+  <text x="958" y="380" class="detail">Earth · ISS · ground track</text>
+
+  <rect x="708" y="446" width="184" height="88" rx="14" class="box" />
+  <text x="732" y="482" class="label">React · Zustand</text>
+  <text x="732" y="508" class="detail">Telemetry · controls</text>
+
+  <rect x="934" y="446" width="184" height="88" rx="14" class="box" />
+  <text x="958" y="482" class="label">Three.js · R3F</text>
+  <text x="958" y="508" class="detail">Real-time WebGL render</text>
+
+  <path d="M590 242 H708" class="flow-yellow" />
+  <path d="M590 370 C642 370 650 254 708 254" class="flow-blue" />
+  <path d="M892 234 H934" class="flow-yellow" />
+  <path d="M1026 278 V318" class="flow-yellow" />
+  <path d="M934 362 H892" class="flow-yellow" />
+  <path d="M800 406 V446" class="flow-blue" />
+  <path d="M892 362 C914 362 914 490 934 490" class="flow-yellow" />
+
+  <circle cx="654" cy="242" r="4" fill="#ffcc00" filter="url(#glow)" />
+  <circle cx="654" cy="329" r="4" fill="#5eb0ff" filter="url(#glow)" />
+  <text x="54" y="592" class="detail">
+    WebGL rendering stays client-side. External orbital data crosses one validated,
+    cacheable boundary.
+  </text>
+</svg>

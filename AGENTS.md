@@ -24,7 +24,7 @@ entre `AGENTS.md` y `CLAUDE.md`.
 
 ## Estado
 
-**74 issues cerradas tras completar la accesibilidad (#46).** El proyecto calcula
+**76 issues cerradas tras publicar el README bilingüe del proyecto (#47).** El proyecto calcula
 la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la
 traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 
@@ -42,9 +42,14 @@ traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 5 · Órbita e interfaz | 8/8 | ✅ |
 | 5.5 · Correcciones y realismo | 13/13 | ✅ |
 | 5.6 · Identidad visual | 9/9 | ✅ |
-| 6 · Cierre | 4/6 | |
+| 6 · Cierre | 5/6 | |
 
-**Siguiente:** README con capturas, demo y detalle técnico (#47).
+**Siguiente:** repaso final y cierre del proyecto (#48).
+
+El README público tiene español como idioma principal y una versión completa en inglés. Presenta
+capturas reales de la aplicación sobre Rusia, Angola y China, una animación optimizada y un diagrama
+de arquitectura; al renovarlo, mantener ambos idiomas alineados y no sustituir esas evidencias por
+mockups que inventen estados del producto.
 
 En móvil se sirven texturas de 1024 × 512 y el DPR se limita a 1.5; escritorio conserva las
 texturas originales y DPR máximo 2. En la medición de #45 esto redujo la transferencia de texturas
