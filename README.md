@@ -44,7 +44,6 @@ activarse por separado.
 
 <div align="center">
   <img src="docs/assets/iss-tracker-mobile.webp" width="300" alt="Vista móvil de ISS Tracker durante un paso sobre Kazajistán" />
-  &nbsp;&nbsp;
   <img src="docs/assets/iss-tracker-tablet.webp" width="486" alt="Vista tablet de ISS Tracker durante un paso sobre Venezuela" />
 
 _Móvil sobre Kazajistán · Tablet sobre Venezuela_

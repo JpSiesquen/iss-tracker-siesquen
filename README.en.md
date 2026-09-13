@@ -43,7 +43,6 @@ Past and future ground tracks, city lights and automatic rotation can be toggled
 
 <div align="center">
   <img src="docs/assets/iss-tracker-mobile.webp" width="300" alt="Mobile view of ISS Tracker during a pass over Kazakhstan" />
-  &nbsp;&nbsp;
   <img src="docs/assets/iss-tracker-tablet.webp" width="486" alt="Tablet view of ISS Tracker during a pass over Venezuela" />
 
 _Mobile over Kazakhstan · Tablet over Venezuela_
