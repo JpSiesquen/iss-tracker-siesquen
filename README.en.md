@@ -9,7 +9,7 @@
 [![Live demo](https://img.shields.io/badge/OPEN_DEMO-LIVE-FFCC00?style=for-the-badge&logo=vercel&logoColor=000000)](https://iss-tracker-siesquen.vercel.app)
 [![CI](https://img.shields.io/github/actions/workflow/status/JpSiesquen/iss-tracker-siesquen/ci.yml?branch=main&style=for-the-badge&label=CI)](https://github.com/JpSiesquen/iss-tracker-siesquen/actions/workflows/ci.yml)
 
-![ISS Tracker showing the station above Russia, its ground track and live telemetry](docs/assets/iss-tracker-hero.webp)
+![ISS Tracker showing the station above Brazil, its ground track and live telemetry](docs/assets/iss-tracker-hero.webp)
 
 </div>
 
@@ -30,22 +30,23 @@ a responsive interface designed to keep the globe at center stage.
 
 <div align="center">
 
-![ISS Tracker moving while the station passes over Angola](docs/assets/iss-tracker-demo.gif)
+![ISS Tracker moving while the station passes over Spain](docs/assets/iss-tracker-demo.gif)
 
-_Orbital propagation and automatic rotation during a pass over Angola._
+_Twelve seconds of orbital propagation and automatic rotation during a pass over Spain._
 
 </div>
 
 The application displays latitude, longitude, location, altitude, speed and orbital-element age.
 Past and future ground tracks, city lights and automatic rotation can be toggled independently.
 
-<details>
-<summary><strong>Mobile view — pass over China</strong></summary>
-<br />
+### One experience, shaped for every screen
+
 <div align="center">
-  <img src="docs/assets/iss-tracker-mobile.webp" width="390" alt="ISS Tracker adapted to mobile while the station passes over China" />
+  <img src="docs/assets/iss-tracker-mobile.webp" width="300" alt="Mobile view of ISS Tracker during a pass over Kazakhstan" />
+  <img src="docs/assets/iss-tracker-tablet.webp" width="486" alt="Tablet view of ISS Tracker during a pass over Venezuela" />
+
+_Mobile over Kazakhstan · Tablet over Venezuela_
 </div>
-</details>
 
 ## Engineering behind the scene
 
