@@ -1,11 +1,14 @@
-/* El fondo oscuro garantiza contraste aunque el globo pase por detrás. */
+/* El fondo oscuro garantiza contraste aunque el globo pase por detrás.
+   La raíz no es interactiva: cada destino tiene su propio enlace. */
 
 .credito {
   position: absolute;
   bottom: 16px;
   left: 16px;
   z-index: 1;
-  padding: 0.3rem 0.45rem;
+  display: inline-flex;
+  align-items: center;
+  max-width: calc(100% - 32px);
   color: rgb(232 234 237 / 0.82);
   background: rgb(18 22 33 / 0.94);
   border: 1px solid rgb(255 255 255 / 0.18);
@@ -15,6 +18,12 @@
   font-weight: 500;
   letter-spacing: 0.02em;
   line-height: 1.4;
+}
+
+.credito__autor {
+  min-width: 0;
+  padding: 0.3rem 0.45rem 0.3rem 0.55rem;
+  color: #fff;
   text-decoration: none;
   transition: color 0.15s ease-out;
 }
@@ -25,20 +34,88 @@
   font-weight: 600;
 }
 
-.credito:hover {
-  color: rgb(232 234 237 / 0.88);
+.credito__autor:hover {
+  color: #fff;
   text-decoration: underline;
   text-underline-offset: 0.18em;
 }
 
-.credito:hover .credito__nombre {
+.credito__autor:hover .credito__nombre {
   color: #ffd633;
 }
 
-.credito:focus-visible {
-  color: #e8eaed;
+.credito__separador {
+  flex-shrink: 0;
+  width: 1px;
+  height: 0.85em;
+  background: #fff;
+}
+
+.credito__fuente {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Reposo: octopus blanco. Hover: se invierte y crece a 25.9 px.
+
+   Marca y SVG miden igual (24 px) para no descentrar. El path deja el disco
+   en 20 px (2→22 del viewBox); en hover el SVG escala 22/20 = 1.1 y el disco
+   pasa a 22 px dentro del círculo blanco de 24 px → anillo de 1 px. */
+.credito__marca {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: #fff;
+  background: transparent;
+  transform-origin: center center;
+  transition:
+    transform 0.15s ease-out,
+    background-color 0.15s ease-out,
+    color 0.15s ease-out;
+}
+
+.credito__marca svg {
+  display: block;
+  flex-shrink: 0;
+  transform-origin: center center;
+  transition: transform 0.15s ease-out;
+}
+
+.credito__fuente:hover .credito__marca,
+.credito__fuente:focus-visible .credito__marca {
+  background: #fff;
+  color: #000;
+  transform: scale(1.079167);
+}
+
+.credito__fuente:hover .credito__marca svg,
+.credito__fuente:focus-visible .credito__marca svg {
+  transform: scale(1.1);
+}
+
+/* Solo el contorno de foco: no tocar `color` aquí, pisa el invert de la marca. */
+.credito__autor:focus-visible {
+  color: #fff;
   outline: 3px solid #e8eaed;
-  outline-offset: 4px;
+  outline-offset: 3px;
+}
+
+.credito__fuente:focus-visible {
+  outline: 3px solid #e8eaed;
+  outline-offset: 3px;
+}
+
+.credito__autor:focus-visible .credito__nombre {
+  color: #ffd633;
 }
 
 @media (max-width: 599.95px), (max-height: 500px) and (pointer: coarse) {
@@ -52,7 +129,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .credito {
+  .credito__autor,
+  .credito__marca,
+  .credito__marca svg {
     transition: none;
+  }
+
+  .credito__fuente:hover .credito__marca,
+  .credito__fuente:focus-visible .credito__marca {
+    transform: none;
   }
 }

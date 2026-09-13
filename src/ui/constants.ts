@@ -46,3 +46,11 @@ export const MOTION_OFFSET = 8;
  * aparte. No inventar esa URL ahora.
  */
 export const AUTHOR_URL = 'https://github.com/JpSiesquen';
+
+/**
+ * Repositorio de este proyecto.
+ *
+ * Destino permanente de la marca de GitHub en el crédito. No cambia cuando
+ * `AUTHOR_URL` pase al portafolio (#156).
+ */
+export const REPO_URL = 'https://github.com/JpSiesquen/iss-tracker-siesquen';
