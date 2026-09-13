@@ -36,17 +36,17 @@ const TRACK_ACCENT = '#5eb0ff';
  * Fondo de los paneles.
  *
  * ⚠️ Translúcido a propósito, y es la decisión visual central del proyecto. Un
- * panel opaco taparía el globo; este lo deja ver por detrás, y con
- * `backdropFilter` el texto sigue siendo legible sobre cualquier parte de la
- * imagen — océano oscuro o continente iluminado.
+ * panel opaco taparía el globo; este conserva una continuidad tenue con la
+ * escena y una opacidad suficiente para que el contraste no dependa de qué
+ * haya detrás — océano oscuro o continente iluminado.
  *
  * Es lo que hace que la interfaz se sienta parte de la escena en vez de una
  * capa pegada encima.
  */
-const PANEL_BACKGROUND = 'rgba(18, 22, 33, 0.72)';
+const PANEL_BACKGROUND = 'rgba(18, 22, 33, 0.94)';
 
 /** Borde apenas visible: separa el panel del fondo sin dibujar una caja. */
-const PANEL_BORDER = 'rgba(255, 255, 255, 0.09)';
+const PANEL_BORDER = 'rgba(255, 255, 255, 0.18)';
 
 export const theme = createTheme({
   palette: {
@@ -76,7 +76,7 @@ export const theme = createTheme({
     text: {
       primary: '#e8eaed',
       /** Para datos de apoyo: presente sin robar atención al valor principal. */
-      secondary: 'rgba(232, 234, 237, 0.62)',
+      secondary: 'rgba(232, 234, 237, 0.72)',
     },
 
     divider: PANEL_BORDER,

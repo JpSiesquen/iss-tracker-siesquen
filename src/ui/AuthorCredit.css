@@ -1,11 +1,15 @@
-/* Crédito de autor: texto suelto sobre la escena, no un panel. */
+/* El fondo oscuro garantiza contraste aunque el globo pase por detrás. */
 
 .credito {
   position: absolute;
   bottom: 16px;
   left: 16px;
   z-index: 1;
-  color: rgb(232 234 237 / 0.55);
+  padding: 0.3rem 0.45rem;
+  color: rgb(232 234 237 / 0.82);
+  background: rgb(18 22 33 / 0.94);
+  border: 1px solid rgb(255 255 255 / 0.18);
+  border-radius: 6px;
   font-family: 'Geist Variable', Geist, system-ui, sans-serif;
   font-size: 0.7rem;
   font-weight: 500;
@@ -33,9 +37,8 @@
 
 .credito:focus-visible {
   color: #e8eaed;
-  outline: 1px solid rgb(255 204 0 / 0.7);
+  outline: 3px solid #e8eaed;
   outline-offset: 4px;
-  border-radius: 2px;
 }
 
 @media (max-width: 599.95px), (max-height: 500px) and (pointer: coarse) {

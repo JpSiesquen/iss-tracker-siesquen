@@ -23,6 +23,11 @@
   color: rgb(232 234 237 / 0.9);
 }
 
+.capas__activador .MuiIconButton-root:focus-visible {
+  outline: 3px solid #e8eaed;
+  outline-offset: 3px;
+}
+
 .capas__titulo {
   margin: 0 0 0.45rem;
   padding-bottom: 0.55rem;
@@ -31,7 +36,7 @@
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgb(232 234 237 / 0.55);
+  color: rgb(232 234 237 / 0.72);
 }
 
 .capas__fila {

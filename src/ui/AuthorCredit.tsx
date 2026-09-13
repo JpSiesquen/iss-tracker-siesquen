@@ -5,9 +5,9 @@ import './AuthorCredit.css';
 /**
  * Crédito de autoría, fuera del `<Canvas>`.
  *
- * Presente sin protagonizar: tipografía del tema, sin tarjeta ni badge. El
- * enlace abre el perfil de GitHub hasta que exista el portafolio (ver
- * `AUTHOR_URL`).
+ * Presente sin protagonizar: tipografía del tema y una superficie mínima que
+ * mantiene el contraste aunque el globo pase por detrás. El enlace abre el
+ * perfil de GitHub hasta que exista el portafolio (ver `AUTHOR_URL`).
  */
 export function AuthorCredit() {
   return (

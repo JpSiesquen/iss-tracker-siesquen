@@ -24,7 +24,7 @@ entre `AGENTS.md` y `CLAUDE.md`.
 
 ## Estado
 
-**73 issues cerradas tras adelantar la carga de texturas móviles (#150).** El proyecto calcula
+**74 issues cerradas tras completar la accesibilidad (#46).** El proyecto calcula
 la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja la
 traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 
@@ -42,9 +42,9 @@ traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 5 · Órbita e interfaz | 8/8 | ✅ |
 | 5.5 · Correcciones y realismo | 13/13 | ✅ |
 | 5.6 · Identidad visual | 9/9 | ✅ |
-| 6 · Cierre | 3/6 | |
+| 6 · Cierre | 4/6 | |
 
-**Siguiente:** accesibilidad: teclado, contraste y lector de pantalla (#46).
+**Siguiente:** README con capturas, demo y detalle técnico (#47).
 
 En móvil se sirven texturas de 1024 × 512 y el DPR se limita a 1.5; escritorio conserva las
 texturas originales y DPR máximo 2. En la medición de #45 esto redujo la transferencia de texturas
@@ -286,6 +286,11 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   siga recibiendo los eventos de fin de animación.
 - **Los iconos acompañan al texto, nunca lo sustituyen**, y van con `aria-hidden` porque el
   texto ya dice lo que hay.
+- **El Canvas WebGL queda fuera del árbol de accesibilidad.** Una descripción textual presenta
+  la escena y el panel expone la posición con HTML semántico. Solo la carga y los errores son
+  regiones vivas: las coordenadas cambian cada segundo y no deben interrumpir al lector.
+- **El contraste no depende de qué parte del globo pase detrás.** Los paneles y el crédito usan
+  una superficie oscura suficientemente opaca; los controles muestran un foco visible de 3 px.
 - **En móvil el globo sigue siendo el contenido (#44).** Telemetría abajo en barra compacta;
   controles de capas detrás de un botón; tipografía ≥ 13 px (coordenadas 16 px); objetivos
   táctiles ≥ 44 px; crédito de autor siempre visible completo; `viewport-fit=cover` y

@@ -32,7 +32,13 @@ function App() {
       <CssBaseline />
 
       <QueryClientProvider client={queryClient}>
-        <div className="app">
+        <main className="app">
+          <h1 className="sr-only">Seguimiento en tiempo real de la ISS</h1>
+          <p className="sr-only">
+            Visualización tridimensional de la Estación Espacial Internacional sobre la
+            Tierra. Su posición actual también se ofrece como texto en el panel de
+            telemetría.
+          </p>
           <Scene />
 
           {/* Fuera del <Canvas>: es HTML normal, superpuesto con CSS. Dentro
@@ -40,7 +46,7 @@ function App() {
           <StatusPanel />
           <LayerControls />
           <AuthorCredit />
-        </div>
+        </main>
 
         {/* Panel para inspeccionar la caché: qué consultas hay, en qué estado,
           cuándo se refrescaron y con qué datos.
