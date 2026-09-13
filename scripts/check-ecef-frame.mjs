@@ -48,10 +48,17 @@ for (const [description, localPosition] of samples) {
 }
 
 // Lights permanece fuera de EcefFrame: useSceneTime ya entrega este vector en
-// coordenadas de escena y el refactor no debe aplicarle otra rotación.
-const ecefLight = new Vector3(0.31, 0.52, -0.8).normalize();
-const legacyLight = ecefLight.clone().applyAxisAngle(yAxis, gmst);
-const unchangedLight = ecefLight.clone().applyAxisAngle(yAxis, gmst);
-assert.ok(legacyLight.distanceTo(unchangedLight) <= epsilon, 'Luz solar');
+// coordenadas de escena y el refactor no debe aplicarle otra rotación GMST.
+const sceneLight = new Vector3(0.31, 0.52, -0.8).normalize();
+const lightOutsideEcef = sceneLight.clone();
+const lightNestedInEcef = sceneLight.clone().applyAxisAngle(yAxis, gmst);
+assert.ok(
+  lightOutsideEcef.distanceTo(sceneLight) <= epsilon,
+  'Luz solar: sin rotación GMST extra',
+);
+assert.ok(
+  lightNestedInEcef.distanceTo(sceneLight) > epsilon,
+  'Luz solar: anidarla en EcefFrame desviaría su dirección',
+);
 
 console.log(`${samples.length} capas ECEF y la luz conservaron sus posiciones.`);
