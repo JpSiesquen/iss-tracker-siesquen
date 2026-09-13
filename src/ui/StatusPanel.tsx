@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { AnimatePresence, motion } from 'motion/react';
-import type { ReactNode } from 'react';
+import type { AriaRole, ReactNode } from 'react';
 
 import { useIssTelemetry } from '../api/useIssTelemetry';
 import { useIssLocation } from '../api/useIssLocation';
@@ -61,7 +61,11 @@ export function StatusPanel() {
   if (isPending) {
     return (
       <PanelBase role="status" clave="cargando">
-        <Box component="span" className="panel__punto panel__punto--cargando" />
+        <Box
+          component="span"
+          className="panel__punto panel__punto--cargando"
+          aria-hidden="true"
+        />
         Localizando la ISS…
       </PanelBase>
     );
@@ -90,7 +94,8 @@ export function StatusPanel() {
 
   return (
     <PanelBase
-      role="status"
+      role="region"
+      ariaLabel="Telemetría actual de la ISS"
       borderColor={esObsoleto ? 'rgb(255 159 10 / 0.45)' : undefined}
       clave="datos"
     >
@@ -99,22 +104,27 @@ export function StatusPanel() {
 
         {/* Las coordenadas son el dato principal: mayor y con más peso. */}
         <Box className="panel__coords-fila">
-          <Box className="panel__coords">
+          <Box className="panel__coords" aria-hidden="true">
             {formatCoordinate(posicion.latitude, 'N', 'S')}{' '}
             {formatCoordinate(posicion.longitude, 'E', 'O')}
           </Box>
+          <span className="sr-only">
+            Latitud {formatCoordinate(posicion.latitude, 'N', 'S')}. Longitud{' '}
+            {formatCoordinate(posicion.longitude, 'E', 'O')}.
+          </span>
           <Box
             component="span"
             className={`panel__punto ${
               esObsoleto ? 'panel__punto--aviso' : 'panel__punto--vivo'
             }`}
+            aria-hidden="true"
           />
         </Box>
 
         <Box className="panel__ubicacion">{nombreUbicacion}</Box>
       </header>
 
-      <div className="panel__metricas">
+      <dl className="panel__metricas">
         <Dato etiqueta="Altitud" valor={formatAltitude(posicion.altitude)} />
 
         {/* Las dos velocidades dicen cosas distintas: km/h comunica magnitud a
@@ -124,7 +134,7 @@ export function StatusPanel() {
           valor={formatSpeedKmh(posicion.speed)}
           valorSecundario={formatSpeedKms(posicion.speed)}
         />
-      </div>
+      </dl>
 
       <footer className={`panel__pie ${esObsoleto ? 'panel__pie--aviso' : ''}`}>
         {/* Antigüedad de los ELEMENTOS, no de la posición: esa se propaga en
@@ -148,13 +158,13 @@ function Dato({
 }) {
   return (
     <div className={`panel__dato${valorSecundario ? ' panel__dato--apilado' : ''}`}>
-      <span className="panel__etiqueta">{etiqueta}</span>
-      <span className="panel__valores">
+      <dt className="panel__etiqueta">{etiqueta}</dt>
+      <dd className="panel__valores">
         <span className="panel__valor">{valor}</span>
         {valorSecundario ? (
           <span className="panel__valor-secundario">{valorSecundario}</span>
         ) : null}
-      </span>
+      </dd>
     </div>
   );
 }
@@ -173,11 +183,13 @@ function Dato({
 function PanelBase({
   children,
   role,
+  ariaLabel,
   borderColor,
   clave,
 }: {
   children: ReactNode;
-  role: string;
+  role: AriaRole;
+  ariaLabel?: string;
   borderColor?: string;
   clave: string;
 }) {
@@ -210,6 +222,7 @@ function PanelBase({
         exit={{ opacity: 0, y: -MOTION_OFFSET }}
         transition={{ duration: MOTION_DURATION, ease: 'easeOut' }}
         role={role}
+        aria-label={ariaLabel}
         sx={{
           position: 'absolute',
           top: compacto ? 'auto' : 16,

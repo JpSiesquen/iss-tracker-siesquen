@@ -41,6 +41,10 @@ export function Scene() {
 
   return (
     <Canvas
+      // WebGL no expone una estructura útil a tecnología asistiva. La
+      // alternativa textual está junto al Canvas en App y la telemetría
+      // comunica la misma posición con HTML semántico.
+      aria-hidden="true"
       // La distancia se ajusta al tamaño REAL del canvas al crearlo. Usar un
       // z fijo solo funcionaría para la relación de aspecto donde se tanteó.
       camera={{ fov: CAMERA_VERTICAL_FOV, near: 0.1, far: 1000 }}

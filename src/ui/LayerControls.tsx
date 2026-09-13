@@ -178,6 +178,11 @@ function Interruptor({
             '& .MuiSwitch-thumb': { width: 16, height: 16 },
             '& .MuiSwitch-track': { borderRadius: 11, opacity: 0.35 },
             '& .Mui-checked + .MuiSwitch-track': { opacity: 0.55 },
+            '& .MuiSwitch-switchBase.Mui-focusVisible': {
+              outline: '3px solid #e8eaed',
+              outlineOffset: '2px',
+              borderRadius: '999px',
+            },
           }}
         />
       }
