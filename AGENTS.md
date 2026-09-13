@@ -24,7 +24,7 @@ entre `AGENTS.md` y `CLAUDE.md`.
 
 ## Estado
 
-**77 issues cerradas tras actualizar el contexto operativo del cierre (#157).** El proyecto
+**78 issues cerradas tras separar autoría y código fuente en el crédito (#155).** El proyecto
 calcula la posición de la ISS con SGP4 a partir de los elementos que sirve su propio BFF, dibuja
 la traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 
@@ -42,10 +42,9 @@ la traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 5 · Órbita e interfaz | 8/8 | ✅ |
 | 5.5 · Correcciones y realismo | 13/13 | ✅ |
 | 5.6 · Identidad visual | 9/9 | ✅ |
-| 6 · Cierre | 5/7 | |
+| 6 · Cierre | 6/7 | |
 
-**Siguiente:** separar autoría y código fuente en el crédito (#155); después, repaso final y
-cierre del proyecto (#48).
+**Siguiente:** repaso final y cierre del proyecto (#48).
 
 El README público tiene español como idioma principal y una versión completa en inglés. Presenta
 capturas reales de la aplicación sobre Rusia, Angola y China, una animación optimizada y un diagrama
@@ -54,14 +53,7 @@ mockups que inventen estados del producto.
 
 ### Trabajo abierto
 
-- **#155 — crédito con dos destinos (Fase 6).** La pieza sigue siendo visualmente una sola, pero
-  su raíz deja de ser un enlace: contiene dos enlaces hermanos, nunca anidados. «Jonathan
-  Siesquen» conserva el protagonismo y abre temporalmente `https://github.com/JpSiesquen`; una
-  marca de GitHub blanca y secundaria abre el repositorio exacto. Ambos destinos abren en otra
-  pestaña, tienen foco visible y nombre accesible; el segmento táctil de GitHub mide al menos
-  44 × 44 px. Verificar escritorio, 390 × 844 y el ancho mínimo con Chrome. Resolver antes de
-  #48.
-- **#48 — auditoría final.** Sigue siendo la última issue de la Fase 6 y depende de #47 y #155.
+- **#48 — auditoría final.** Última issue de la Fase 6; depende de #47 y #155 (ambas cerradas).
 - **#156 — migración futura al portafolio (fuera del milestone).** No iniciarla hasta que el
   dominio esté adquirido y el portafolio responda por HTTPS. Entonces el enlace del nombre pasa
   a la URL canónica personal y la otra variante del dominio redirige a ella; el enlace de la
@@ -307,10 +299,13 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   movimiento les provoca mareo o migraña. Se usa `0.01ms` y no `0` para que `AnimatePresence`
   siga recibiendo los eventos de fin de animación.
 - **Los iconos de controles acompañan al texto, nunca lo sustituyen**, y van con `aria-hidden`
-  porque el texto ya dice lo que hay. La marca de GitHub prevista en #155 es una excepción
-  estrecha de enlace de marca dentro de un crédito que ya aporta contexto: puede mostrarse sin
-  una etiqueta visual redundante, pero necesita nombre accesible, foco visible y objetivo táctil
-  de 44 × 44 px. No generalizar esta excepción a otros controles.
+  porque el texto ya dice lo que hay. La marca de GitHub del crédito (#155) es una excepción
+  estrecha de enlace de marca: puede mostrarse sin etiqueta visual redundante, pero necesita
+  nombre accesible, foco visible y objetivo táctil de 44 × 44 px. `lucide-react` 1.40 ya no
+  exporta `Github` (retiraron marcas comerciales); el trazo oficial va incrustado en
+  `AuthorCredit` y se pinta con `currentColor`. El destino del repo vive en `REPO_URL` y no
+  cambia cuando `AUTHOR_URL` pase al portafolio (#156). No generalizar esta excepción a otros
+  controles.
 - **El Canvas WebGL queda fuera del árbol de accesibilidad.** Una descripción textual presenta
   la escena y el panel expone la posición con HTML semántico. Solo la carga y los errores son
   regiones vivas: las coordenadas cambian cada segundo y no deben interrumpir al lector.
@@ -320,7 +315,9 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   controles de capas detrás de un botón; tipografía ≥ 13 px (coordenadas 16 px); objetivos
   táctiles ≥ 44 px; crédito de autor siempre visible completo; `viewport-fit=cover` y
   `env(safe-area-inset-*)` para notch e indicador. El indicador de datos vivos va en línea
-  después de las coordenadas (no en esquina absoluta) y pulsa a 0.6 Hz como el faro de la ISS.
+  después de las coordenadas en el layout compacto (no en esquina absoluta).
+- **El punto verde de datos vivos pulsa en todos los anchos** a 0.6 Hz (periodo 1.667 s), la
+  misma cadencia que el faro de la ISS en la escena. No limitar el pulso al breakpoint móvil.
 - **El perfil móvil cuida píxeles y texturas (#45).** Bajo 600 px —o con poca altura y
   `pointer: coarse`— el Canvas limita el DPR a 1.5 y carga mapas de 1024×512; escritorio conserva
   DPR 2 y los originales. Las cifras y el método están en `docs/rendimiento-movil.md`.

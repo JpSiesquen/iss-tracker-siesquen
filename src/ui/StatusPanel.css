@@ -132,6 +132,8 @@
 
 .panel__punto--vivo {
   background: #32d74b;
+  /* Misma cadencia que el faro de la ISS (~0.6 Hz → periodo 1.667 s). */
+  animation: pulso-vivo 1.667s ease-in-out infinite;
 }
 
 .panel__punto--aviso {
@@ -202,10 +204,6 @@
     position: static;
     flex: 0 0 auto;
     margin-left: 0.5rem;
-  }
-
-  .panel__punto--vivo {
-    animation: pulso-vivo 1.667s ease-in-out infinite;
   }
 }
 
