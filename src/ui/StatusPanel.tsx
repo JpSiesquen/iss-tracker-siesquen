@@ -1,5 +1,4 @@
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { AnimatePresence, motion } from 'motion/react';
 import type { AriaRole, ReactNode } from 'react';
@@ -168,11 +167,7 @@ function Dato({
 /**
  * La superficie del panel.
  *
- * Un `Paper` de MUI, que toma del tema el fondo translúcido, el
- * `backdropFilter` y el borde. Aquí no se repite ninguna de esas decisiones:
- * viven en `theme.ts` porque son del sistema, no de este componente.
- *
- * El pie de la aplicación deja pasar los gestos hacia el globo.
+ * Comparte la superficie del pie con los controles y el crédito.
  */
 function PanelBase({
   children,
@@ -189,7 +184,7 @@ function PanelBase({
 }) {
   return (
     <AnimatePresence mode="wait">
-      <Paper
+      <motion.div
         /**
          * ⚠️ Se anima el CAMBIO DE ESTADO, no el contenido.
          *
@@ -203,7 +198,6 @@ function PanelBase({
          * busca en un dato que hay que poder leer.
          */
         key={clave}
-        component={motion.div}
         className="panel"
         data-estado={clave}
         initial={{ opacity: 0, y: MOTION_OFFSET }}
@@ -212,10 +206,10 @@ function PanelBase({
         transition={{ duration: MOTION_DURATION, ease: 'easeOut' }}
         role={role}
         aria-label={ariaLabel}
-        sx={{ borderColor }}
+        style={{ borderInlineStartColor: borderColor }}
       >
         {children}
-      </Paper>
+      </motion.div>
     </AnimatePresence>
   );
 }

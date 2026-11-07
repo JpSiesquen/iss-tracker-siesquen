@@ -1,4 +1,5 @@
 import CssBaseline from '@mui/material/CssBaseline';
+import Paper from '@mui/material/Paper';
 import { ThemeProvider } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -43,11 +44,13 @@ function App() {
 
           {/* Fuera del <Canvas>: es HTML normal, superpuesto con CSS. Dentro
               del Canvas solo viven objetos de Three.js. */}
-          <div className="app__pie">
+          <Paper className="app__pie">
             <StatusPanel />
-            <AuthorCredit />
-          </div>
-          <LayerControls />
+            <div className="app__utilidades">
+              <AuthorCredit />
+              <LayerControls />
+            </div>
+          </Paper>
         </main>
 
         {/* Panel para inspeccionar la caché: qué consultas hay, en qué estado,

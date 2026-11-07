@@ -314,12 +314,11 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   regiones vivas: las coordenadas cambian cada segundo y no deben interrumpir al lector.
 - **El contraste no depende de qué parte del globo pase detrás.** Los paneles y el crédito usan
   una superficie oscura suficientemente opaca; los controles muestran un foco visible de 3 px.
-- **El globo sigue siendo el contenido (#44, #177).** La telemetría y el crédito comparten
-  el pie de la escena. La barra prioriza el lugar y conserva las coordenadas, las métricas
-  y la antigüedad de los elementos en todos los tamaños. El indicador de datos vivos va
-  en línea junto al nombre de la estación. En móvil los controles de capas están detrás
-  de un botón, los objetivos táctiles son de al menos 44 px y el pie respeta las áreas
-  seguras de la pantalla.
+- **El globo sigue siendo el contenido (#44, #177).** Una barra al pie prioriza el lugar y
+  conserva las coordenadas, las métricas y la antigüedad de los elementos. El crédito y el
+  botón de capas comparten la fila inferior en todos los tamaños. El indicador de datos
+  vivos acompaña al nombre de la estación. Los objetivos táctiles son de al menos 44 px
+  y el pie respeta las áreas seguras de la pantalla.
 - **El punto verde de datos vivos pulsa en todos los anchos** a 0.6 Hz (periodo 1.667 s), la
   misma cadencia que el faro de la ISS en la escena. No limitar el pulso al breakpoint móvil.
 - **El perfil móvil cuida píxeles y texturas (#45).** Bajo 600 px —o con poca altura y

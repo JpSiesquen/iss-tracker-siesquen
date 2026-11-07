@@ -1,13 +1,11 @@
+import Button from '@mui/material/Button';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Switch from '@mui/material/Switch';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
 
-import { Lightbulb, MapPin, Orbit, RefreshCw, SlidersHorizontal, X } from 'lucide-react';
+import { Lightbulb, MapPin, Orbit, RefreshCw, SlidersHorizontal } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { useUiStore } from '../store/ui';
 import { ICON_SIZE, ICON_STROKE } from './constants';
@@ -40,11 +38,8 @@ import './LayerControls.css';
  * desarrollo, porque son una herramienta de verificación, no una capa.
  */
 export function LayerControls() {
-  const theme = useTheme();
-  const esMovil = useMediaQuery(
-    `${theme.breakpoints.down('sm')}, (max-height: 500px) and (pointer: coarse)`,
-  );
   const [abierto, setAbierto] = useState(false);
+  const activador = useRef<HTMLButtonElement>(null);
 
   /**
    * Un selector por campo, no el store entero.
@@ -63,82 +58,66 @@ export function LayerControls() {
   const alternarRotacionAutomatica = useUiStore((s) => s.alternarRotacionAutomatica);
   const alternarReferencias = useUiStore((s) => s.alternarReferencias);
 
-  const mostrarPanel = !esMovil || abierto;
-
   return (
-    <>
-      {esMovil && (
-        <Paper className="capas__activador">
-          <IconButton
-            aria-label={
-              abierto ? 'Cerrar controles de capas' : 'Abrir controles de capas'
-            }
-            aria-controls="controles-capas"
-            aria-expanded={abierto}
-            onClick={() => setAbierto((valor) => !valor)}
-          >
-            {abierto ? (
-              <X size={20} strokeWidth={ICON_STROKE} aria-hidden />
-            ) : (
-              <SlidersHorizontal size={20} strokeWidth={ICON_STROKE} aria-hidden />
-            )}
-          </IconButton>
-        </Paper>
-      )}
+    <div
+      onKeyDown={(event) => {
+        if (event.key !== 'Escape' || !abierto) return;
+        event.stopPropagation();
+        setAbierto(false);
+        activador.current?.focus();
+      }}
+    >
+      <Button
+        ref={activador}
+        className="capas__activador"
+        aria-controls="controles-capas"
+        aria-expanded={abierto}
+        onClick={() => setAbierto((valor) => !valor)}
+        startIcon={<SlidersHorizontal size={16} strokeWidth={ICON_STROKE} aria-hidden />}
+        color="inherit"
+      >
+        Capas
+      </Button>
 
-      {mostrarPanel && (
-        <Paper
-          id="controles-capas"
-          component="section"
-          className="capas"
-          aria-label="Capas de la escena"
-          sx={{
-            position: 'absolute',
-            top: esMovil ? 'calc(64px + env(safe-area-inset-top))' : 16,
-            right: esMovil ? 'calc(12px + env(safe-area-inset-right))' : 16,
-            zIndex: 1,
-            px: 1.85,
-            py: 1.4,
-            /**
-             * ⚠️ Al contrario que el panel de telemetría, este SÍ recibe el ratón:
-             * es interactivo. El panel lleva `pointerEvents: none` porque solo
-             * informa y no debe estorbar al girar el globo.
-             */
-          }}
-        >
-          <h2 className="capas__titulo">Capas</h2>
+      <Paper
+        id="controles-capas"
+        component="section"
+        className="capas"
+        aria-label="Capas de la escena"
+        hidden={!abierto}
+      >
+        <h2 className="capas__titulo">Capas</h2>
 
-          <Interruptor
-            icono={Orbit}
-            etiqueta="Traza orbital"
-            activo={verOrbita}
-            onChange={alternarOrbita}
-          />
-          <Interruptor
-            icono={Lightbulb}
-            etiqueta="Luces nocturnas"
-            activo={verLucesNocturnas}
-            onChange={alternarLucesNocturnas}
-          />
-          <Interruptor
-            icono={RefreshCw}
-            etiqueta="Rotación automática"
-            activo={rotacionAutomatica}
-            onChange={alternarRotacionAutomatica}
-          />
+        <Interruptor
+          icono={Orbit}
+          etiqueta="Traza orbital"
+          activo={verOrbita}
+          onChange={alternarOrbita}
+        />
+        <Interruptor
+          icono={Lightbulb}
+          etiqueta="Luces nocturnas"
+          activo={verLucesNocturnas}
+          onChange={alternarLucesNocturnas}
+        />
+        <Interruptor
+          icono={RefreshCw}
+          etiqueta="Rotación automática"
+          activo={rotacionAutomatica}
+          onChange={alternarRotacionAutomatica}
+        />
 
-          {/* Herramienta de verificación de #28, no una capa del producto. */}
-          {import.meta.env.DEV && (
-            <Interruptor
-              icono={MapPin}
-              etiqueta="Puntos de referencia"
-              activo={verReferencias}
-              onChange={alternarReferencias}
-            />
-          )}
-        </Paper>
-      )}
-    </>
+        {/* Herramienta de verificación de #28, no una capa del producto. */}
+        {import.meta.env.DEV && (
+          <Interruptor
+            icono={MapPin}
+            etiqueta="Puntos de referencia"
+            activo={verReferencias}
+            onChange={alternarReferencias}
+          />
+        )}
+      </Paper>
+    </div>
   );
 }
 
