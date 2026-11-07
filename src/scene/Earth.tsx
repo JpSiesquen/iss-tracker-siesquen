@@ -3,6 +3,7 @@ import { SRGBColorSpace, type MeshStandardMaterial } from 'three';
 
 import { useUiStore } from '../store/ui';
 import { DebugMarkers } from './DebugMarkers';
+import { EarthAtmosphere } from './EarthAtmosphere';
 import { applyEarthNightMask } from './earthNightShader';
 import { useSceneTime } from './sceneTime';
 import {
@@ -100,6 +101,8 @@ export function Earth({ usarPerfilMovil }: { usarPerfilMovil: boolean }) {
         emissive="#ffffff"
         emissiveIntensity={verLucesNocturnas ? EARTH_NIGHT_INTENSITY : 0}
       />
+
+      <EarthAtmosphere />
 
       {/* Puntos conocidos para comprobar la conversion de coordenadas contra
             la textura. Van DENTRO del mesh que rota, al reves que la ISS: un
