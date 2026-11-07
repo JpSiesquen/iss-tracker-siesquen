@@ -80,8 +80,11 @@ export function StatusPanel() {
     );
   }
 
+  const lugarDesactualizado = ubicacion.isRefetchError;
   const nombreUbicacion = ubicacion.data
-    ? `Sobre ${ubicacion.data.nombre}`
+    ? lugarDesactualizado
+      ? ubicacion.data.nombre
+      : `Sobre ${ubicacion.data.nombre}`
     : ubicacion.isError
       ? 'Ubicación no disponible'
       : 'Localizando…';
@@ -107,6 +110,9 @@ export function StatusPanel() {
           {elementos.OBJECT_NAME}
         </span>
 
+        {lugarDesactualizado && (
+          <span className="panel__aviso-ubicacion">Último lugar conocido</span>
+        )}
         <h2 className="panel__ubicacion">{nombreUbicacion}</h2>
         <span className="panel__coords" aria-hidden="true">
           {latitud} {longitud}
