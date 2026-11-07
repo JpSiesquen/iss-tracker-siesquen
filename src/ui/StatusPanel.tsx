@@ -1,8 +1,5 @@
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
 import { AnimatePresence, motion } from 'motion/react';
 import type { AriaRole, ReactNode } from 'react';
 
@@ -38,13 +35,8 @@ import './StatusPanel.css';
  *
  * ## Jerarquía visual
  *
- * Coordenadas primero, ubicación como apoyo, métricas y antigüedad como
- * contexto. El panel informa; el globo protagoniza.
- *
- * ## Colocación
- *
- * Arriba a la izquierda, nunca centrado: el globo es el protagonista y la zona
- * central es donde se mira.
+ * La ubicación encabeza la barra inferior. Las coordenadas, las métricas y
+ * la antigüedad de los elementos completan la lectura sin ocupar el centro.
  */
 export function StatusPanel() {
   /**
@@ -88,9 +80,13 @@ export function StatusPanel() {
     );
   }
 
-  const nombreUbicacion =
-    ubicacion.data?.nombre ??
-    (ubicacion.isError ? 'Ubicación no disponible' : 'Localizando…');
+  const nombreUbicacion = ubicacion.data
+    ? `Sobre ${ubicacion.data.nombre}`
+    : ubicacion.isError
+      ? 'Ubicación no disponible'
+      : 'Localizando…';
+  const latitud = formatCoordinate(posicion.latitude, 'N', 'S');
+  const longitud = formatCoordinate(posicion.longitude, 'E', 'O');
 
   return (
     <PanelBase
@@ -100,18 +96,7 @@ export function StatusPanel() {
       clave="datos"
     >
       <header className="panel__cabecera">
-        <span className="panel__objeto">{elementos.OBJECT_NAME}</span>
-
-        {/* Las coordenadas son el dato principal: mayor y con más peso. */}
-        <Box className="panel__coords-fila">
-          <Box className="panel__coords" aria-hidden="true">
-            {formatCoordinate(posicion.latitude, 'N', 'S')}{' '}
-            {formatCoordinate(posicion.longitude, 'E', 'O')}
-          </Box>
-          <span className="sr-only">
-            Latitud {formatCoordinate(posicion.latitude, 'N', 'S')}. Longitud{' '}
-            {formatCoordinate(posicion.longitude, 'E', 'O')}.
-          </span>
+        <span className="panel__objeto">
           <Box
             component="span"
             className={`panel__punto ${
@@ -119,9 +104,16 @@ export function StatusPanel() {
             }`}
             aria-hidden="true"
           />
-        </Box>
+          {elementos.OBJECT_NAME}
+        </span>
 
-        <Box className="panel__ubicacion">{nombreUbicacion}</Box>
+        <h2 className="panel__ubicacion">{nombreUbicacion}</h2>
+        <span className="panel__coords" aria-hidden="true">
+          {latitud} {longitud}
+        </span>
+        <span className="sr-only">
+          Latitud {latitud}. Longitud {longitud}.
+        </span>
       </header>
 
       <dl className="panel__metricas">
@@ -139,8 +131,11 @@ export function StatusPanel() {
       <footer className={`panel__pie ${esObsoleto ? 'panel__pie--aviso' : ''}`}>
         {/* Antigüedad de los ELEMENTOS, no de la posición: esa se propaga en
             local. El copy evita «Órbita», que sugería el periodo o un fallo. */}
-        Elementos {edadMs !== undefined ? formatAge(edadMs) : '—'}
-        {esObsoleto ? ' · sin actualizar' : ''}
+        <span>Elementos orbitales</span>
+        <span className="panel__edad">
+          {edadMs !== undefined ? formatAge(edadMs) : '—'}
+        </span>
+        {esObsoleto && <span>Sin actualizar</span>}
       </footer>
     </PanelBase>
   );
@@ -157,7 +152,7 @@ function Dato({
   valorSecundario?: string;
 }) {
   return (
-    <div className={`panel__dato${valorSecundario ? ' panel__dato--apilado' : ''}`}>
+    <div className="panel__dato">
       <dt className="panel__etiqueta">{etiqueta}</dt>
       <dd className="panel__valores">
         <span className="panel__valor">{valor}</span>
@@ -172,13 +167,7 @@ function Dato({
 /**
  * La superficie del panel.
  *
- * Un `Paper` de MUI, que toma del tema el fondo translúcido, el
- * `backdropFilter` y el borde. Aquí no se repite ninguna de esas decisiones:
- * viven en `theme.ts` porque son del sistema, no de este componente.
- *
- * ⚠️ `pointerEvents: none` es lo único que no puede ir en el tema, porque es
- * propio de un panel superpuesto a una escena navegable: sin él, el panel
- * captura el ratón y el globo deja de girar por debajo.
+ * Comparte la superficie del pie con los controles y el crédito.
  */
 function PanelBase({
   children,
@@ -193,15 +182,9 @@ function PanelBase({
   borderColor?: string;
   clave: string;
 }) {
-  const theme = useTheme();
-  const compacto = useMediaQuery(
-    `${theme.breakpoints.down('sm')}, (max-height: 500px) and (pointer: coarse)`,
-  );
-  const muyEstrecho = useMediaQuery('(max-width: 339.95px)');
-
   return (
     <AnimatePresence mode="wait">
-      <Paper
+      <motion.div
         /**
          * ⚠️ Se anima el CAMBIO DE ESTADO, no el contenido.
          *
@@ -215,40 +198,18 @@ function PanelBase({
          * busca en un dato que hay que poder leer.
          */
         key={clave}
-        component={motion.div}
         className="panel"
-        initial={{ opacity: 0, y: -MOTION_OFFSET }}
+        data-estado={clave}
+        initial={{ opacity: 0, y: MOTION_OFFSET }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -MOTION_OFFSET }}
+        exit={{ opacity: 0, y: MOTION_OFFSET }}
         transition={{ duration: MOTION_DURATION, ease: 'easeOut' }}
         role={role}
         aria-label={ariaLabel}
-        sx={{
-          position: 'absolute',
-          top: compacto ? 'auto' : 16,
-          right: compacto ? 'calc(12px + env(safe-area-inset-right))' : 'auto',
-          bottom: compacto ? 'calc(12px + env(safe-area-inset-bottom))' : 'auto',
-          left: compacto ? 'calc(12px + env(safe-area-inset-left))' : 16,
-          zIndex: 1,
-          display: clave === 'datos' && compacto ? 'grid' : 'flex',
-          gridTemplateColumns: compacto
-            ? muyEstrecho
-              ? 'minmax(0, 1fr)'
-              : 'minmax(0, 1fr) auto'
-            : 'none',
-          alignItems: compacto ? 'center' : 'stretch',
-          columnGap: compacto ? 1.5 : 0,
-          flexDirection: 'column',
-          px: compacto ? 1.5 : 1.85,
-          py: compacto ? 1.1 : 1.4,
-          minWidth: compacto ? 0 : 228,
-          maxWidth: compacto ? 'none' : 280,
-          pointerEvents: 'none',
-          ...(borderColor ? { borderColor } : {}),
-        }}
+        style={{ borderInlineStartColor: borderColor }}
       >
         {children}
-      </Paper>
+      </motion.div>
     </AnimatePresence>
   );
 }

@@ -1,130 +1,110 @@
-/* Lo que NO va en el tema.
-   
-   El fondo translúcido, el desenfoque, el borde y el radio los aplica MUI
-   desde `src/theme.ts`: son decisiones del sistema y viven en un solo sitio.
-   Aquí queda la jerarquía propia de este panel: qué se lee primero y qué
-   queda como contexto. */
-
 .panel {
-  /* El ritmo vertical empuja la mirada a coords + ubicación; las métricas
-     viven en un bloque más denso debajo. */
-  gap: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-inline-start: 2px solid transparent;
+}
+
+.panel[data-estado='datos'] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.75rem 1rem;
 }
 
 .panel__cabecera {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  padding-bottom: 0.7rem;
-  margin-bottom: 0.65rem;
-  border-bottom: 1px solid rgb(255 255 255 / 0.08);
-}
-
-.panel__objeto {
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgb(232 234 237 / 0.72);
-}
-
-.panel__coords {
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.25;
-  color: #e8eaed;
-}
-
-.panel__coords-fila {
-  display: flex;
-  align-items: center;
+  display: grid;
+  gap: 0.25rem;
   min-width: 0;
 }
 
-.panel__ubicacion {
-  font-size: 0.8rem;
+.panel__objeto {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgb(232 234 237 / 0.75);
+  font-size: 0.6875rem;
   font-weight: 500;
-  line-height: 1.35;
-  color: rgb(232 234 237 / 0.78);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.panel__ubicacion {
+  margin: 0;
+  color: #e8eaed;
+  font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+.panel__coords,
+.panel__pie {
+  color: rgb(232 234 237 / 0.75);
+  font-size: 0.8125rem;
+}
+
+.panel__coords,
+.panel__valores,
+.panel__pie {
+  font-variant-numeric: tabular-nums;
 }
 
 .panel__metricas {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
   margin: 0;
+  padding-inline: 1rem;
+  border-inline: 1px solid rgb(255 255 255 / 0.1);
 }
 
 .panel__dato {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
+  display: grid;
+  align-content: start;
+  gap: 0.2rem;
+}
+
+.panel__etiqueta,
+.panel__valor-secundario {
+  color: rgb(232 234 237 / 0.75);
   font-size: 0.75rem;
-  line-height: 1.35;
-}
-
-/* Velocidad: km/h arriba, km/s abajo, ambos al borde derecho. */
-.panel__dato--apilado {
-  align-items: flex-start;
-}
-
-.panel__etiqueta {
-  color: rgb(232 234 237 / 0.72);
-  font-weight: 500;
-  letter-spacing: 0.02em;
 }
 
 .panel__valores {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  text-align: right;
+  display: grid;
+  gap: 0.1rem;
   margin: 0;
-}
-
-.panel__valor {
-  color: rgb(232 234 237 / 0.9);
-  font-weight: 500;
-}
-
-.panel__valor-secundario {
-  color: rgb(232 234 237 / 0.72);
-  font-weight: 400;
-  font-size: 0.7rem;
   line-height: 1.3;
 }
 
-.panel__pie {
-  margin-top: 0.65rem;
-  padding-top: 0.55rem;
-  border-top: 1px solid rgb(255 255 255 / 0.06);
-  font-size: 0.68rem;
-  line-height: 1.35;
-  color: rgb(232 234 237 / 0.72);
+.panel__valor {
+  color: #e8eaed;
+  font-size: 0.9375rem;
+  font-weight: 600;
 }
 
-/* Detalle que reclama atención sin llegar a ser un error: un dato orbital que
-   el servidor no pudo actualizar sigue siendo utilizable. */
+.panel__pie {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.panel__edad {
+  white-space: nowrap;
+}
+
 .panel__pie--aviso {
-  color: #ff9f0a;
+  color: #ffb54c;
 }
 
 .panel__detalle {
-  color: rgb(232 234 237 / 0.65);
+  color: rgb(232 234 237 / 0.75);
 }
 
-.panel__detalle--aviso {
-  color: #ff9f0a;
-}
-
-/* Indicador de estado: un punto de color en la esquina. */
 .panel__punto {
-  position: absolute;
-  top: 0.85rem;
-  right: 0.85rem;
+  flex: 0 0 auto;
   width: 0.45rem;
   height: 0.45rem;
   border-radius: 50%;
@@ -132,7 +112,7 @@
 
 .panel__punto--vivo {
   background: #32d74b;
-  /* Misma cadencia que el faro de la ISS (~0.6 Hz → periodo 1.667 s). */
+  /* Misma cadencia que el faro de la ISS (0,6 Hz). */
   animation: pulso-vivo 1.667s ease-in-out infinite;
 }
 
@@ -141,70 +121,8 @@
 }
 
 .panel__punto--cargando {
-  position: static;
-  display: inline-block;
-  margin-right: 0.4rem;
   background: #0a84ff;
-  animation: latido 1.4s ease-in-out infinite;
-}
-
-@keyframes latido {
-  0%,
-  100% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-@media (max-width: 599.95px), (max-height: 500px) and (pointer: coarse) {
-  .panel__cabecera {
-    min-width: 0;
-    padding: 0;
-    margin: 0;
-    border: 0;
-  }
-
-  .panel__objeto,
-  .panel__pie {
-    display: none;
-  }
-
-  .panel__coords {
-    flex: 0 1 auto;
-    overflow: hidden;
-    font-size: 1rem;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  .panel__ubicacion {
-    overflow: hidden;
-    font-size: 0.8125rem;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  .panel__metricas {
-    gap: 0.2rem;
-    min-width: 7.6rem;
-  }
-
-  .panel__dato {
-    gap: 0.5rem;
-    font-size: 0.8125rem;
-  }
-
-  .panel__valor-secundario {
-    display: none;
-  }
-
-  .panel__punto {
-    position: static;
-    flex: 0 0 auto;
-    margin-left: 0.5rem;
-  }
+  animation: pulso-vivo 1.4s ease-in-out infinite;
 }
 
 @keyframes pulso-vivo {
@@ -217,27 +135,38 @@
   }
 }
 
-@media (max-width: 339.95px) {
-  .panel__coords {
-    white-space: normal;
+@media (max-width: 599.95px) {
+  .panel {
+    padding: 0.625rem 0.75rem;
+  }
+
+  .panel[data-estado='datos'] {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.5rem 0.75rem;
   }
 
   .panel__metricas {
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 1rem;
-    min-width: 0;
-    padding-top: 0.5rem;
-    margin-top: 0.5rem;
-    border-top: 1px solid rgb(255 255 255 / 0.06);
+    gap: 0.75rem;
+    padding-inline: 0;
+    border-inline: 0;
   }
 
-  .panel__dato {
-    flex: 1;
+  .panel__pie {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+    padding-top: 0.4rem;
+    border-top: 1px solid rgb(255 255 255 / 0.1);
   }
 }
 
-/* Respeta a quien haya pedido menos movimiento en su sistema. */
+@media (max-width: 399.95px) {
+  .panel[data-estado='datos'] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .panel__punto--cargando,
   .panel__punto--vivo {

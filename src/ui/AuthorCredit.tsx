@@ -46,10 +46,10 @@ export function AuthorCredit() {
         href={AUTHOR_URL}
         target="_blank"
         rel="noopener noreferrer"
+        aria-label="Desarrollado por Jonathan Siesquen"
       >
-        Desarrollado por <span className="credito__nombre">Jonathan Siesquen</span>
+        Jonathan Siesquen
       </a>
-      <span className="credito__separador" aria-hidden="true" />
       <a
         className="credito__fuente"
         href={REPO_URL}

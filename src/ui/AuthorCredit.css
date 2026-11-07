@@ -1,37 +1,23 @@
-/* El fondo oscuro garantiza contraste aunque el globo pase por detrás.
-   La raíz no es interactiva: cada destino tiene su propio enlace. */
-
 .credito {
-  position: absolute;
-  bottom: 16px;
-  left: 16px;
-  z-index: 1;
   display: inline-flex;
   align-items: center;
-  max-width: calc(100% - 32px);
-  color: rgb(232 234 237 / 0.82);
-  background: rgb(18 22 33 / 0.94);
-  border: 1px solid rgb(255 255 255 / 0.18);
-  border-radius: 6px;
-  font-family: 'Geist Variable', Geist, system-ui, sans-serif;
-  font-size: 0.7rem;
+  min-width: 0;
+  color: rgb(232 234 237 / 0.75);
+  font-size: 0.8125rem;
   font-weight: 500;
   letter-spacing: 0.02em;
   line-height: 1.4;
 }
 
 .credito__autor {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   min-width: 0;
-  padding: 0.3rem 0.45rem 0.3rem 0.55rem;
-  color: #fff;
+  color: inherit;
   text-decoration: none;
   transition: color 0.15s ease-out;
-}
-
-/* Mismo amarillo ISS que el acento de los switches (#ffcc00). */
-.credito__nombre {
-  color: #ffcc00;
-  font-weight: 600;
 }
 
 .credito__autor:hover {
@@ -40,25 +26,15 @@
   text-underline-offset: 0.18em;
 }
 
-.credito__autor:hover .credito__nombre {
-  color: #ffd633;
-}
-
-.credito__separador {
-  flex-shrink: 0;
-  width: 1px;
-  height: 0.85em;
-  background: #fff;
-}
-
 .credito__fuente {
+  pointer-events: auto;
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 44px;
   height: 44px;
-  color: #fff;
+  color: inherit;
   text-decoration: none;
 }
 
@@ -112,20 +88,6 @@
 .credito__fuente:focus-visible {
   outline: 3px solid #e8eaed;
   outline-offset: 3px;
-}
-
-.credito__autor:focus-visible .credito__nombre {
-  color: #ffd633;
-}
-
-@media (max-width: 599.95px), (max-height: 500px) and (pointer: coarse) {
-  .credito {
-    top: calc(12px + env(safe-area-inset-top));
-    bottom: auto;
-    left: calc(12px + env(safe-area-inset-left));
-    max-width: calc(100% - 80px);
-    font-size: 0.8125rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

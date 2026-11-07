@@ -12,6 +12,25 @@
   overflow: hidden;
 }
 
+.app__pie {
+  position: absolute;
+  z-index: 1;
+  inset-inline: max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-right));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  max-width: 48rem;
+  margin-inline: auto;
+  pointer-events: none;
+}
+
+.app__utilidades {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-inline: 0.75rem;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+}
+
 /* Contenido disponible para lectores de pantalla sin ocupar espacio visual. */
 .sr-only {
   position: absolute;
