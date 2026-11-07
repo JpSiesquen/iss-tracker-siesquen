@@ -319,6 +319,10 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   botón de capas comparten la fila inferior en todos los tamaños. El indicador de datos
   vivos acompaña al nombre de la estación. Los objetivos táctiles son de al menos 44 px
   y el pie respeta las áreas seguras de la pantalla.
+- **La ubicación y la telemetría tienen estados independientes (#168).** Si falla
+  `/api/locate`, la barra identifica el nombre conservado como el último lugar conocido.
+  Si la primera consulta falla, indica que la ubicación no está disponible. Las
+  coordenadas siguen actualizándose con SGP4 y el aviso se retira al recuperar la consulta.
 - **El punto verde de datos vivos pulsa en todos los anchos** a 0.6 Hz (periodo 1.667 s), la
   misma cadencia que el faro de la ISS en la escena. No limitar el pulso al breakpoint móvil.
 - **El perfil móvil cuida píxeles y texturas (#45).** Bajo 600 px —o con poca altura y

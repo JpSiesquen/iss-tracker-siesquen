@@ -95,8 +95,14 @@
   white-space: nowrap;
 }
 
-.panel__pie--aviso {
+.panel__pie--aviso,
+.panel__aviso-ubicacion {
   color: #ffb54c;
+}
+
+.panel__aviso-ubicacion {
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 .panel__detalle {
