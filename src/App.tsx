@@ -43,9 +43,11 @@ function App() {
 
           {/* Fuera del <Canvas>: es HTML normal, superpuesto con CSS. Dentro
               del Canvas solo viven objetos de Three.js. */}
-          <StatusPanel />
+          <div className="app__pie">
+            <StatusPanel />
+            <AuthorCredit />
+          </div>
           <LayerControls />
-          <AuthorCredit />
         </main>
 
         {/* Panel para inspeccionar la caché: qué consultas hay, en qué estado,

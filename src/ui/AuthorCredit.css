@@ -2,13 +2,10 @@
    La raíz no es interactiva: cada destino tiene su propio enlace. */
 
 .credito {
-  position: absolute;
-  bottom: 16px;
-  left: 16px;
-  z-index: 1;
+  justify-self: start;
   display: inline-flex;
   align-items: center;
-  max-width: calc(100% - 32px);
+  max-width: 100%;
   color: rgb(232 234 237 / 0.82);
   background: rgb(18 22 33 / 0.94);
   border: 1px solid rgb(255 255 255 / 0.18);
@@ -21,6 +18,7 @@
 }
 
 .credito__autor {
+  pointer-events: auto;
   min-width: 0;
   padding: 0.3rem 0.45rem 0.3rem 0.55rem;
   color: #fff;
@@ -52,6 +50,7 @@
 }
 
 .credito__fuente {
+  pointer-events: auto;
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
@@ -120,10 +119,6 @@
 
 @media (max-width: 599.95px), (max-height: 500px) and (pointer: coarse) {
   .credito {
-    top: calc(12px + env(safe-area-inset-top));
-    bottom: auto;
-    left: calc(12px + env(safe-area-inset-left));
-    max-width: calc(100% - 80px);
     font-size: 0.8125rem;
   }
 }

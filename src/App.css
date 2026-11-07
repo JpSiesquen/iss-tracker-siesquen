@@ -12,6 +12,18 @@
   overflow: hidden;
 }
 
+.app__pie {
+  position: absolute;
+  z-index: 1;
+  inset-inline: max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-right));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  display: grid;
+  gap: 8px;
+  max-width: 60rem;
+  margin-inline: auto;
+  pointer-events: none;
+}
+
 /* Contenido disponible para lectores de pantalla sin ocupar espacio visual. */
 .sr-only {
   position: absolute;
