@@ -328,6 +328,8 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
 - **El perfil móvil cuida píxeles y texturas (#45).** Bajo 600 px —o con poca altura y
   `pointer: coarse`— el Canvas limita el DPR a 1.5 y carga mapas de 1024×512; escritorio conserva
   DPR 2 y los originales. Las cifras y el método están en `docs/rendimiento-movil.md`.
+- **El borde atmosférico (#180)** usa una malla fina alrededor del globo, sin texturas
+  adicionales. La dirección solar de la escena atenúa el borde del lado nocturno.
 - **Las texturas móviles se descubren desde el HTML (#150).** Cuatro `preload` con la misma media
   query adelantan su descarga sin afectar escritorio. `test:preloads` impide que sus rutas o el
   criterio responsive se desincronicen de la escena.
