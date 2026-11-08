@@ -34,7 +34,7 @@ import { Starfield } from './Starfield';
  *
  * ⚠️ Dentro del <Canvas> NO se pueden usar etiquetas HTML: solo objetos de
  * Three.js. Son dos árboles de componentes que conviven —React DOM fuera, R3F
- * dentro—. El panel de telemetría vive fuera, superpuesto con CSS.
+ * dentro—. La composición de la aplicación coloca la telemetría fuera del lienzo.
  */
 export function Scene() {
   const usarPerfilMovil = useMediaQuery(MOBILE_PERFORMANCE_MEDIA_QUERY);

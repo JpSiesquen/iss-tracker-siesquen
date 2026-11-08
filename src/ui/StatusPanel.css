@@ -141,7 +141,7 @@
   }
 }
 
-@media (max-width: 599.95px) {
+@container telemetria (max-width: 574px) {
   .panel {
     padding: 0.625rem 0.75rem;
   }
@@ -167,7 +167,7 @@
   }
 }
 
-@media (max-width: 399.95px) {
+@container telemetria (max-width: 374px) {
   .panel[data-estado='datos'] {
     grid-template-columns: minmax(0, 1fr);
   }
