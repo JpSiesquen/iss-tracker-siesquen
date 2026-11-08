@@ -35,8 +35,8 @@ import './StatusPanel.css';
  *
  * ## Jerarquía visual
  *
- * La ubicación encabeza la barra inferior. Las coordenadas, las métricas y
- * la antigüedad de los elementos completan la lectura sin ocupar el centro.
+ * La ubicación encabeza la telemetría. Las coordenadas, las métricas y
+ * la antigüedad de los elementos completan la lectura.
  */
 export function StatusPanel() {
   /**

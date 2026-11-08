@@ -314,11 +314,11 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   regiones vivas: las coordenadas cambian cada segundo y no deben interrumpir al lector.
 - **El contraste no depende de qué parte del globo pase detrás.** Los paneles y el crédito usan
   una superficie oscura suficientemente opaca; los controles muestran un foco visible de 3 px.
-- **El globo sigue siendo el contenido (#44, #177).** Una barra al pie prioriza el lugar y
-  conserva las coordenadas, las métricas y la antigüedad de los elementos. El crédito y el
-  botón de capas comparten la fila inferior en todos los tamaños. El indicador de datos
-  vivos acompaña al nombre de la estación. Los objetivos táctiles son de al menos 44 px
-  y el pie respeta las áreas seguras de la pantalla.
+- **El globo sigue siendo el contenido (#44, #177, #182).** En escritorio apaisado, la
+  telemetría ocupa una columna lateral y el lienzo se encuadra en la columna restante.
+  En ventanas estrechas, bajas o verticales, la telemetría conserva la barra al pie.
+  El lugar encabeza la lectura. El crédito y el botón de capas comparten la fila inferior
+  del panel, con objetivos táctiles de al menos 44 px y respeto por las áreas seguras.
 - **La ubicación y la telemetría tienen estados independientes (#168).** Si falla
   `/api/locate`, la barra identifica el nombre conservado como el último lugar conocido.
   Si la primera consulta falla, indica que la ubicación no está disponible. Las

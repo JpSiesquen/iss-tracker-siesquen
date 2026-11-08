@@ -40,11 +40,11 @@ function App() {
             Tierra. Su posición actual también se ofrece como texto en el panel de
             telemetría.
           </p>
-          <Scene />
+          <div className="app__escena">
+            <Scene />
+          </div>
 
-          {/* Fuera del <Canvas>: es HTML normal, superpuesto con CSS. Dentro
-              del Canvas solo viven objetos de Three.js. */}
-          <Paper className="app__pie">
+          <Paper className="app__telemetria">
             <StatusPanel />
             <div className="app__utilidades">
               <AuthorCredit />
