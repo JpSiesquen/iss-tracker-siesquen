@@ -68,6 +68,9 @@ jobs:
       - name: Transformaciones de escena
         run: npm run test:scene
 
+      - name: Vista lunar
+        run: npm run test:lunar
+
       - name: Esquema OMM compartido
         run: npm run test:omm
 

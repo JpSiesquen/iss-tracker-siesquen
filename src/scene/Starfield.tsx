@@ -1,9 +1,12 @@
-import { useEffect, useMemo } from 'react';
+import { useFrame } from '@react-three/fiber';
+import { useEffect, useMemo, useRef } from 'react';
 import {
   AdditiveBlending,
   BufferAttribute,
   BufferGeometry,
   CanvasTexture,
+  type Points,
+  type PointsMaterial,
   type Texture,
 } from 'three';
 
@@ -33,12 +36,20 @@ import {
  * orbitar la cámara, las estrellas se mueven con el mundo —como un fondo fijo—
  * y el planeta gira debajo.
  *
- * ## Sin animación
- *
- * No hay `useFrame` ni parallax. Con `prefers-reduced-motion` el campo ya es
- * estático; no hay nada que desactivar.
+ * Al alejarse, el casquete crece para mantener la cámara y los astros
+ * dentro del fondo. En el encuadre orbital conserva su escala original.
  */
 export function Starfield() {
+  const points = useRef<Points<BufferGeometry, PointsMaterial>>(null);
+
+  useFrame(({ camera }) => {
+    if (!points.current) return;
+    const scale = Math.max(1, camera.position.length() / (STAR_RADIUS_MIN / 2));
+    if (points.current.scale.x === scale) return;
+    points.current.scale.setScalar(scale);
+    points.current.material.size = STAR_SIZE * scale;
+  });
+
   const { geometry, texture } = useMemo(
     () => ({
       geometry: buildStarGeometry(),
@@ -55,7 +66,7 @@ export function Starfield() {
   }, [geometry, texture]);
 
   return (
-    <points geometry={geometry} frustumCulled={false}>
+    <points ref={points} geometry={geometry} frustumCulled={false}>
       <pointsMaterial
         map={texture}
         color={STAR_COLOR}

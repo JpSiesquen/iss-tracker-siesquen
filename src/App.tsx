@@ -38,7 +38,7 @@ function App() {
           <p className="sr-only">
             Visualización tridimensional de la Estación Espacial Internacional sobre la
             Tierra. Su posición actual también se ofrece como texto en el panel de
-            telemetría.
+            telemetría. Usa Explorar la Luna para abrir la vista Tierra y Luna.
           </p>
           <div className="app__escena">
             <Scene />

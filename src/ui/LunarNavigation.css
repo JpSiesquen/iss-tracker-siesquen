@@ -1,0 +1,62 @@
+.lunar-navigation {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: max(16px, env(safe-area-inset-top));
+  inset-inline-end: max(16px, env(safe-area-inset-right));
+  display: grid;
+  justify-items: end;
+  gap: 0.5rem;
+  max-inline-size: min(15rem, calc(100% - 32px));
+  pointer-events: none;
+}
+
+.lunar-navigation .lunar-navigation__button {
+  min-block-size: 44px;
+  padding-inline: 0.875rem;
+  border-color: rgb(232 234 237 / 0.28);
+  background-color: rgb(18 22 33 / 0.94);
+  color: #e8eaed;
+  font-size: 0.8125rem;
+  text-transform: none;
+  pointer-events: auto;
+}
+
+.lunar-navigation .lunar-navigation__button:hover {
+  background-color: #1a2130;
+  border-color: rgb(232 234 237 / 0.56);
+}
+
+.lunar-navigation .lunar-navigation__button:focus-visible {
+  outline: 3px solid #e8eaed;
+  outline-offset: 3px;
+}
+
+.lunar-navigation__overview,
+.lunar-navigation__status {
+  display: grid;
+  justify-items: end;
+  gap: 0.125rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.625rem;
+  background: rgb(18 22 33 / 0.94);
+  color: rgb(232 234 237 / 0.78);
+  font-size: 0.75rem;
+  text-align: end;
+}
+
+.lunar-navigation__title {
+  color: #e8eaed;
+  font-weight: 650;
+}
+
+.lunar-body-label {
+  display: block;
+  transform: translateY(23px);
+  color: #e8eaed;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-shadow:
+    0 1px 4px #05060a,
+    0 1px 7px #05060a;
+}

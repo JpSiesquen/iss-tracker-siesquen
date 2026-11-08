@@ -82,3 +82,24 @@ La misma verificación compara los vectores directos de la Luna desde la Tierra
 Sol (1,1910 km, tolerancia de 3 km). También cubre unidades, ambos límites
 temporales, fechas fuera de cobertura y archivos truncados o de formato
 incompatible.
+
+## Vista Tierra–Luna
+
+La vista lunar de #173 convierte la fecha UTC del fotograma a día juliano
+TDB. Usa TT como aproximación de TDB (diferencia inferior a 2 ms) y el
+desfase TAI–UTC de 37 s publicado por el IERS. Si se anuncia un nuevo
+segundo intercalar durante la ventana, actualizar ese desfase.
+[Conversión de escalas en SPICE](https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/time.html) ·
+[IERS, Bulletin C 72](https://datacenter.iers.org/data/html/bulletinc-072.html)
+
+Las posiciones geocéntricas ICRF pasan de `(x, y, z)` a `(x, z, −y)`
+para usar Y como eje vertical y reciben el giro fijo de inclinación del
+visor. Se mantiene la separación de los centros en unidades de 6371 km,
+sin aplicar GMST a los vectores inerciales. La dirección de iluminación de
+la Luna es el vector Sol–Luna desde el centro lunar para el mismo instante.
+El mapa usa orientación síncrona aproximada hacia la Tierra. El brillo
+residual permite distinguir el disco en sombra. La vista amplía ambos
+radios hasta 8 veces para facilitar la lectura.
+
+`npm run test:lunar` contrasta posición e iluminación con vectores de
+Horizons consultados en UTC y comprueba el encuadre en cuatro formatos.

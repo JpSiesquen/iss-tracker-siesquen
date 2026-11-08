@@ -44,7 +44,7 @@ la traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 5.6 · Identidad visual | 9/9 | ✅ |
 | 6 · Cierre | 9/10 | |
 
-**Siguiente para la exploración astronómica:** ampliar el zoom a Tierra-Luna (#173).
+**Siguiente para la exploración astronómica:** continuar el zoom hasta el sistema solar (#174).
 
 El README público tiene español como idioma principal y una versión completa en inglés. Sus cuatro
 evidencias visuales muestran estados reales propagados con SGP4 y países distintos: hero de
@@ -55,11 +55,11 @@ inventen estados del producto.
 
 ### Trabajo abierto
 
-- **#173 a #175 — exploración astronómica.** Ampliar el zoom a Tierra-Luna,
-  continuar hacia el sistema solar y extender el catálogo de cuerpos.
+- **#174 y #175 — exploración astronómica.** Continuar hacia el sistema solar y extender
+  el catálogo de cuerpos.
   La tabla v1 de #172 contiene los centros físicos del Sol, la Luna y los ocho planetas
   entre 2025-01-01 y 2031-01-01 TDB. Ver contrato y procedencia en
-  `docs/efemerides.md`. El cliente podrá cargarla al entrar en la exploración.
+  `docs/efemerides.md`. El cliente la carga al empezar a explorar.
 
 - **#48 — auditoría final.** Última issue de la Fase 6; depende de #47, #155 y #160 (cerradas).
 - **#156 — migración futura al portafolio (fuera del milestone).** No iniciarla hasta que el
@@ -90,6 +90,7 @@ npm run test:locations # casos conocidos de geocodificación inversa
 npm run test:sun       # regresión numérica del punto subsolar
 npm run test:ephemeris # efemérides verificadas contra fixtures de JPL Horizons
 npm run test:scene     # invariantes numéricas de las transformaciones 3D
+npm run test:lunar     # posición, iluminación y encuadre Tierra-Luna
 npm run test:omm       # esquema OMM válido e inválido en ambas fronteras
 npm run test:bundle    # comprueba dist/ después del build: ningún código del BFF
 npm run test:preloads  # HTML y escena comparten rutas y criterio de texturas móviles
@@ -336,6 +337,10 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
 - **El perfil móvil cuida píxeles y texturas (#45).** Bajo 600 px —o con poca altura y
   `pointer: coarse`— el Canvas limita el DPR a 1.5 y carga mapas de 1024×512; escritorio conserva
   DPR 2 y los originales. Las cifras y el método están en `docs/rendimiento-movil.md`.
+- **La vista Tierra–Luna (#173)** amplía de forma continua el rango de OrbitControls. La cámara
+  interpola el foco hasta el punto medio y mantiene los centros en posiciones físicas. Los
+  discos se amplían durante el alejamiento y la interfaz lo indica. El binario y la textura
+  lunar se solicitan al explorar. La ISS, la órbita y la telemetría siguen en vivo.
 - **El borde atmosférico (#180)** usa una malla fina alrededor del globo, sin texturas
   adicionales. La dirección solar de la escena atenúa el borde del lado nocturno.
 - **Las texturas móviles se descubren desde el HTML (#150).** Cuatro `preload` con la misma media
@@ -363,7 +368,7 @@ escena 3D o el comportamiento del cliente, úsalo además de las comprobaciones 
 ## CI y despliegue
 
 `.github/workflows/ci.yml` corre en cada PR: `npm ci` → `lint` → `format:check` →
-`test:locations` → `test:sun` → `test:ephemeris` → `test:scene` → `test:omm` → `build` →
+`test:locations` → `test:sun` → `test:ephemeris` → `test:scene` → `test:lunar` → `test:omm` → `build` →
 `test:bundle` →
 `test:preloads`.
 

@@ -4,7 +4,7 @@ import {
   CAMERA_FRAME_MARGIN,
   CAMERA_ORBIT_FRAME_RADIUS,
   CAMERA_VERTICAL_FOV,
-} from './constants';
+} from './constants.ts';
 
 /**
  * Distancia necesaria para encuadrar la órbita completa en un viewport.
@@ -14,6 +14,10 @@ import {
  * La distancia de una esfera tangente al borde es radio / sin(medio FOV).
  */
 export function initialCameraDistance(aspect: number): number {
+  return frameDistance(CAMERA_ORBIT_FRAME_RADIUS * CAMERA_FRAME_MARGIN, aspect);
+}
+
+export function frameDistance(radius: number, aspect: number): number {
   if (!Number.isFinite(aspect) || aspect <= 0) {
     throw new RangeError('El aspecto de cámara debe ser un número positivo');
   }
@@ -22,5 +26,5 @@ export function initialCameraDistance(aspect: number): number {
   const halfLimitingFov =
     aspect >= 1 ? halfVerticalFov : Math.atan(Math.tan(halfVerticalFov) * aspect);
 
-  return (CAMERA_ORBIT_FRAME_RADIUS * CAMERA_FRAME_MARGIN) / Math.sin(halfLimitingFov);
+  return radius / Math.sin(halfLimitingFov);
 }
