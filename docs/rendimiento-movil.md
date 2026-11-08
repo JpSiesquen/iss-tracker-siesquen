@@ -78,3 +78,26 @@ transferencias —ninguna duplicada— y escritorio continuó solicitando solo l
 
 El preview de Vercel redirige a SSO, así que no se presenta una medición autenticada como si fuera
 pública. La cifra remota posterior al despliegue queda registrada en la propia issue #150.
+
+## Recorrido de exploración solar (#174)
+
+Una corrida por variante con Chrome headless y red emulada de 4 Mbps con
+20 ms de latencia. El perfil móvil usa 390 × 844, DPR físico 3 y CPU 4×
+más lenta. El perfil de escritorio usa 1440 × 850, DPR 1 y CPU normal.
+La referencia pública recorre ISS → Tierra–Luna → ISS. El build local
+añade la ida y vuelta al sistema solar.
+
+| Perfil | Versión | Escena inicial | Cadencia en el recorrido | P95 entre cuadros |
+| --- | --- | ---: | ---: | ---: |
+| Móvil | Producción (#186) | 6,85 s | 10 fps | 476,4 ms |
+| Móvil | Build local (#174) | 5,17 s | 35 fps | 76,4 ms |
+| Escritorio | Producción (#186) | 7,85 s | 106 fps | 14,0 ms |
+| Escritorio | Build local (#174) | 7,03 s | 97 fps | 20,8 ms |
+
+Los valores son observaciones de una corrida. La entrega desde Vercel y
+desde loopback, y los recorridos de distinta longitud, limitan la
+comparación. El JavaScript inicial creció aproximadamente 2,5 kB con
+gzip. Las cuatro corridas registraron cero solicitudes de efemérides
+o del mapa lunar en el arranque. El build local completó
+ISS → Tierra–Luna → sistema solar → Tierra–Luna → ISS con un pellizco
+de dos puntos emulado en Chrome.

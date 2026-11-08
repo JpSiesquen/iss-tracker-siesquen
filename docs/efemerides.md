@@ -103,3 +103,24 @@ radios hasta 8 veces para facilitar la lectura.
 
 `npm run test:lunar` contrasta posición e iluminación con vectores de
 Horizons consultados en UTC y comprueba el encuadre en cuatro formatos.
+
+## Vista del sistema solar
+
+La vista de #174 usa el mismo día juliano TDB del fotograma para los nueve
+centros. Consulta los vectores heliocéntricos en UA, aplica el giro del visor
+y resta el vector de la Tierra para conservar el origen de render. El foco
+de la cámara pasa del punto medio Tierra–Luna al centro solar a medida que
+crece el encuadre. La rueda y el pellizco mantienen un control continuo entre
+las tres escalas.
+
+La vista general tiene un margen de encuadre de 34 UA para incluir a
+Neptuno. Los círculos señalan distancias de 1, 5, 10, 20 y 30 UA y sirven
+como referencia de escala. Los iconos de los astros se dibujan con un
+tamaño legible en pantalla sobre sus centros físicos. El catálogo indica
+la distancia de cada centro al Sol en UA y permite resaltarlo.
+
+Las texturas de los marcadores se generan al abrir la vista solar. El
+visor reutiliza el binario de efemérides que ya carga la vista lunar.
+`npm run test:solar` contrasta centros y distancias con las 48 fechas de
+Horizons guardadas y comprueba el encuadre en escritorio y móvil.
+[Referencia de distancia de Neptuno](https://science.nasa.gov/neptune/neptune-facts/)

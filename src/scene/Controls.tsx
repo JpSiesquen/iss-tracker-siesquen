@@ -11,11 +11,11 @@ import {
   type LunarEphemeris,
   LUNAR_BODY_SCALE,
   LUNAR_CENTER_LIMIT,
-  lunarCameraRange,
   lunarFrameAt,
   lunarZoomProgress,
 } from './lunarView';
 import { useSceneTime } from './sceneTime';
+import { ECLIPTIC_NORTH, solarCameraFrame, solarCameraRange } from './solarView';
 
 interface ControlsProps {
   earth: RefObject<Group | null>;
@@ -29,7 +29,8 @@ interface ControlsProps {
   onRequest: () => void;
   onArrive: () => void;
   onOverview: (km: number | null) => void;
-  onMoonVisibility: (visible: boolean) => void;
+  onSolarView: (active: boolean) => void;
+  onDetailVisibility: (earthVisible: boolean, moonVisible: boolean) => void;
   onCoverageChange: (outOfCoverage: boolean) => void;
 }
 
@@ -38,6 +39,8 @@ const LUNAR_ZOOM_SPEED = 4.4;
 const ZOOM_EASE = 13;
 const NAVIGATION_EASE = 5;
 const MIN_PROGRESS_FOR_HUD = 0.08;
+const ORBIT_NEAR_PLANE = 0.1;
+const SOLAR_NEAR_RATIO = 5000;
 
 export function Controls({
   earth,
@@ -51,19 +54,25 @@ export function Controls({
   onRequest,
   onArrive,
   onOverview,
-  onMoonVisibility,
+  onSolarView,
+  onDetailVisibility,
   onCoverageChange,
 }: ControlsProps) {
   const controls = useRef<ComponentRef<typeof OrbitControls>>(null);
   const time = useSceneTime();
   const autoRotate = useUiStore((state) => state.rotacionAutomatica);
   const aspect = useThree(({ size }) => (size.height ? size.width / size.height : 1));
-  const range = useMemo(() => lunarCameraRange(aspect || 1), [aspect]);
+  const range = useMemo(() => solarCameraRange(aspect || 1), [aspect]);
   const motion = useRef({
     radius: 0,
     desiredRadius: 0,
+    physicalRadius: 0,
     overviewLimit: range.overview,
     progress: 0,
+    solarFocus: 0,
+    solarView: false,
+    earthVisible: true,
+    moonVisible: false,
     reportedKm: null as number | null,
     outOfCoverage: false,
     offset: new Vector3(),
@@ -75,10 +84,6 @@ export function Controls({
   const far = Math.max(1000, (range.overview + LUNAR_CENTER_LIMIT) * starfieldExtent);
 
   useFrame(({ camera }, delta) => {
-    if (camera.far !== far) {
-      camera.far = far;
-      camera.updateProjectionMatrix();
-    }
     const orbit = controls.current;
     if (!orbit) return;
 
@@ -88,6 +93,7 @@ export function Controls({
     if (state.radius === 0) {
       state.radius = rawRadius;
       state.desiredRadius = rawRadius;
+      state.physicalRadius = rawRadius;
     }
     if (
       destination === null &&
@@ -98,9 +104,9 @@ export function Controls({
     ) {
       return;
     }
-    // OrbitControls conserva rueda, pellizco y arrastre. Su delta modifica
-    // el objetivo; el radio renderizado converge por separado.
-    state.desiredRadius *= rawRadius / state.radius;
+    // La rueda y el pellizco conservan su factor relativo. Después del encuadre
+    // lunar, ese factor modifica un zoom virtual que se expande de forma continua.
+    state.desiredRadius *= rawRadius / state.physicalRadius;
     if (state.overviewLimit !== range.overview && state.progress > 0) {
       state.desiredRadius *= range.overview / state.overviewLimit;
     }
@@ -108,7 +114,10 @@ export function Controls({
 
     if (!requested && state.desiredRadius >= range.start * 0.8) onRequest();
     const wantsOverview =
-      state.desiredRadius >= range.start || state.progress > 0 || destination === 'moon';
+      state.desiredRadius >= range.start ||
+      state.progress > 0 ||
+      destination === 'moon' ||
+      destination === 'solar';
     const lunar =
       ephemeris && wantsOverview ? lunarFrameAt(ephemeris, time.current.date) : null;
     const outOfCoverage = Boolean(ephemeris && wantsOverview && !lunar);
@@ -120,13 +129,15 @@ export function Controls({
     const goal =
       destination === 'iss'
         ? range.initial
-        : destination === 'moon' && lunar
-          ? range.overview
+        : destination && lunar
+          ? destination === 'moon'
+            ? range.overview
+            : range.solarEnd
           : null;
     state.desiredRadius = MathUtils.clamp(
       goal ?? state.desiredRadius,
       CAMERA_MIN_DISTANCE,
-      range.overview,
+      range.solarEnd,
     );
     // Mientras llegan las efemérides, conservamos la intención de la rueda
     // y detenemos solo el encuadre. El zoom continúa al disponer del vector.
@@ -146,6 +157,9 @@ export function Controls({
     state.radius = radius;
 
     const progress = lunar ? lunarZoomProgress(radius, range) : 0;
+    const { radius: physicalRadius, focus } = solarCameraFrame(radius, range);
+    state.physicalRadius = physicalRadius;
+    const solarView = radius > range.solarStart;
     state.offset.copy(camera.position).sub(orbit.target).normalize();
 
     // Solo al alejarse se busca una perspectiva lateral. Una vez encuadrados
@@ -163,21 +177,53 @@ export function Controls({
     }
 
     if (lunar) {
-      orbit.target.copy(lunar.position).multiplyScalar(progress * 0.5);
+      orbit.target
+        .copy(lunar.position)
+        .multiplyScalar(progress * 0.5)
+        .lerp(lunar.sunPosition, focus);
+      // Al entrar, se abre una vista del plano orbital. Después queda libre el giro.
+      if (focus > state.solarFocus) {
+        state.side
+          .copy(ECLIPTIC_NORTH)
+          .multiplyScalar(state.offset.dot(ECLIPTIC_NORTH) < 0 ? -1 : 1);
+        state.offset
+          .lerp(state.side, (focus - state.solarFocus) / (1 - state.solarFocus))
+          .normalize();
+      }
       moonLight.current.copy(lunar.towardSun);
       if (moon.current) moon.current.position.copy(lunar.position);
     } else {
       orbit.target.set(0, 0, 0);
     }
-    camera.position.copy(orbit.target).addScaledVector(state.offset, radius);
+    state.solarFocus = focus;
+    camera.position.copy(orbit.target).addScaledVector(state.offset, physicalRadius);
     camera.lookAt(orbit.target);
+    const near = Math.max(ORBIT_NEAR_PLANE, physicalRadius / SOLAR_NEAR_RATIO);
+    const viewFar = solarView
+      ? Math.max(far, (physicalRadius + orbit.target.length()) * starfieldExtent)
+      : far;
+    if (camera.near !== near || camera.far !== viewFar) {
+      camera.near = near;
+      camera.far = viewFar;
+      camera.updateProjectionMatrix();
+    }
     orbit.zoomSpeed = MathUtils.lerp(
       ORBIT_ZOOM_SPEED,
       LUNAR_ZOOM_SPEED,
       MathUtils.smoothstep(radius, range.initial, range.start),
     );
 
-    if (progress > 0 !== state.progress > 0) onMoonVisibility(progress > 0);
+    const earthVisible = physicalRadius < range.detailEnd;
+    const moonVisible = progress > 0 && earthVisible;
+    if (earthVisible !== state.earthVisible || moonVisible !== state.moonVisible) {
+      state.earthVisible = earthVisible;
+      state.moonVisible = moonVisible;
+      onDetailVisibility(earthVisible, moonVisible);
+    }
+    if (solarView !== state.solarView) {
+      state.solarView = solarView;
+      onSolarView(solarView);
+    }
     if (progress !== state.progress) {
       const scale = MathUtils.lerp(1, LUNAR_BODY_SCALE, progress);
       earth.current?.scale.setScalar(scale);
@@ -186,7 +232,7 @@ export function Controls({
     }
 
     const overviewKm =
-      lunar && progress >= MIN_PROGRESS_FOR_HUD
+      lunar && !solarView && progress >= MIN_PROGRESS_FOR_HUD
         ? Math.round((lunar.position.length() * EARTH_RADIUS_KM) / 1000) * 1000
         : null;
     if (overviewKm !== state.reportedKm) {
@@ -202,7 +248,7 @@ export function Controls({
       autoRotate={autoRotate && !wide && destination === null && !reducedMotion}
       autoRotateSpeed={0.4}
       minDistance={CAMERA_MIN_DISTANCE}
-      maxDistance={range.overview}
+      maxDistance={range.solarRadius}
       enableDamping={!reducedMotion}
       dampingFactor={0.05}
       rotateSpeed={0.4}
