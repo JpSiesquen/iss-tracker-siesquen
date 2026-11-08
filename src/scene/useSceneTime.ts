@@ -1,9 +1,9 @@
 import { useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
 import { gstime } from 'satellite.js';
-import { Vector3 } from 'three';
+import type { Vector3 } from 'three';
 
-import { sunDirection as calculateSunDirection } from '../lib/sun';
+import { sunDirectionInScene } from './sunDirection';
 
 /**
  * El instante, el GMST y la dirección solar, calculados una vez por fotograma.
@@ -57,7 +57,6 @@ export interface SceneTime {
  * usuario; `-1` conserva el renderizado automático del `<Canvas>`.
  */
 const SCENE_TIME_FRAME_PRIORITY = -1;
-const SCENE_Y_AXIS = new Vector3(0, 1, 0);
 
 /**
  * Debe montarse **una sola vez** y por encima de quien lo consuma. La posición
@@ -74,9 +73,7 @@ export function useSceneTimeSource() {
 
     ref.current.date = date;
     ref.current.gmst = gmst;
-    ref.current.sunDirection
-      .copy(calculateSunDirection(date, 1))
-      .applyAxisAngle(SCENE_Y_AXIS, gmst);
+    ref.current.sunDirection.copy(sunDirectionInScene(date, gmst));
   }, SCENE_TIME_FRAME_PRIORITY);
 
   return ref;
@@ -89,6 +86,6 @@ function createSceneTime(): SceneTime {
   return {
     date,
     gmst,
-    sunDirection: calculateSunDirection(date, 1).applyAxisAngle(SCENE_Y_AXIS, gmst),
+    sunDirection: sunDirectionInScene(date, gmst),
   };
 }
