@@ -102,6 +102,7 @@
 }
 
 .solar-catalog button {
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: 0.45rem 1fr auto;
   align-items: center;
