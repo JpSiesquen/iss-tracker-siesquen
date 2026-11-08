@@ -4,6 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 import { Suspense, useRef, useState } from 'react';
 import { type Group, Vector3 } from 'three';
 
+import {
+  catalogAssetPath,
+  createCatalogEphemeris,
+  hasCatalogCoverage,
+} from '../lib/catalogEphemeris';
+import type { CatalogBody } from '../lib/solarCatalog';
 import { createEphemeris, EPHEMERIS_ASSET_PATH } from '../lib/ephemeris';
 import { LunarNavigation } from '../ui/LunarNavigation';
 
@@ -21,7 +27,7 @@ import { Earth } from './Earth';
 import { EcefFrame } from './EcefFrame';
 import { IssMarker } from './IssMarker';
 import { Lights } from './Lights';
-import type { CameraDestination } from './lunarView';
+import { utcToJdTdb, type CameraDestination } from './lunarView';
 import { Moon } from './Moon';
 import { SceneLoadingFallback } from './SceneLoadingFallback';
 import { SceneTimeProvider } from './SceneTimeContext';
@@ -58,6 +64,7 @@ export function Scene() {
   const [detailedEarth, setDetailedEarth] = useState(true);
   const [solarDistances, setSolarDistances] = useState<SolarDistances | null>(null);
   const [selected, setSelected] = useState<SolarBodyId | null>(null);
+  const [catalogSelection, setCatalogSelection] = useState<CatalogBody | null>(null);
   const [outOfCoverage, setOutOfCoverage] = useState(false);
   const ephemeris = useQuery({
     queryKey: ['ephemeris', EPHEMERIS_ASSET_PATH],
@@ -68,6 +75,20 @@ export function Scene() {
       const response = await fetch(EPHEMERIS_ASSET_PATH, { signal });
       if (!response.ok) throw new Error('No se pudieron cargar las efemérides.');
       return createEphemeris(await response.arrayBuffer());
+    },
+  });
+
+  const catalogUnavailable = !hasCatalogCoverage(utcToJdTdb(new Date()));
+  const catalog = useQuery({
+    queryKey: ['catalog-ephemeris', catalogSelection?.id],
+    enabled: solar && catalogSelection !== null && !catalogUnavailable,
+    staleTime: Infinity,
+    retry: false,
+    queryFn: async ({ signal }) => {
+      if (!catalogSelection) throw new Error('No hay un astro seleccionado.');
+      const response = await fetch(catalogAssetPath(catalogSelection.id), { signal });
+      if (!response.ok) throw new Error('No se pudo cargar la efeméride del astro.');
+      return createCatalogEphemeris(await response.arrayBuffer(), catalogSelection);
     },
   });
 
@@ -143,6 +164,7 @@ export function Scene() {
               ephemeris={ephemeris.data}
               detailedEarth={detailedEarth}
               selected={selected}
+              catalogEphemeris={catalogUnavailable ? undefined : catalog.data}
               onDistances={setSolarDistances}
             />
           )}
@@ -184,7 +206,18 @@ export function Scene() {
         solar={solar}
         distances={solarDistances}
         selected={selected}
-        onSelect={(id) => setSelected((current) => (current === id ? null : id))}
+        catalogSelection={catalogSelection}
+        catalogUnavailable={catalogUnavailable}
+        catalogError={catalog.isError}
+        onCatalogRetry={() => void catalog.refetch()}
+        onCatalogSelect={(body) => {
+          if (body) setSelected(null);
+          setCatalogSelection((current) => (current?.id === body?.id ? null : body));
+        }}
+        onSelect={(id) => {
+          setCatalogSelection(null);
+          setSelected((current) => (current === id ? null : id));
+        }}
         onNavigate={navigate}
       />
     </>

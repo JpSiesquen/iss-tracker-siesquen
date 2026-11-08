@@ -1,0 +1,9 @@
+{
+  "retrievedUtcDate": "2026-11-08",
+  "sources": {
+    "ceres": "JPL#48",
+    "titan": "sat441l",
+    "vesta": "JPL#36",
+    "67p": "JPL#K284/1"
+  }
+}

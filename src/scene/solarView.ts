@@ -1,5 +1,8 @@
 import { MathUtils } from 'three';
 
+import type { CatalogEphemeris } from '../lib/catalogEphemeris.ts';
+import type { CatalogBodyId } from '../lib/solarCatalog.ts';
+
 import { EARTH_RADIUS_KM } from '../lib/coordinates.ts';
 import { KM_PER_AU, type EphemerisBody } from '../lib/ephemeris.ts';
 import { frameDistance } from './camera.ts';
@@ -24,7 +27,7 @@ export const SOLAR_BODIES = [
 }[];
 
 export type SolarBodyId = (typeof SOLAR_BODIES)[number]['id'];
-export type SolarDistances = ReadonlyMap<SolarBodyId, number>;
+export type SolarDistances = ReadonlyMap<SolarBodyId | CatalogBodyId, number>;
 
 export const EARTH_RADII_PER_AU = KM_PER_AU / EARTH_RADIUS_KM;
 export const ECLIPTIC_NORTH = icrfToScene([
@@ -66,6 +69,24 @@ export function solarCameraFrame(
   return {
     radius,
     focus: MathUtils.smoothstep(radius, range.focusStart, range.focusEnd),
+  };
+}
+
+export function catalogPositionAt(
+  catalog: CatalogEphemeris,
+  ephemeris: LunarEphemeris,
+  jd: number,
+) {
+  const target = catalog.barycentricPosition(jd);
+  const earth = ephemeris.position('earth', jd);
+  const sun = ephemeris.position('sun', jd);
+  if (!target || earth.status !== 'ok' || sun.status !== 'ok') return null;
+
+  const position = icrfToScene(target);
+  return {
+    id: catalog.body.id,
+    distanceAu: position.distanceTo(icrfToScene(sun.vector)) / KM_PER_AU,
+    position: position.sub(icrfToScene(earth.vector)).divideScalar(EARTH_RADIUS_KM),
   };
 }
 

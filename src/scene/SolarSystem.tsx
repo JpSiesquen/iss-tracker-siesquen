@@ -11,10 +11,13 @@ import {
   Vector3,
 } from 'three';
 
+import type { CatalogEphemeris } from '../lib/catalogEphemeris';
+
 import { CAMERA_VERTICAL_FOV } from './constants';
 import { type LunarEphemeris, utcToJdTdb } from './lunarView';
 import { useSceneTime } from './sceneTime';
 import {
+  catalogPositionAt,
   EARTH_RADII_PER_AU,
   ECLIPTIC_NORTH,
   SOLAR_BODIES,
@@ -32,20 +35,32 @@ const GUIDE_ORIENTATION = new Quaternion().setFromUnitVectors(
 const MARKER_TEXTURE_SIZE = 64;
 const REPORT_INTERVAL_MS = 1000;
 const JUPITER_LABEL_GAP_PX = 23;
+const CATALOG_MARKER_DIAMETER = 12;
+const CATALOG_MARKER_COLOR = '#b7d4ff';
 
 export function SolarSystem({
   ephemeris,
   detailedEarth,
   selected,
+  catalogEphemeris,
   onDistances,
 }: {
   ephemeris: LunarEphemeris;
   detailedEarth: boolean;
   selected: SolarBodyId | null;
+  catalogEphemeris: CatalogEphemeris | undefined;
   onDistances: (distances: SolarDistances) => void;
 }) {
   const time = useSceneTime();
   const markers = useRef<Group>(null);
+  const catalogMarker = useRef<Group>(null);
+  const catalogTexture = useMemo(
+    () =>
+      catalogEphemeris &&
+      markerTexture({ id: catalogEphemeris.body.id, color: CATALOG_MARKER_COLOR }),
+    [catalogEphemeris],
+  );
+  useEffect(() => () => catalogTexture?.dispose(), [catalogTexture]);
   const guides = useRef<Group>(null);
   const jupiterLabel = useRef<HTMLSpanElement>(null);
   const projected = useRef({ sun: new Vector3(), jupiter: new Vector3() });
@@ -73,7 +88,8 @@ export function SolarSystem({
 
   useFrame(({ camera, size }) => {
     const date = time.current.date;
-    const positions = solarPositionsAt(ephemeris, utcToJdTdb(date));
+    const jd = utcToJdTdb(date);
+    const positions = solarPositionsAt(ephemeris, jd);
     if (!positions || !markers.current) return;
 
     for (const [index, body] of positions.entries()) {
@@ -100,13 +116,22 @@ export function SolarSystem({
       }
     }
 
+    const extra = catalogEphemeris && catalogPositionAt(catalogEphemeris, ephemeris, jd);
+    if (catalogMarker.current) {
+      catalogMarker.current.visible = !!extra;
+      if (extra) catalogMarker.current.position.copy(extra.position);
+    }
+
     const now = date.getTime();
     if (now - report.current.time < REPORT_INTERVAL_MS) return;
     report.current.time = now;
-    const signature = positions.map(({ distanceAu }) => distanceAu.toFixed(3)).join(',');
+    const entries = extra ? [...positions, extra] : positions;
+    const signature = entries
+      .map(({ id, distanceAu }) => id + ':' + distanceAu.toFixed(3))
+      .join(',');
     if (signature !== report.current.signature) {
       report.current.signature = signature;
-      onDistances(new Map(positions.map(({ id, distanceAu }) => [id, distanceAu])));
+      onDistances(new Map(entries.map(({ id, distanceAu }) => [id, distanceAu])));
     }
   });
 
@@ -161,11 +186,46 @@ export function SolarSystem({
           );
         })}
       </group>
+      {catalogEphemeris && catalogTexture && (
+        <group
+          key={catalogEphemeris.body.id}
+          ref={catalogMarker}
+          name={catalogEphemeris.body.label}
+          visible={false}
+        >
+          <sprite
+            scale={[
+              pixelScale * CATALOG_MARKER_DIAMETER,
+              pixelScale * CATALOG_MARKER_DIAMETER,
+              1,
+            ]}
+            renderOrder={2}
+          >
+            <spriteMaterial
+              map={catalogTexture}
+              transparent
+              depthWrite={false}
+              sizeAttenuation={false}
+              toneMapped={false}
+            />
+          </sprite>
+          <Html center zIndexRange={[0, 0]} style={{ pointerEvents: 'none' }}>
+            <span
+              className="solar-body-label solar-body-label--selected"
+              aria-hidden="true"
+            >
+              {catalogEphemeris.body.family === 'comet'
+                ? catalogEphemeris.body.designation
+                : catalogEphemeris.body.label}
+            </span>
+          </Html>
+        </group>
+      )}
     </>
   );
 }
 
-function markerTexture(body: (typeof SOLAR_BODIES)[number]): CanvasTexture {
+function markerTexture(body: { id: string; color: string }): CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = MARKER_TEXTURE_SIZE;
   const context = canvas.getContext('2d');
