@@ -81,3 +81,12 @@ El repositorio oficial de Three.js sí las incluye en sus ejemplos, con licencia
 `earth-specular-mobile.jpg` son derivados de 1024×512 de sus archivos homónimos descritos arriba;
 conservan sus licencias respectivas. Se generaron mediante remuestreo bicúbico de alta calidad y
 JPEG con calidad 85 para la optimización móvil de la issue #45.
+
+## `moon-color.jpg` — 1024×512
+
+- **Origen:** NASA’s Scientific Visualization Studio, *CGI Moon Kit*, visualización de
+  Ernie Wright a partir de datos LRO/LROC y LOLA.
+- **Archivo:** `lroc_color_poles_1k.jpg` (2019), sin modificaciones.
+- **Uso y atribución:** NASA’s Scientific Visualization Studio.
+  [Fuente y créditos](https://svs.gsfc.nasa.gov/4720/) ·
+  [Guía de uso de medios de NASA](https://www.nasa.gov/nasa-brand-center/images-and-media/)
