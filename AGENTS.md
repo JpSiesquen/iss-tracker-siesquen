@@ -55,10 +55,12 @@ inventen estados del producto.
 
 ### Trabajo abierto
 
-- **#175 — exploración astronómica.** Extender el catálogo de cuerpos.
-  La tabla v1 de #172 contiene los centros físicos del Sol, la Luna y los ocho planetas
-  entre 2025-01-01 y 2031-01-01 TDB. Ver contrato y procedencia en
-  `docs/efemerides.md`. El cliente la carga al empezar a explorar.
+- **#175 — exploración astronómica.** El primer corte del catálogo incluye
+  Ceres, Titán, Vesta y 67P, con cobertura entre 2026-01-01 y 2029-01-01 TDB.
+  La búsqueda se carga al abrir «Buscar más astros». Cada tabla se solicita al
+  seleccionar su objeto. La tabla de #172 sigue sirviendo al Sol, la Luna y
+  los ocho planetas al empezar a explorar. Inventario, procedencia y medidas en
+  `docs/efemerides.md`.
 
 - **#48 — auditoría final.** Última issue de la Fase 6; depende de #47, #155 y #160 (cerradas).
 - **#156 — migración futura al portafolio (fuera del milestone).** No iniciarla hasta que el
@@ -90,7 +92,8 @@ npm run test:sun       # regresión numérica del punto subsolar
 npm run test:ephemeris # efemérides verificadas contra fixtures de JPL Horizons
 npm run test:scene     # invariantes numéricas de las transformaciones 3D
 npm run test:lunar     # posición, iluminación y encuadre Tierra-Luna
-npm run test:solar     # centros, distancias y encuadre del sistema solar
+npm run test:solar     # centros, distancias, encuadre y catálogo del sistema solar
+npm run data:solar-catalog # regenerar las cuatro tablas desde Horizons
 npm run test:omm       # esquema OMM válido e inválido en ambas fronteras
 npm run test:bundle    # comprueba dist/ después del build: ningún código del BFF
 npm run test:preloads  # HTML y escena comparten rutas y criterio de texturas móviles

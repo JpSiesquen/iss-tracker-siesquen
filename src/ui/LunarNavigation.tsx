@@ -1,5 +1,9 @@
 import Button from '@mui/material/Button';
 import { Moon, Satellite, Sun } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+
+import type { CatalogBody } from '../lib/solarCatalog';
 
 import type { CameraDestination } from '../scene/lunarView';
 import { SOLAR_BODIES, type SolarBodyId, type SolarDistances } from '../scene/solarView';
@@ -20,6 +24,11 @@ export function LunarNavigation({
   solar,
   distances,
   selected,
+  catalogSelection,
+  catalogUnavailable,
+  catalogError,
+  onCatalogSelect,
+  onCatalogRetry,
   onSelect,
   onNavigate,
 }: {
@@ -30,9 +39,24 @@ export function LunarNavigation({
   solar: boolean;
   distances: SolarDistances | null;
   selected: SolarBodyId | null;
+  catalogSelection: CatalogBody | null;
+  catalogUnavailable: boolean;
+  catalogError: boolean;
+  onCatalogSelect: (body: CatalogBody | null) => void;
+  onCatalogRetry: () => void;
   onSelect: (id: SolarBodyId) => void;
   onNavigate: (destination: CameraDestination) => void;
 }) {
+  const [searching, setSearching] = useState(false);
+  const searchModule = useQuery({
+    queryKey: ['solar-catalog-search'],
+    enabled: solar && searching,
+    staleTime: Infinity,
+    retry: false,
+    queryFn: () => import('./SolarCatalogSearch'),
+  });
+  const SolarCatalogSearch = searchModule.data?.default;
+
   return (
     <div className="lunar-navigation">
       <div className="lunar-navigation__actions">
@@ -85,33 +109,70 @@ export function LunarNavigation({
       )}
 
       {solar && distances && (
-        <details className="solar-catalog">
+        <details
+          className={searching ? 'solar-catalog solar-catalog--search' : 'solar-catalog'}
+        >
           <summary>Astros y distancias</summary>
-          <p>Distancia al Sol</p>
-          <ul>
-            {SOLAR_BODIES.map(({ id, label, color }) => {
-              const distance = distances.get(id);
-              return (
-                <li key={id}>
-                  <button
-                    type="button"
-                    aria-pressed={id === selected}
-                    onClick={() => onSelect(id)}
-                  >
-                    <span
-                      className="solar-catalog__dot"
-                      style={{ backgroundColor: color }}
-                      aria-hidden
-                    />
-                    <span>{label}</span>
-                    <span className="solar-catalog__distance">
-                      {distance === undefined ? '—' : auFormat.format(distance) + ' UA'}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+          <button
+            type="button"
+            className="solar-catalog__action"
+            onClick={() => {
+              if (searching) onCatalogSelect(null);
+              setSearching(!searching);
+            }}
+          >
+            {searching ? 'Volver a los planetas' : 'Buscar más astros'}
+          </button>
+          {searching ? (
+            SolarCatalogSearch ? (
+              <SolarCatalogSearch
+                selected={catalogSelection}
+                distance={
+                  catalogSelection ? distances.get(catalogSelection.id) : undefined
+                }
+                unavailable={catalogUnavailable}
+                error={catalogError}
+                onSelect={onCatalogSelect}
+                onRetry={onCatalogRetry}
+              />
+            ) : (
+              <p role="status">
+                {searchModule.isError
+                  ? 'No pudimos cargar el catálogo.'
+                  : 'Cargando catálogo…'}
+              </p>
+            )
+          ) : (
+            <>
+              <p>Distancia al Sol</p>
+              <ul>
+                {SOLAR_BODIES.map(({ id, label, color }) => {
+                  const distance = distances.get(id);
+                  return (
+                    <li key={id}>
+                      <button
+                        type="button"
+                        aria-pressed={id === selected}
+                        onClick={() => onSelect(id)}
+                      >
+                        <span
+                          className="solar-catalog__dot"
+                          style={{ backgroundColor: color }}
+                          aria-hidden
+                        />
+                        <span>{label}</span>
+                        <span className="solar-catalog__distance">
+                          {distance === undefined
+                            ? '—'
+                            : auFormat.format(distance) + ' UA'}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
         </details>
       )}
 

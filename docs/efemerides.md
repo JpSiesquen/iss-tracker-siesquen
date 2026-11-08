@@ -124,3 +124,56 @@ visor reutiliza el binario de efemérides que ya carga la vista lunar.
 `npm run test:solar` contrasta centros y distancias con las 48 fechas de
 Horizons guardadas y comprueba el encuadre en escritorio y móvil.
 [Referencia de distancia de Neptuno](https://science.nasa.gov/neptune/neptune-facts/)
+
+## Catálogo ampliado v1
+
+El corte del 8 de noviembre de 2026 publica cuatro cuerpos adicionales. Se
+eligió un representante por familia con identidad inequívoca en Horizons,
+vectores geométricos durante toda la ventana y distancia dentro del encuadre
+solar existente. La selección del cometa usa la solución de época más
+reciente que Horizons devolvió para el núcleo de 67P, sin fragmentos.
+
+| Familia | Cuerpo | ID de consulta | Solución JPL | Candidatos | Ubicables |
+| --- | --- | --- | --- | ---: | ---: |
+| Planeta enano | Ceres | 1 | JPL#48 | 1 | 1 |
+| Luna | Titán | 606 | sat441l | 1 | 1 |
+| Asteroide | Vesta | 4 | JPL#36 | 1 | 1 |
+| Cometa | 67P/Churyumov-Gerasimenko | 67P | JPL#K284/1 | 1 | 1 |
+
+Las cifras corresponden a este inventario curado. Los cuatro candidatos
+superaron la comprobación. Plutón y los demás planetas enanos, las otras
+lunas, asteroides y cometas quedan fuera del corte inicial. Su incorporación
+requiere revisar vigencia y precisión por objeto, y ampliar el encuadre para
+los que queden fuera de las 34 UA. Las soluciones de cometas pueden cambiar
+entre apariciones.
+
+La cobertura de este corte va del **1 de enero de 2026 al 1 de enero de
+2029**, ambos a las 00:00 TDB e incluidos. Cada tabla guarda posiciones y
+velocidades baricéntricas ICRF, en km y km/s. Lleva una cabecera HZC1 con
+el código del astro y estados Float64 little-endian. El visor transforma el
+centro a coordenadas de escena en el mismo instante que los planetas. El
+panel muestra distancia al Sol, fecha y procedencia, o indica que la fecha
+está fuera de cobertura.
+
+`npm run data:solar-catalog` regenera las tablas y su registro de procedencia
+con solicitudes secuenciales. `npm run test:solar` comprueba 16 fechas
+intermedias por objeto contra consultas directas de Horizons, además de los
+límites temporales, el identificador y los archivos truncados. Los errores
+medidos corresponden a la interpolación de la solución publicada. La
+incertidumbre observacional del modelo de JPL es independiente.
+
+| Cuerpo | Paso (días) | Diferencia máxima (km) | Umbral (km) | Tamaño (bytes) | gzip (bytes) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Ceres | 4 | 0,0978 | 5 | 13 208 | 12 853 |
+| Titán | 1 | 95,9454 | 120 | 52 664 | 50 732 |
+| Vesta | 4 | 0,1905 | 5 | 13 208 | 12 854 |
+| 67P | 4 | 3,0039 | 15 | 13 208 | 12 844 |
+
+La vista inicial y la lista de planetas no solicitan el buscador ni las
+tablas del catálogo. En el build local, el módulo de búsqueda ocupa
+aproximadamente 1,4 kB gzip. Chrome confirmó en escritorio y a 320 px
+que cada selección solicita solo su tabla y monta un único marcador
+adicional. Las cifras gzip se calculan sobre los archivos locales.
+
+[Horizons](https://ssd-api.jpl.nasa.gov/doc/horizons.html) ·
+[Política de uso de JPL](https://ssd-api.jpl.nasa.gov/)

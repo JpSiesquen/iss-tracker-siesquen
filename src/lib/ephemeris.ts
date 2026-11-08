@@ -45,6 +45,39 @@ export function ephemerisSampleCount(stepDays: number): number {
   return Math.ceil((endJdTdb - startJdTdb) / stepDays) + 1;
 }
 
+export function interpolateEphemeris(
+  data: DataView,
+  offset: number,
+  sampleCount: number,
+  stepDays: number,
+  elapsedDays: number,
+): Vector {
+  const elapsedSteps = elapsedDays / stepDays;
+  const index = Math.min(Math.floor(elapsedSteps), sampleCount - 2);
+  const left = offset + index * sampleBytes;
+  const right = left + sampleBytes;
+
+  // Hermite cúbica con las posiciones y velocidades en ambos extremos.
+  const t = elapsedSteps - index;
+  const t2 = t * t;
+  const t3 = t2 * t;
+  const h01 = 3 * t2 - 2 * t3;
+  const duration = stepDays * SECONDS_PER_DAY;
+  const h10 = (t3 - 2 * t2 + t) * duration;
+  const h11 = (t3 - t2) * duration;
+  const vector: Vector = [0, 0, 0];
+  for (let axis = 0; axis < vector.length; axis++) {
+    const position = axis * Float64Array.BYTES_PER_ELEMENT;
+    const velocity = position + 3 * Float64Array.BYTES_PER_ELEMENT;
+    const p0 = data.getFloat64(left + position, true);
+    const p1 = data.getFloat64(right + position, true);
+    const v0 = data.getFloat64(left + velocity, true);
+    const v1 = data.getFloat64(right + velocity, true);
+    vector[axis] = p0 + h01 * (p1 - p0) + h10 * v0 + h11 * v1;
+  }
+  return vector;
+}
+
 export type EphemerisPosition =
   | {
       status: 'ok';
@@ -75,30 +108,13 @@ export function createEphemeris(buffer: ArrayBuffer) {
 
   function barycentricPosition(body: EphemerisBody, jdTdb: number): Vector {
     const stepDays = EPHEMERIS_BODIES[body].stepDays;
-    const elapsedSteps = (jdTdb - startJdTdb) / stepDays;
-    const index = Math.min(Math.floor(elapsedSteps), ephemerisSampleCount(stepDays) - 2);
-    const left = offsets.get(body)! + index * sampleBytes;
-    const right = left + sampleBytes;
-
-    // Hermite cúbica con las posiciones y velocidades en ambos extremos.
-    const t = elapsedSteps - index;
-    const t2 = t * t;
-    const t3 = t2 * t;
-    const h01 = 3 * t2 - 2 * t3;
-    const duration = stepDays * SECONDS_PER_DAY;
-    const h10 = (t3 - 2 * t2 + t) * duration;
-    const h11 = (t3 - t2) * duration;
-    const vector: Vector = [0, 0, 0];
-    for (let axis = 0; axis < vector.length; axis++) {
-      const position = axis * Float64Array.BYTES_PER_ELEMENT;
-      const velocity = position + 3 * Float64Array.BYTES_PER_ELEMENT;
-      const p0 = data.getFloat64(left + position, true);
-      const p1 = data.getFloat64(right + position, true);
-      const v0 = data.getFloat64(left + velocity, true);
-      const v1 = data.getFloat64(right + velocity, true);
-      vector[axis] = p0 + h01 * (p1 - p0) + h10 * v0 + h11 * v1;
-    }
-    return vector;
+    return interpolateEphemeris(
+      data,
+      offsets.get(body)!,
+      ephemerisSampleCount(stepDays),
+      stepDays,
+      jdTdb - startJdTdb,
+    );
   }
 
   return {

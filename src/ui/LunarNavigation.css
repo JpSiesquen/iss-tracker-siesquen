@@ -81,6 +81,59 @@
   pointer-events: auto;
 }
 
+.solar-catalog--search {
+  inline-size: min(18rem, 100%);
+}
+
+.solar-catalog .solar-catalog__action {
+  display: block;
+  inline-size: calc(100% - 0.7rem);
+  margin: 0 0.35rem 0.35rem;
+  padding-inline: 0.4rem;
+  font-weight: 650;
+  background: rgb(142 177 239 / 0.11);
+}
+
+.solar-catalog__filters {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0 0.75rem 0.5rem;
+}
+
+.solar-catalog__filters label {
+  display: grid;
+  gap: 0.2rem;
+  min-inline-size: 0;
+}
+
+.solar-catalog__filters :is(input, select) {
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: 44px;
+  padding-inline: 0.5rem;
+  border: 1px solid rgb(232 234 237 / 0.3);
+  border-radius: 0.35rem;
+  background: #1a2130;
+  color: inherit;
+  font: inherit;
+  color-scheme: dark;
+}
+
+.solar-catalog__filters :is(input, select):focus-visible {
+  outline: 2px solid #b7d4ff;
+  outline-offset: 1px;
+}
+
+.solar-catalog--search .solar-catalog__dot {
+  background: #b7d4ff;
+}
+
+.solar-catalog__provenance {
+  padding-block: 0.3rem;
+  border-block-start: 1px solid rgb(232 234 237 / 0.19);
+  overflow-wrap: anywhere;
+}
+
 .solar-catalog summary {
   min-block-size: 44px;
   align-content: center;
