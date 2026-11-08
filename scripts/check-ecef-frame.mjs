@@ -3,7 +3,10 @@ import assert from 'node:assert/strict';
 import { gstime } from 'satellite.js';
 import { Group, Object3D, Vector3 } from 'three';
 
+import { latLonToVector3 } from '../src/lib/coordinates.ts';
+import { subsolarPoint } from '../src/lib/sun.ts';
 import { EARTH_RADIUS, EARTH_TILT } from '../src/scene/constants.ts';
+import { sunDirectionInScene } from '../src/scene/sunDirection.ts';
 
 const date = new Date('2026-09-11T12:00:00.000Z');
 const gmst = gstime(date);
@@ -24,12 +27,12 @@ function legacyWorldPosition(localPosition) {
     .applyAxisAngle(zAxis, EARTH_TILT);
 }
 
-function unifiedWorldPosition(localPosition) {
+function unifiedWorldPosition(localPosition, siderealAngle = gmst) {
   const tiltFrame = new Group();
   tiltFrame.rotation.z = EARTH_TILT;
 
   const ecefFrame = new Group();
-  ecefFrame.rotation.y = gmst;
+  ecefFrame.rotation.y = siderealAngle;
 
   const object = new Object3D();
   object.position.copy(localPosition);
@@ -47,18 +50,27 @@ for (const [description, localPosition] of samples) {
   assert.ok(distance <= epsilon, `${description}: diferencia ${distance}`);
 }
 
-// Lights permanece fuera de EcefFrame: useSceneTime ya entrega este vector en
-// coordenadas de escena y el refactor no debe aplicarle otra rotación GMST.
-const sceneLight = new Vector3(0.31, 0.52, -0.8).normalize();
-const lightOutsideEcef = sceneLight.clone();
-const lightNestedInEcef = sceneLight.clone().applyAxisAngle(yAxis, gmst);
-assert.ok(
-  lightOutsideEcef.distanceTo(sceneLight) <= epsilon,
-  'Luz solar: sin rotación GMST extra',
-);
-assert.ok(
-  lightNestedInEcef.distanceTo(sceneLight) > epsilon,
-  'Luz solar: anidarla en EcefFrame desviaría su dirección',
-);
+const sunSamples = [
+  ['Equinoccio de marzo', new Date('2024-03-20T12:00:00.000Z')],
+  ['Solsticio de junio', new Date('2024-06-20T20:51:00.000Z')],
+];
 
-console.log(`${samples.length} capas ECEF y la luz conservaron sus posiciones.`);
+for (const [description, instant] of sunSamples) {
+  const siderealAngle = gstime(instant);
+  const { latitude, longitude } = subsolarPoint(instant);
+  const subsolarNormal = unifiedWorldPosition(
+    latLonToVector3(latitude, longitude, 1),
+    siderealAngle,
+  );
+  const sceneSun = sunDirectionInScene(instant, siderealAngle);
+  const distance = sceneSun.distanceTo(subsolarNormal);
+  const degrees = (sceneSun.angleTo(subsolarNormal) * 180) / Math.PI;
+  assert.ok(
+    distance <= epsilon,
+    `${description}: desvío solar de ${degrees.toFixed(4)}°`,
+  );
+}
+
+console.log(
+  `${samples.length} capas ECEF y ${sunSamples.length} casos solares verificados.`,
+);

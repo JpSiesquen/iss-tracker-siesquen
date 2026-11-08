@@ -44,7 +44,7 @@ la traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 5.6 · Identidad visual | 9/9 | ✅ |
 | 6 · Cierre | 9/10 | |
 
-**Siguiente:** repaso final y cierre del proyecto (#48).
+**Siguiente para la exploración astronómica:** verificar efemérides contra JPL Horizons (#172).
 
 El README público tiene español como idioma principal y una versión completa en inglés. Sus cuatro
 evidencias visuales muestran estados reales propagados con SGP4 y países distintos: hero de
@@ -54,6 +54,9 @@ desplegables. Al renovarlas, mantener ambos idiomas alineados y no sustituirlas 
 inventen estados del producto.
 
 ### Trabajo abierto
+
+- **#172 a #175 — exploración astronómica.** Validar las posiciones, ampliar el zoom a
+  Tierra-Luna, continuar hacia el sistema solar y extender el catálogo de cuerpos.
 
 - **#48 — auditoría final.** Última issue de la Fase 6; depende de #47, #155 y #160 (cerradas).
 - **#156 — migración futura al portafolio (fuera del milestone).** No iniciarla hasta que el
@@ -256,9 +259,10 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   componente que escribe esa rotación y la Tierra, la ISS y la traza la heredan por estructura.
   Acelerar el giro por estética pondría el marcador sobre el país equivocado.
 - **La inclinación envuelve a `EcefFrame`, y este envuelve la Tierra, la ISS y la traza.** El orden
-  es `Rz(inclinación) × Ry(GMST)` y está verificado numéricamente en `test:scene`. La luz queda
-  fuera: `useSceneTime` ya entrega su dirección en coordenadas de escena y envolverla la rotaría
-  dos veces.
+  es `Rz(inclinación) × Ry(GMST)`. `sunDirectionInScene` aplica esa misma transformación a la
+  dirección solar (#171). La luz queda fuera y comparte el vector con la máscara nocturna y
+  el halo. `test:scene` compara esa dirección con la normal del punto subsolar del globo en
+  un equinoccio y un solsticio.
 - **Todo lo que entra de fuera se valida con Zod, no con `as`.** Los tipos desaparecen al
   compilar; un `as` sobre una respuesta de red es una promesa, no una comprobación. Sin validar,
   un `latitude: null` no lanza nada: `null * Math.PI / 180` es 0 y el fallo aparece tres archivos
