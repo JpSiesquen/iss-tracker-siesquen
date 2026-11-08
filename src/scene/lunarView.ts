@@ -6,7 +6,7 @@ import { frameDistance, initialCameraDistance } from './camera.ts';
 import { CAMERA_MAX_DISTANCE, EARTH_TILT } from './constants.ts';
 
 export type LunarEphemeris = ReturnType<typeof createEphemeris>;
-export type CameraDestination = 'iss' | 'moon';
+export type CameraDestination = 'iss' | 'moon' | 'solar';
 
 export const MOON_RADIUS = 1737.4 / EARTH_RADIUS_KM;
 export const LUNAR_BODY_SCALE = 8;
@@ -42,7 +42,7 @@ export function lunarZoomProgress(
   return MathUtils.smoothstep(distance, range.start, range.overview);
 }
 
-function icrfToScene([x, y, z]: [number, number, number]): Vector3 {
+export function icrfToScene([x, y, z]: [number, number, number]): Vector3 {
   return new Vector3(x, z, -y).applyAxisAngle(Z_AXIS, EARTH_TILT);
 }
 
@@ -53,8 +53,10 @@ export function lunarFrameAt(ephemeris: LunarEphemeris, date: Date) {
   if (moon.status !== 'ok' || sun.status !== 'ok') return null;
 
   const moonKm = icrfToScene(moon.vector);
+  const sunKm = icrfToScene(sun.vector);
   return {
-    towardSun: icrfToScene(sun.vector).sub(moonKm).normalize(),
+    towardSun: sunKm.clone().sub(moonKm).normalize(),
     position: moonKm.divideScalar(EARTH_RADIUS_KM),
+    sunPosition: sunKm.divideScalar(EARTH_RADIUS_KM),
   };
 }

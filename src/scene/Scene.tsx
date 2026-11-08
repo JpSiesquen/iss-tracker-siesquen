@@ -25,6 +25,8 @@ import type { CameraDestination } from './lunarView';
 import { Moon } from './Moon';
 import { SceneLoadingFallback } from './SceneLoadingFallback';
 import { SceneTimeProvider } from './SceneTimeContext';
+import { SolarSystem } from './SolarSystem';
+import type { SolarBodyId, SolarDistances } from './solarView';
 import { Starfield } from './Starfield';
 
 /**
@@ -52,6 +54,10 @@ export function Scene() {
   const [requested, setRequested] = useState(false);
   const [destination, setDestination] = useState<CameraDestination | null>(null);
   const [distanceKm, setDistanceKm] = useState<number | null>(null);
+  const [solar, setSolar] = useState(false);
+  const [detailedEarth, setDetailedEarth] = useState(true);
+  const [solarDistances, setSolarDistances] = useState<SolarDistances | null>(null);
+  const [selected, setSelected] = useState<SolarBodyId | null>(null);
   const [outOfCoverage, setOutOfCoverage] = useState(false);
   const ephemeris = useQuery({
     queryKey: ['ephemeris', EPHEMERIS_ASSET_PATH],
@@ -67,14 +73,16 @@ export function Scene() {
 
   const wide = distanceKm !== null;
   const returnToIss =
-    wide || (destination === 'moon' && !ephemeris.isError && !outOfCoverage);
+    wide ||
+    solar ||
+    (destination !== null &&
+      destination !== 'iss' &&
+      !ephemeris.isError &&
+      !outOfCoverage);
 
-  function navigate() {
-    if (returnToIss) {
-      setDestination('iss');
-      return;
-    }
-    setDestination('moon');
+  function navigate(next: CameraDestination) {
+    setDestination(next);
+    if (next === 'iss') return;
     setRequested(true);
     if (ephemeris.isError) void ephemeris.refetch();
   }
@@ -116,17 +124,28 @@ export function Scene() {
             ephemeris={ephemeris.data}
             requested={requested}
             destination={destination}
-            wide={wide}
+            wide={wide || solar}
             reducedMotion={reducedMotion}
             onRequest={() => setRequested(true)}
             onArrive={() => setDestination(null)}
             onOverview={setDistanceKm}
-            onMoonVisibility={(visible) => {
-              if (moon.current) moon.current.visible = visible;
+            onSolarView={setSolar}
+            onDetailVisibility={(earthVisible, moonVisible) => {
+              if (earth.current) earth.current.visible = earthVisible;
+              if (moon.current) moon.current.visible = moonVisible;
+              setDetailedEarth(earthVisible);
             }}
             onCoverageChange={setOutOfCoverage}
           />
           {ephemeris.data && <Moon object={moon} light={moonLight} showLabel={wide} />}
+          {solar && ephemeris.data && (
+            <SolarSystem
+              ephemeris={ephemeris.data}
+              detailedEarth={detailedEarth}
+              selected={selected}
+              onDistances={setSolarDistances}
+            />
+          )}
           {/* Las luces van DENTRO del proveedor, pero FUERA de EcefFrame: la
             dirección solar ya llega convertida a coordenadas de escena. */}
           <Lights />
@@ -156,12 +175,16 @@ export function Scene() {
         pending={requested && ephemeris.isPending}
         error={
           outOfCoverage
-            ? 'Fecha fuera de cobertura lunar.'
+            ? 'Fecha fuera de la cobertura de las efemérides.'
             : ephemeris.isError
-              ? 'No pudimos cargar la Luna. Vuelve a intentarlo.'
+              ? 'No pudimos cargar las efemérides. Vuelve a intentarlo.'
               : null
         }
         distanceKm={distanceKm}
+        solar={solar}
+        distances={solarDistances}
+        selected={selected}
+        onSelect={(id) => setSelected((current) => (current === id ? null : id))}
         onNavigate={navigate}
       />
     </>

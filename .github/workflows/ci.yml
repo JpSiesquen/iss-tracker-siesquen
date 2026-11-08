@@ -71,6 +71,9 @@ jobs:
       - name: Vista lunar
         run: npm run test:lunar
 
+      - name: Vista del sistema solar
+        run: npm run test:solar
+
       - name: Esquema OMM compartido
         run: npm run test:omm
 

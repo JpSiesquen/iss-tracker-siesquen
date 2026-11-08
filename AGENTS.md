@@ -44,7 +44,7 @@ la traza orbital, y el Sol ilumina el globo donde lo hace de verdad.
 | 5.6 · Identidad visual | 9/9 | ✅ |
 | 6 · Cierre | 9/10 | |
 
-**Siguiente para la exploración astronómica:** continuar el zoom hasta el sistema solar (#174).
+**Siguiente para la exploración astronómica:** extender el catálogo de cuerpos (#175).
 
 El README público tiene español como idioma principal y una versión completa en inglés. Sus cuatro
 evidencias visuales muestran estados reales propagados con SGP4 y países distintos: hero de
@@ -55,8 +55,7 @@ inventen estados del producto.
 
 ### Trabajo abierto
 
-- **#174 y #175 — exploración astronómica.** Continuar hacia el sistema solar y extender
-  el catálogo de cuerpos.
+- **#175 — exploración astronómica.** Extender el catálogo de cuerpos.
   La tabla v1 de #172 contiene los centros físicos del Sol, la Luna y los ocho planetas
   entre 2025-01-01 y 2031-01-01 TDB. Ver contrato y procedencia en
   `docs/efemerides.md`. El cliente la carga al empezar a explorar.
@@ -91,6 +90,7 @@ npm run test:sun       # regresión numérica del punto subsolar
 npm run test:ephemeris # efemérides verificadas contra fixtures de JPL Horizons
 npm run test:scene     # invariantes numéricas de las transformaciones 3D
 npm run test:lunar     # posición, iluminación y encuadre Tierra-Luna
+npm run test:solar     # centros, distancias y encuadre del sistema solar
 npm run test:omm       # esquema OMM válido e inválido en ambas fronteras
 npm run test:bundle    # comprueba dist/ después del build: ningún código del BFF
 npm run test:preloads  # HTML y escena comparten rutas y criterio de texturas móviles
@@ -341,6 +341,10 @@ Convenciones completas en `CONTRIBUTING.md`; el criterio de etiquetado, en el sk
   interpola el foco hasta el punto medio y mantiene los centros en posiciones físicas. Los
   discos se amplían durante el alejamiento y la interfaz lo indica. El binario y la textura
   lunar se solicitan al explorar. La ISS, la órbita y la telemetría siguen en vivo.
+- **La vista solar (#174)** encuadra el Sol y ocho planetas con los centros de Horizons.
+  Conserva el origen de render de la Tierra y traslada el foco hacia el Sol. El catálogo
+  muestra distancias heliocéntricas en UA. Los marcadores se generan al entrar en esta vista
+  y comparten las efemérides con la Luna.
 - **El borde atmosférico (#180)** usa una malla fina alrededor del globo, sin texturas
   adicionales. La dirección solar de la escena atenúa el borde del lado nocturno.
 - **Las texturas móviles se descubren desde el HTML (#150).** Cuatro `preload` con la misma media
@@ -368,7 +372,7 @@ escena 3D o el comportamiento del cliente, úsalo además de las comprobaciones 
 ## CI y despliegue
 
 `.github/workflows/ci.yml` corre en cada PR: `npm ci` → `lint` → `format:check` →
-`test:locations` → `test:sun` → `test:ephemeris` → `test:scene` → `test:lunar` → `test:omm` → `build` →
+`test:locations` → `test:sun` → `test:ephemeris` → `test:scene` → `test:lunar` → `test:solar` → `test:omm` → `build` →
 `test:bundle` →
 `test:preloads`.
 

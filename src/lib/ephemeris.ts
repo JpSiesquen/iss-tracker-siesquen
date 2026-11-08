@@ -37,7 +37,7 @@ export const EPHEMERIS_FORMAT = {
 } as const;
 
 const SECONDS_PER_DAY = 86_400;
-const KM_PER_AU = 149_597_870.7;
+export const KM_PER_AU = 149_597_870.7;
 const { startJdTdb, endJdTdb } = EPHEMERIS_COVERAGE;
 const { headerBytes, sampleBytes, magic } = EPHEMERIS_FORMAT;
 

@@ -6,7 +6,7 @@
   display: grid;
   justify-items: end;
   gap: 0.5rem;
-  max-inline-size: min(15rem, calc(100% - 32px));
+  max-inline-size: min(22rem, calc(100% - 32px));
   pointer-events: none;
 }
 
@@ -59,4 +59,114 @@
   text-shadow:
     0 1px 4px #05060a,
     0 1px 7px #05060a;
+}
+
+.lunar-navigation__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.solar-catalog {
+  inline-size: min(13rem, 100%);
+  max-block-size: min(24rem, 45dvh);
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid rgb(232 234 237 / 0.19);
+  border-radius: 0.625rem;
+  background: rgb(18 22 33 / 0.96);
+  color: #e8eaed;
+  font-size: 0.75rem;
+  pointer-events: auto;
+}
+
+.solar-catalog summary {
+  min-block-size: 44px;
+  align-content: center;
+  padding-inline: 0.75rem;
+  cursor: pointer;
+  font-weight: 650;
+}
+
+.solar-catalog p {
+  margin: 0;
+  padding: 0 0.75rem 0.3rem;
+  color: rgb(232 234 237 / 0.68);
+}
+
+.solar-catalog ul {
+  margin: 0;
+  padding: 0 0.35rem 0.35rem;
+  list-style: none;
+}
+
+.solar-catalog button {
+  display: grid;
+  grid-template-columns: 0.45rem 1fr auto;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  min-block-size: 36px;
+  border: 0;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.solar-catalog button:hover,
+.solar-catalog button[aria-pressed='true'] {
+  background: rgb(142 177 239 / 0.19);
+}
+
+.solar-catalog button:focus-visible,
+.solar-catalog summary:focus-visible {
+  outline: 2px solid #b7d4ff;
+  outline-offset: -2px;
+}
+
+.solar-catalog__dot {
+  inline-size: 0.45rem;
+  block-size: 0.45rem;
+  border-radius: 50%;
+}
+
+.solar-catalog__distance {
+  color: rgb(232 234 237 / 0.75);
+  font-variant-numeric: tabular-nums;
+}
+
+.solar-body-label {
+  display: block;
+  transform: translateY(19px);
+  color: #e8eaed;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-shadow:
+    0 1px 4px #05060a,
+    0 1px 7px #05060a;
+}
+
+.solar-body-label--selected {
+  padding: 0.2rem 0.4rem;
+  border: 1px solid rgb(183 212 255 / 0.55);
+  border-radius: 0.35rem;
+  background: rgb(18 22 33 / 0.95);
+  transform: translateY(24px);
+}
+
+@media (pointer: coarse) {
+  .solar-catalog button {
+    min-block-size: 44px;
+  }
+}
+
+@media (max-width: 899px), (max-height: 499px), (orientation: portrait) {
+  .solar-catalog {
+    max-block-size: min(45dvh, max(5rem, calc(100dvh - 25rem)));
+  }
 }
