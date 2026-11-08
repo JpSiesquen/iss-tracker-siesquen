@@ -62,6 +62,9 @@ jobs:
       - name: Posición solar
         run: npm run test:sun
 
+      - name: Efemérides contra JPL Horizons
+        run: npm run test:ephemeris
+
       - name: Transformaciones de escena
         run: npm run test:scene
 
